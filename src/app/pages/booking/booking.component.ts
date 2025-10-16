@@ -25,6 +25,35 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
         @if (loading()) {
           <app-loading message="Loading..." [fullscreen]="true"></app-loading>
         } @else {
+          @if (currentStep() > 1) {
+            <div class="selection-summary-bar">
+              <div class="summary-item-bar">
+                <span class="summary-icon">📅</span>
+                <div class="summary-info">
+                  <span class="summary-label">Date & Time</span>
+                  <span class="summary-value">{{ formatDate(selectedDate) }} at {{ selectedTime }}</span>
+                </div>
+              </div>
+              @if (currentStep() >= 2) {
+                <div class="summary-item-bar">
+                  <span class="summary-icon">🚪</span>
+                  <div class="summary-info">
+                    <span class="summary-label">Rooms</span>
+                    <span class="summary-value">{{ selectedRooms }} {{ selectedRooms === 1 ? 'Room' : 'Rooms' }}</span>
+                  </div>
+                </div>
+              }
+              @if (currentStep() >= 3) {
+                <div class="summary-item-bar">
+                  <span class="summary-icon">🎮</span>
+                  <div class="summary-info">
+                    <span class="summary-label">Game(s)</span>
+                    <span class="summary-value">{{ getSelectedGamesText() }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
           <div class="booking-steps">
             <div class="steps-indicator">
               <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
@@ -131,27 +160,50 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
               <div class="step-content">
                 <h2>Number of Players & Customer Information</h2>
 
-                <div class="form-section">
-                  <h3>How many players?</h3>
-                  <div class="player-selection">
-                    @for (num of playerOptions(); track num) {
-                      <div
-                        class="player-option"
-                        [class.selected]="playerCount === num"
-                        (click)="selectPlayers(num)">
-                        <div class="player-count">{{ num }}</div>
-                        <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                        <div class="player-price">{{ getPriceForPlayers(num) || 0 }} MKD</div>
+                @if (selectedRooms === 1) {
+                  <div class="form-section">
+                    <h3>How many players?</h3>
+                    <div class="player-selection">
+                      @for (num of playerOptionsForRoom(0); track num) {
+                        <div
+                          class="player-option"
+                          [class.selected]="getPlayersForRoom(0) === num"
+                          (click)="selectPlayersForRoom(num, 0)">
+                          <div class="player-count">{{ num }}</div>
+                          <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
+                          <div class="player-price">{{ getPriceForRoom(num, 0) || 0 }} MKD</div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <div class="multi-room-players">
+                    @for (roomIndex of getRoomIndexes(); track roomIndex) {
+                      <div class="room-player-section">
+                        <h3 class="room-title-small">Room {{ roomIndex + 1 }}: {{ getGameNameForRoom(roomIndex) }}</h3>
+                        <div class="player-selection-compact">
+                          @for (num of playerOptionsForRoom(roomIndex); track num) {
+                            <div
+                              class="player-option-compact"
+                              [class.selected]="getPlayersForRoom(roomIndex) === num"
+                              (click)="selectPlayersForRoom(num, roomIndex)">
+                              <div class="player-count-compact">{{ num }}</div>
+                              <div class="player-label-compact">{{ num === 1 ? 'Player' : 'Players' }}</div>
+                              <div class="player-price-compact">{{ getPriceForRoom(num, roomIndex) || 0 }} MKD</div>
+                            </div>
+                          }
+                        </div>
                       </div>
                     }
                   </div>
-                  @if (totalPrice() > 0) {
-                    <div class="price-summary">
-                      <span class="price-label">Total Price:</span>
-                      <span class="price-amount">{{ totalPrice() }} MKD</span>
-                    </div>
-                  }
-                </div>
+                }
+
+                @if (getTotalPrice() > 0) {
+                  <div class="price-summary">
+                    <span class="price-label">Total Price (All Rooms):</span>
+                    <span class="price-amount">{{ getTotalPrice() }} MKD</span>
+                  </div>
+                }
 
                 <div class="form-section">
                   <h3>Your Information</h3>
@@ -257,6 +309,50 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       color: #111827;
       text-align: center;
       margin: 0 0 2rem 0;
+    }
+
+    .selection-summary-bar {
+      display: flex;
+      gap: 1.5rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      flex-wrap: wrap;
+    }
+
+    .summary-item-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      border: 2px solid #e5e7eb;
+    }
+
+    .summary-icon {
+      font-size: 1.5rem;
+    }
+
+    .summary-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .summary-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+      font-size: 1rem;
+      color: #111827;
+      font-weight: 600;
     }
 
     .steps-indicator {
@@ -519,6 +615,79 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       justify-content: center;
       font-weight: 700;
       font-size: 1.25rem;
+    }
+
+    .multi-room-players {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .room-player-section {
+      border: 2px solid #e5e7eb;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      background: #f9fafb;
+    }
+
+    .room-title-small {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 1rem 0;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 0.5rem;
+      display: inline-block;
+    }
+
+    .player-selection-compact {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+    }
+
+    .player-option-compact {
+      border: 3px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .player-option-compact:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .player-option-compact.selected {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .player-count-compact {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .player-label-compact {
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .player-price-compact {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .player-option-compact.selected .player-price-compact {
+      color: white;
     }
 
     .form-section {
@@ -881,12 +1050,15 @@ export class BookingComponent implements OnInit {
 
     const games = [];
     for (let i = 0; i < slot.rooms; i++) {
-      games.push({ gameId: '', playerCount: 0 });
+      if (this.selectedGameId) {
+        games.push({ gameId: this.selectedGameId, playerCount: 0 });
+      } else {
+        games.push({ gameId: '', playerCount: 0 });
+      }
     }
     this.selectedGames.set(games);
 
     if (this.selectedGameId) {
-      this.selectedGames.set([{gameId: this.selectedGameId, playerCount: 0}]);
       this.currentStep.set(3);
     } else {
       this.nextStep();
@@ -896,6 +1068,19 @@ export class BookingComponent implements OnInit {
   selectPlayers(count: number): void {
     this.playerCount = count;
     this.calculatePrice();
+  }
+
+  selectPlayersForRoom(count: number, roomIndex: number): void {
+    const games = this.selectedGames();
+    const updated = [...games];
+    if (updated[roomIndex]) {
+      updated[roomIndex].playerCount = count;
+    }
+    this.selectedGames.set(updated);
+  }
+
+  getPlayersForRoom(roomIndex: number): number {
+    return this.selectedGames()[roomIndex]?.playerCount || 0;
   }
 
   calculatePrice(): void {
@@ -908,9 +1093,39 @@ export class BookingComponent implements OnInit {
     this.totalPrice.set(price?.price || 0);
   }
 
+  getTotalPrice(): number {
+    let total = 0;
+    const games = this.selectedGames();
+
+    for (const game of games) {
+      if (game.gameId && game.playerCount > 0) {
+        const gameObj = this.games().find(g => g.id === game.gameId);
+        if (gameObj) {
+          const price = this.getPriceForGame(game.gameId, game.playerCount);
+          total += price;
+        }
+      }
+    }
+
+    return total;
+  }
+
   getPriceForPlayers(count: number): number {
     const price = this.pricing().find(p => p.playerCount === count);
     return price?.price || 0;
+  }
+
+  getPriceForRoom(count: number, roomIndex: number): number {
+    const game = this.selectedGames()[roomIndex];
+    if (!game?.gameId) return 0;
+    return this.getPriceForGame(game.gameId, count);
+  }
+
+  getPriceForGame(gameId: string, playerCount: number): number {
+    const game = this.games().find(g => g.id === gameId);
+    if (!game) return 0;
+
+    return (playerCount * 1000) + (playerCount - 1) * 300;
   }
 
   playerOptions(): number[] {
@@ -924,13 +1139,58 @@ export class BookingComponent implements OnInit {
     return options;
   }
 
+  playerOptionsForRoom(roomIndex: number): number[] {
+    const gameData = this.selectedGames()[roomIndex];
+    if (!gameData?.gameId) return [];
+
+    const game = this.games().find(g => g.id === gameData.gameId);
+    if (!game) return [];
+
+    const options: number[] = [];
+    for (let i = game.minPlayers; i <= game.maxPlayers; i++) {
+      options.push(i);
+    }
+    return options;
+  }
+
+  getGameNameForRoom(roomIndex: number): string {
+    const game = this.selectedGames()[roomIndex];
+    if (!game?.gameId) return 'No game selected';
+
+    const gameObj = this.games().find(g => g.id === game.gameId);
+    return gameObj?.name || 'Unknown game';
+  }
+
+  getSelectedGamesText(): string {
+    const games = this.selectedGames();
+    const gameNames = games
+      .filter(g => g.gameId)
+      .map((g, i) => {
+        const gameObj = this.games().find(game => game.id === g.gameId);
+        return gameObj?.name || 'Unknown';
+      });
+
+    if (gameNames.length === 0) return 'None selected';
+    if (gameNames.length === 1) return gameNames[0];
+
+    const uniqueGames = [...new Set(gameNames)];
+    if (uniqueGames.length === 1) {
+      return `${uniqueGames[0]} (${gameNames.length}x)`;
+    }
+
+    return gameNames.join(', ');
+  }
+
   getSelectedGame(): Game | undefined {
     return this.games().find(g => g.id === this.selectedGameId);
   }
 
   isStep3Valid(): boolean {
+    const games = this.selectedGames();
+    const allRoomsHavePlayers = games.every(g => g.playerCount > 0);
+
     return !!(
-      this.playerCount &&
+      allRoomsHavePlayers &&
       this.customerInfo.firstName &&
       this.customerInfo.lastName &&
       this.customerInfo.email &&

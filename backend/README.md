@@ -1,6 +1,6 @@
 # VR Escape Room Backend API
 
-Enterprise-grade Spring Boot REST API for VR Escape Room booking system with Keycloak authentication.
+Enterprise-grade Spring Boot REST API for VR Escape Room booking system with Keycloak authentication and Stripe payments.
 
 ## Tech Stack
 
@@ -8,6 +8,7 @@ Enterprise-grade Spring Boot REST API for VR Escape Room booking system with Key
 - **Spring Boot 3.2.0**
 - **PostgreSQL 16**
 - **Keycloak 23.0** (OAuth2/OpenID Connect)
+- **Stripe** for payments
 - **Spring Data JPA** with Hibernate
 - **Spring Security** with OAuth2 Resource Server
 - **Lombok** for boilerplate reduction
@@ -74,17 +75,29 @@ src/
 
 ```bash
 cd backend
+
+# If starting fresh or had issues, clean up first:
+docker-compose down -v
+
+# Start services
 docker-compose up -d
 ```
 
 This starts:
-- **PostgreSQL** on port `5432`
+- **PostgreSQL** on port `5432` with TWO databases: `vrroom` and `keycloak`
 - **Keycloak** on port `8080`
 
-Wait for services to be healthy:
+**✅ Note:** The `init-db.sh` script automatically creates both databases on first startup!
+
+Wait for services to be healthy (may take 30-60 seconds):
 ```bash
 docker-compose ps
+# Both should show "healthy" status
 ```
+
+**Troubleshooting:**
+- If Keycloak shows "database keycloak does not exist" error → Run `docker-compose down -v` and start again
+- Check logs: `docker-compose logs keycloak`
 
 ### 2. Configure Keycloak
 
@@ -162,7 +175,38 @@ Regular User:
   Roles: USER
 ```
 
-### 3. Run the Application
+### 3. Configure Stripe (Optional but Recommended)
+
+**Get your Stripe keys:**
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/register)
+2. Sign up or login
+3. Go to **Developers** → **API keys**
+4. Copy your **Publishable key** and **Secret key**
+
+**Set environment variables:**
+
+**On macOS/Linux:**
+```bash
+export STRIPE_SECRET_KEY=sk_test_YOUR_SECRET_KEY
+export STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
+```
+
+**On Windows (PowerShell):**
+```powershell
+$env:STRIPE_SECRET_KEY="sk_test_YOUR_SECRET_KEY"
+$env:STRIPE_WEBHOOK_SECRET="whsec_YOUR_WEBHOOK_SECRET"
+```
+
+**Or edit `application.yml`:**
+```yaml
+stripe:
+  api-key: sk_test_YOUR_SECRET_KEY
+  webhook-secret: whsec_YOUR_WEBHOOK_SECRET
+```
+
+**⚠️ Note:** If you don't configure Stripe, the app will still work but online payments won't function!
+
+### 4. Run the Application
 
 ```bash
 # Install dependencies and run
@@ -177,10 +221,11 @@ The API will start on http://localhost:8081/api
 - ✅ Default system configuration (2 concurrent rooms, 9:00-22:00)
 - ✅ Default holidays (New Year, Christmas, Independence Day)
 - ✅ 2 users in database (admin@vrroom.com, user@vrroom.com)
+- ✅ Stripe payment integration ready
 
 **⚠️ IMPORTANT:** The users in the database won't work until you create matching users in Keycloak (see step 2 above)!
 
-### 4. Verify Installation
+### 5. Verify Installation
 
 ```bash
 # Check games (no auth required)
@@ -211,6 +256,9 @@ curl http://localhost:8081/api/config
 #### Availability
 - `GET /api/bookings/availability?date=2024-12-20&time=14:00:00&rooms=2` - Check slot availability
 
+#### Webhooks
+- `POST /api/payment/webhook` - Stripe webhook (Stripe will call this)
+
 ### Authenticated Endpoints
 
 #### Bookings (USER role)
@@ -218,6 +266,10 @@ curl http://localhost:8081/api/config
 - `GET /api/bookings/{id}` - Get booking details
 - `POST /api/bookings` - Create new booking
 - `DELETE /api/bookings/{id}` - Cancel booking
+
+#### Payments (USER role)
+- `POST /api/payment/create-checkout-session/{bookingId}` - Create Stripe checkout session
+- `GET /api/payment/session/{sessionId}` - Get payment session status
 
 #### Admin Endpoints (ADMIN role)
 - `GET /api/bookings` - Get all bookings

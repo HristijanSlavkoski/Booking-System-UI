@@ -78,6 +78,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Stripe Payment -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>25.0.0</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

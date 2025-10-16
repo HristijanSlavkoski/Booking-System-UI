@@ -40,3 +40,9 @@ cors:
   allowed-methods: GET,POST,PUT,DELETE,OPTIONS
   allowed-headers: "*"
   allow-credentials: true
+
+stripe:
+  api-key: ${STRIPE_SECRET_KEY:sk_test_YOUR_KEY_HERE}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_YOUR_WEBHOOK_SECRET}
+  success-url: http://localhost:4200/booking/success?session_id={CHECKOUT_SESSION_ID}
+  cancel-url: http://localhost:4200/booking/cancel

@@ -5,13 +5,13 @@ services:
     image: postgres:16-alpine
     container_name: vrroom-postgres
     environment:
-      POSTGRES_DB: vrroom
       POSTGRES_USER: vrroom
       POSTGRES_PASSWORD: vrroom123
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     networks:
       - vrroom-network
     healthcheck:

@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/games/**").permitAll()
                         .requestMatchers("/config/**").permitAll()
                         .requestMatchers("/bookings/availability").permitAll()
+                        .requestMatchers("/payment/webhook").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

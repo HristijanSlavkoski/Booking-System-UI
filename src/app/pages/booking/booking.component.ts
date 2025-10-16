@@ -29,12 +29,12 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
             <div class="steps-indicator">
               <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
                 <div class="step-number">1</div>
-                <div class="step-label">Select Game</div>
+                <div class="step-label">Choose Date & Time</div>
               </div>
               <div class="step-line" [class.completed]="currentStep() > 1"></div>
               <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
                 <div class="step-number">2</div>
-                <div class="step-label">Choose Date & Time</div>
+                <div class="step-label">Select Game</div>
               </div>
               <div class="step-line" [class.completed]="currentStep() > 2"></div>
               <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3">
@@ -49,6 +49,20 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
             </div>
 
             @if (currentStep() === 1) {
+              <div class="step-content">
+                <h2>Select Available Date & Time</h2>
+                <p class="step-description">Choose your preferred date and time. Green slots are available - click to select how many rooms you need.</p>
+                <app-calendar
+                  [maxConcurrentBookings]="maxConcurrentBookings()"
+                  (slotSelected)="onSlotSelected($event)">
+                </app-calendar>
+                <div class="step-actions">
+                  <app-button variant="outline" (clicked)="cancel()">Cancel</app-button>
+                </div>
+              </div>
+            }
+
+            @if (currentStep() === 2) {
               <div class="step-content">
                 <h2>Select Your Game</h2>
                 <div class="games-selection">
@@ -73,25 +87,10 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
                   }
                 </div>
                 <div class="step-actions">
-                  <app-button variant="outline" (clicked)="cancel()">Cancel</app-button>
-                  <app-button (clicked)="nextStep()" [disabled]="!selectedGameId">
-                    Continue to Date & Time
-                  </app-button>
-                </div>
-              </div>
-            }
-
-            @if (currentStep() === 2) {
-              <div class="step-content">
-                <h2>Select Available Date & Time</h2>
-                <p class="step-description">Green slots are available. Click to select your preferred time.</p>
-                <app-calendar
-                  [gameId]="selectedGameId"
-                  [maxConcurrentBookings]="maxConcurrentBookings()"
-                  (slotSelected)="onSlotSelected($event)">
-                </app-calendar>
-                <div class="step-actions">
                   <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
+                  <app-button (clicked)="nextStep()" [disabled]="!selectedGameId">
+                    Continue to Players & Details
+                  </app-button>
                 </div>
               </div>
             }
@@ -110,9 +109,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
                         (click)="selectPlayers(num)">
                         <div class="player-count">{{ num }}</div>
                         <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                        @if (getPriceForPlayers(num)) {
-                          <div class="player-price">{{ getPriceForPlayers(num) }} MKD</div>
-                        }
+                        <div class="player-price">{{ getPriceForPlayers(num) || 0 }} MKD</div>
                       </div>
                     }
                   </div>
@@ -635,6 +632,7 @@ export class BookingComponent implements OnInit {
   selectedGameId = '';
   selectedDate = '';
   selectedTime = '';
+  selectedRooms: number = 0;
   playerCount: number = 0;
   paymentMethod: PaymentMethod = PaymentMethod.CASH;
 
@@ -708,9 +706,10 @@ export class BookingComponent implements OnInit {
     });
   }
 
-  onSlotSelected(slot: { date: string; time: string }): void {
+  onSlotSelected(slot: { date: string; time: string; rooms: number }): void {
     this.selectedDate = slot.date;
     this.selectedTime = slot.time;
+    this.selectedRooms = slot.rooms;
     this.nextStep();
   }
 

@@ -12,7 +12,9 @@ import com.vrroom.service.BookingService;
 import com.vrroom.service.EmailService;
 import com.vrroom.service.PaymentService;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -130,5 +132,9 @@ public class StripePaymentService implements PaymentService {
             emailService.sendBookingCancellation(booking);
             log.info("Booking {} cancelled after failed payment", bookingId);
         }
+    }
+
+    public String getWebhookSecret() {
+        return webhookSecret;
     }
 }

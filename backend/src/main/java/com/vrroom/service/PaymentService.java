@@ -11,4 +11,6 @@ public interface PaymentService {
     void handleSuccessfulPayment(String sessionId) throws Exception;
 
     void handleFailedPayment(String sessionId) throws Exception;
+
+    String getWebhookSecret();
 }

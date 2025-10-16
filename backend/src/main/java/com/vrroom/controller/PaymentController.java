@@ -1,11 +1,15 @@
 package com.vrroom.controller;
 
+import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.Webhook;
 import com.vrroom.dto.BookingDTO;
 import com.vrroom.service.BookingService;
 import com.vrroom.service.PaymentService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,33 +49,41 @@ public class PaymentController {
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(
             @RequestBody String payload,
-            @RequestHeader("Stripe-Signature") String signature) {
+            @RequestHeader(name = "Stripe-Signature", required = false) String sigHeader) {
 
         log.info("Received Stripe webhook");
 
-        if (!paymentService.verifyWebhookSignature(payload, signature)) {
-            log.warn("Invalid webhook signature");
+        if (sigHeader == null) {
+            log.warn("Missing Stripe-Signature header");
+            return ResponseEntity.badRequest().body("Missing Stripe-Signature");
+        }
+
+        final Event event;
+        try {
+            event = Webhook.constructEvent(payload, sigHeader, paymentService.getWebhookSecret());
+        } catch (SignatureVerificationException e) {
+            log.warn("Invalid webhook signature", e);
             return ResponseEntity.status(400).body("Invalid signature");
         }
 
-        try {
-            Event event = Event.PARSER.parse(payload);
-            log.info("Processing webhook event: {}", event.getType());
+        log.info("Processing event: {}", event.getType());
 
+        try {
             switch (event.getType()) {
                 case "checkout.session.completed" -> {
-                    Session session = (Session) event.getDataObjectDeserializer()
-                            .getObject().orElseThrow();
-                    paymentService.handleSuccessfulPayment(session.getId());
+                    var obj = event.getDataObjectDeserializer().getObject().orElse(null);
+                    if (obj instanceof com.stripe.model.checkout.Session s) {
+                        paymentService.handleSuccessfulPayment(s.getId());
+                    }
                 }
                 case "checkout.session.expired" -> {
-                    Session session = (Session) event.getDataObjectDeserializer()
-                            .getObject().orElseThrow();
-                    paymentService.handleFailedPayment(session.getId());
+                    var obj = event.getDataObjectDeserializer().getObject().orElse(null);
+                    if (obj instanceof com.stripe.model.checkout.Session s) {
+                        paymentService.handleFailedPayment(s.getId());
+                    }
                 }
                 default -> log.info("Unhandled event type: {}", event.getType());
             }
-
             return ResponseEntity.ok("Webhook processed");
         } catch (Exception e) {
             log.error("Error processing webhook", e);

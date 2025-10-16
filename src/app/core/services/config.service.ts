@@ -16,7 +16,7 @@ export class ConfigService {
 
   loadConfig(): Observable<SystemConfig> {
     if (environment.useBackendConfig) {
-      return this.apiService.get<SystemConfig>('/config/system').pipe(
+      return this.apiService.get<SystemConfig>('/config').pipe(
         tap(config => this.configSubject.next(config)),
         catchError(() => {
           console.warn('Failed to load config from backend, using local config');

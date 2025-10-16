@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/escape',
+  apiUrl: '/api',
   apiTimeout: 30000,
   defaultLanguage: 'en',
   supportedLanguages: ['en', 'mk'],

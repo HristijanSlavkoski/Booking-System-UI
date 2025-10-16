@@ -1,9 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, tap, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { MockDataService } from './mock-data.service';
 import { User, LoginRequest, RegisterRequest, AuthResponse, UserRole } from '../../models/user.model';
 
 @Injectable({
@@ -12,7 +10,6 @@ import { User, LoginRequest, RegisterRequest, AuthResponse, UserRole } from '../
 export class AuthService {
   private apiService = inject(ApiService);
   private router = inject(Router);
-  private mockDataService = inject(MockDataService);
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -26,41 +23,12 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.apiService.post<AuthResponse>('/auth/login', credentials).pipe(
-      catchError(() => {
-        const user = this.mockDataService.authenticateUser(credentials.email, credentials.password);
-        if (user) {
-          const response: AuthResponse = {
-            token: 'mock-token-' + Date.now(),
-            user
-          };
-          this.handleAuthResponse(response);
-          return of(response);
-        }
-        return throwError(() => new Error('Invalid credentials'));
-      }),
       tap(response => this.handleAuthResponse(response))
     );
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.apiService.post<AuthResponse>('/auth/register', data).pipe(
-      catchError(() => {
-        const user: User = {
-          id: 'user-' + Date.now(),
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone,
-          role: UserRole.USER,
-          createdAt: new Date()
-        };
-        const response: AuthResponse = {
-          token: 'mock-token-' + Date.now(),
-          user
-        };
-        this.handleAuthResponse(response);
-        return of(response);
-      }),
       tap(response => this.handleAuthResponse(response))
     );
   }

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Alien Laboratory",
+    "description": "A secret government facility has been breached. Extraterrestrial specimens have escaped and are wreaking havoc. Your team of elite scientists must navigate through contaminated labs, solve complex alien puzzles, and contain the outbreak before it spreads to the outside world.",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": "MEDIUM",
+    "imageUrl": "https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg",
+    "active": true
+  },
+  {
+    "name": "Haunted Manor",
+    "description": "The old Blackwood Manor has been abandoned for decades, but strange occurrences suggest it's far from empty. As paranormal investigators, you must uncover the dark secrets of the manor's past, communicate with restless spirits, and escape before you become permanent residents.",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": "HARD",
+    "imageUrl": "https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg",
+    "active": true
+  },
+  {
+    "name": "Space Station Omega",
+    "description": "Your crew awakens from cryosleep to find Space Station Omega adrift and systems failing. With limited oxygen and a mysterious saboteur on board, you must restore power, fix life support, and identify the threat before your air runs out in this zero-gravity adventure.",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": "EASY",
+    "imageUrl": "https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg",
+    "active": true
+  }
+]

@@ -1,16 +1,22 @@
 package com.vrroom.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vrroom.domain.entity.Game;
 import com.vrroom.domain.enums.Difficulty;
 import com.vrroom.dto.GameDTO;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.GameRepository;
 import com.vrroom.service.GameService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +27,49 @@ import java.util.stream.Collectors;
 public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
+    private final ObjectMapper objectMapper;
+
+    @PostConstruct
+    @Transactional
+    public void loadDefaultGames() {
+        long count = gameRepository.count();
+        if (count > 0) {
+            log.info("Games already exist in database. Skipping default game loading. Total games: {}", count);
+            return;
+        }
+
+        log.info("Loading default games from JSON file...");
+        try {
+            ClassPathResource resource = new ClassPathResource("data/default-games.json");
+            InputStream inputStream = resource.getInputStream();
+
+            List<GameDTO> defaultGames = objectMapper.readValue(
+                inputStream,
+                new TypeReference<List<GameDTO>>() {}
+            );
+
+            for (GameDTO gameDTO : defaultGames) {
+                Game game = Game.builder()
+                        .name(gameDTO.getName())
+                        .description(gameDTO.getDescription())
+                        .duration(gameDTO.getDuration())
+                        .minPlayers(gameDTO.getMinPlayers())
+                        .maxPlayers(gameDTO.getMaxPlayers())
+                        .difficulty(gameDTO.getDifficulty())
+                        .imageUrl(gameDTO.getImageUrl())
+                        .active(true)
+                        .build();
+
+                gameRepository.save(game);
+                log.info("Loaded game: {}", game.getName());
+            }
+
+            log.info("Successfully loaded {} default games", defaultGames.size());
+        } catch (IOException e) {
+            log.error("Failed to load default games from JSON", e);
+            throw new RuntimeException("Failed to initialize default games", e);
+        }
+    }
 
     @Override
     public List<GameDTO> getAllGames() {

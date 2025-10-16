@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { MockDataService } from './mock-data.service';
 import { Holiday, Discount, SystemConfig } from '../../models/config.model';
 import { EmailTemplate, SMSTemplate, SendEmailRequest, SendSMSRequest } from '../../models/notification.model';
 
@@ -11,7 +9,6 @@ import { EmailTemplate, SMSTemplate, SendEmailRequest, SendSMSRequest } from '..
 })
 export class AdminService {
   private apiService = inject(ApiService);
-  private mockDataService = inject(MockDataService);
 
   getHolidays(): Observable<Holiday[]> {
     return this.apiService.get<Holiday[]>('/admin/holidays');
@@ -74,8 +71,6 @@ export class AdminService {
   }
 
   getDashboardStats(): Observable<any> {
-    return this.apiService.get<any>('/admin/dashboard/stats').pipe(
-      catchError(() => of(this.mockDataService.getDashboardStats()))
-    );
+    return this.apiService.get<any>('/admin/dashboard/stats');
   }
 }

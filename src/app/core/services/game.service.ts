@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { MockDataService } from './mock-data.service';
 import { Game, GamePrice, GameAvailability } from '../../models/game.model';
 
 @Injectable({
@@ -10,25 +8,17 @@ import { Game, GamePrice, GameAvailability } from '../../models/game.model';
 })
 export class GameService {
   private apiService = inject(ApiService);
-  private mockDataService = inject(MockDataService);
 
   getAllGames(): Observable<Game[]> {
     return this.apiService.get<Game[]>('/games');
   }
 
   getActiveGames(): Observable<Game[]> {
-    return this.apiService.get<Game[]>('/games/active').pipe(
-      catchError(() => of(this.mockDataService.getGames()))
-    );
+    return this.apiService.get<Game[]>('/games/active');
   }
 
   getGameById(id: string): Observable<Game> {
-    return this.apiService.get<Game>(`/games/${id}`).pipe(
-      catchError(() => {
-        const game = this.mockDataService.getGameById(id);
-        return game ? of(game) : of({} as Game);
-      })
-    );
+    return this.apiService.get<Game>(`/games/${id}`);
   }
 
   createGame(game: Partial<Game>): Observable<Game> {
@@ -44,9 +34,7 @@ export class GameService {
   }
 
   getGamePricing(gameId: string): Observable<GamePrice[]> {
-    return this.apiService.get<GamePrice[]>(`/games/${gameId}/pricing`).pipe(
-      catchError(() => of(this.mockDataService.getGamePricing(gameId)))
-    );
+    return this.apiService.get<GamePrice[]>(`/games/${gameId}/pricing`);
   }
 
   updateGamePricing(gameId: string, pricing: GamePrice[]): Observable<GamePrice[]> {

@@ -22,6 +22,11 @@ public class GameController {
 
     @GetMapping
     public ResponseEntity<List<GameDTO>> getAllGames() {
+        return ResponseEntity.ok(gameService.getAllGames());
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<GameDTO>> getActiveGames() {
         return ResponseEntity.ok(gameService.getActiveGames());
     }
 

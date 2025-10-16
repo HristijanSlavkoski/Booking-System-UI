@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
-import { TranslatePipe } from '../../pipes/translate.pipe';
-
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, LanguageSwitcherComponent, TranslatePipe],
+  imports: [CommonModule, RouterModule, LanguageSwitcherComponent,TranslateModule],
   template: `
     <header class="header">
       <div class="header-container">

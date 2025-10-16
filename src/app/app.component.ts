@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
@@ -7,7 +8,7 @@ import { NotificationComponent } from './shared/components/notification/notifica
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, NotificationComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, NotificationComponent, TranslateModule],
   template: `
     <div class="app-container">
       <app-header></app-header>
@@ -30,4 +31,10 @@ import { NotificationComponent } from './shared/components/notification/notifica
     }
   `]
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor(private ts: TranslateService) {
+    ts.addLangs(['en', 'mk']);
+    ts.setDefaultLang('mk');
+    ts.use('mk');
+  }
+}

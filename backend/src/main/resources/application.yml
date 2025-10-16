@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: vr-escape-room-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vrroom
+    username: vrroom
+    password: vrroom123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/vrroom
+          jwk-set-uri: http://localhost:8080/realms/vrroom/protocol/openid-connect/certs
+
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    com.vrroom: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+
+cors:
+  allowed-origins: http://localhost:4200
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true

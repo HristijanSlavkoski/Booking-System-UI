@@ -64,31 +64,63 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
 
             @if (currentStep() === 2) {
               <div class="step-content">
-                <h2>Select Your Game</h2>
-                <div class="games-selection">
-                  @for (game of games(); track game.id) {
-                    <div
-                      class="game-select-card"
-                      [class.selected]="selectedGameId === game.id"
-                      (click)="selectGame(game.id)">
-                      <img [src]="game.imageUrl" [alt]="game.name" class="game-image" />
-                      <div class="game-info">
-                        <h3>{{ game.name }}</h3>
-                        <div class="game-meta">
-                          <span>{{ game.duration }} min</span>
-                          <span>{{ game.minPlayers }}-{{ game.maxPlayers }} players</span>
-                          <span class="difficulty" [class]="game.difficulty.toLowerCase()">{{ game.difficulty }}</span>
+                <h2>Select Your Game{{ selectedRooms > 1 ? 's' : '' }}</h2>
+                @if (selectedRooms > 1) {
+                  <p class="step-description">You're booking {{ selectedRooms }} rooms. Select a game for each room (can be the same game multiple times).</p>
+                }
+                @if (selectedRooms === 1) {
+                  <div class="games-selection">
+                    @for (game of games(); track game.id) {
+                      <div
+                        class="game-select-card"
+                        [class.selected]="isGameSelected(game.id, 0)"
+                        (click)="selectGameForRoom(game.id, 0)">
+                        <img [src]="game.imageUrl" [alt]="game.name" class="game-image" />
+                        <div class="game-info">
+                          <h3>{{ game.name }}</h3>
+                          <div class="game-meta">
+                            <span>{{ game.duration }} min</span>
+                            <span>{{ game.minPlayers }}-{{ game.maxPlayers }} players</span>
+                            <span class="difficulty" [class]="game.difficulty.toLowerCase()">{{ game.difficulty }}</span>
+                          </div>
+                        </div>
+                        @if (isGameSelected(game.id, 0)) {
+                          <div class="selected-badge">✓ Selected</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="multi-room-selection">
+                    @for (roomIndex of getRoomIndexes(); track roomIndex) {
+                      <div class="room-game-section">
+                        <h3 class="room-title">Room {{ roomIndex + 1 }}</h3>
+                        <div class="games-selection-compact">
+                          @for (game of games(); track game.id) {
+                            <div
+                              class="game-select-card-compact"
+                              [class.selected]="isGameSelected(game.id, roomIndex)"
+                              (click)="selectGameForRoom(game.id, roomIndex)">
+                              <img [src]="game.imageUrl" [alt]="game.name" class="game-image-small" />
+                              <div class="game-info-compact">
+                                <h4>{{ game.name }}</h4>
+                                <div class="game-meta-small">
+                                  <span class="difficulty" [class]="game.difficulty.toLowerCase()">{{ game.difficulty }}</span>
+                                </div>
+                              </div>
+                              @if (isGameSelected(game.id, roomIndex)) {
+                                <div class="selected-badge-small">✓</div>
+                              }
+                            </div>
+                          }
                         </div>
                       </div>
-                      @if (selectedGameId === game.id) {
-                        <div class="selected-badge">✓ Selected</div>
-                      }
-                    </div>
-                  }
-                </div>
+                    }
+                  </div>
+                }
                 <div class="step-actions">
                   <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
-                  <app-button (clicked)="nextStep()" [disabled]="!selectedGameId">
+                  <app-button (clicked)="nextStep()" [disabled]="!allRoomsHaveGames()">
                     Continue to Players & Details
                   </app-button>
                 </div>
@@ -390,6 +422,105 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       font-size: 0.875rem;
     }
 
+    .multi-room-selection {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .room-game-section {
+      border: 2px solid #e5e7eb;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      background: #f9fafb;
+    }
+
+    .room-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 1rem 0;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 0.5rem;
+      display: inline-block;
+    }
+
+    .games-selection-compact {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .game-select-card-compact {
+      border: 3px solid #e5e7eb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      background: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .game-select-card-compact:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .game-select-card-compact.selected {
+      border-color: #667eea;
+      background: #f5f7ff;
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .game-image-small {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .game-info-compact {
+      flex: 1;
+    }
+
+    .game-info-compact h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .game-meta-small {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .selected-badge-small {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #667eea;
+      color: white;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
     .form-section {
       margin-bottom: 2rem;
     }
@@ -630,6 +761,7 @@ export class BookingComponent implements OnInit {
   maxConcurrentBookings = signal(2);
 
   selectedGameId = '';
+  selectedGames = signal<{gameId: string; playerCount: number}[]>([]);
   selectedDate = '';
   selectedTime = '';
   selectedRooms: number = 0;
@@ -654,7 +786,9 @@ export class BookingComponent implements OnInit {
     const gameId = this.route.snapshot.queryParamMap.get('gameId');
     if (gameId) {
       this.selectedGameId = gameId;
-      this.currentStep.set(2);
+      this.loadPricing();
+      this.selectedGames.set([{gameId: gameId, playerCount: 0}]);
+      this.currentStep.set(1);
     }
   }
 
@@ -695,6 +829,40 @@ export class BookingComponent implements OnInit {
     this.loadPricing();
   }
 
+  selectGameForRoom(gameId: string, roomIndex: number): void {
+    const currentGames = this.selectedGames();
+    const updated = [...currentGames];
+
+    if (updated[roomIndex]) {
+      updated[roomIndex] = { gameId, playerCount: updated[roomIndex].playerCount };
+    } else {
+      updated[roomIndex] = { gameId, playerCount: 0 };
+    }
+
+    this.selectedGames.set(updated);
+    this.selectedGameId = gameId;
+    this.loadPricing();
+  }
+
+  isGameSelected(gameId: string, roomIndex: number): boolean {
+    const games = this.selectedGames();
+    return games[roomIndex]?.gameId === gameId;
+  }
+
+  getRoomIndexes(): number[] {
+    return Array.from({ length: this.selectedRooms }, (_, i) => i);
+  }
+
+  allRoomsHaveGames(): boolean {
+    const games = this.selectedGames();
+    for (let i = 0; i < this.selectedRooms; i++) {
+      if (!games[i]?.gameId) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   loadPricing(): void {
     this.gameService.getGamePricing(this.selectedGameId).subscribe({
       next: (pricing) => {
@@ -710,7 +878,19 @@ export class BookingComponent implements OnInit {
     this.selectedDate = slot.date;
     this.selectedTime = slot.time;
     this.selectedRooms = slot.rooms;
-    this.nextStep();
+
+    const games = [];
+    for (let i = 0; i < slot.rooms; i++) {
+      games.push({ gameId: '', playerCount: 0 });
+    }
+    this.selectedGames.set(games);
+
+    if (this.selectedGameId) {
+      this.selectedGames.set([{gameId: this.selectedGameId, playerCount: 0}]);
+      this.currentStep.set(3);
+    } else {
+      this.nextStep();
+    }
   }
 
   selectPlayers(count: number): void {

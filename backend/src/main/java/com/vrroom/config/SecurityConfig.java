@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/games/**").permitAll()
+                        .requestMatchers("/config/**").permitAll()
                         .requestMatchers("/bookings/availability").permitAll()
                         .anyRequest().authenticated()
                 )

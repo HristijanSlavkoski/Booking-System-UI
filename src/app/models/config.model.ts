@@ -1,11 +1,29 @@
 export interface SystemConfig {
+  id?: string;
   maxConcurrentBookings: number;
-  bookingSlotDuration: number;
-  minBookingNotice: number;
-  maxBookingAdvance: number;
-  businessHours: BusinessHours;
+  openingTime?: string;
+  closingTime?: string;
+  slotDurationMinutes?: number;
+  bookingSlotDuration?: number;
+  minBookingNotice?: number;
+  maxBookingAdvance?: number;
+  businessHours?: BusinessHours;
   holidays: Holiday[];
-  blockedDates: string[];
+  blockedDates?: string[];
+  pricingConfig?: PricingConfig;
+}
+
+export interface PricingConfig {
+  id?: string;
+  minPlayers: number;
+  maxPlayers: number;
+  basePrice: number;
+  additionalPlayerPrice: number;
+  weekendMultiplier: number;
+  holidayMultiplier: number;
+  groupDiscount: number;
+  groupDiscountThreshold: number;
+  active: boolean;
 }
 
 export interface BusinessHours {
@@ -20,10 +38,11 @@ export interface BreakTime {
 }
 
 export interface Holiday {
-  id: string;
+  id?: string;
   name: string;
   date: string;
-  isRecurring: boolean;
+  isRecurring?: boolean;
+  active?: boolean;
 }
 
 export interface Discount {

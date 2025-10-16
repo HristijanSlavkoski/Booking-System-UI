@@ -288,14 +288,7 @@ export class GameDetailComponent implements OnInit {
   }
 
   loadPricing(gameId: string): void {
-    this.gameService.getGamePricing(gameId).subscribe({
-      next: (pricing) => {
-        this.pricing.set(pricing);
-      },
-      error: (error) => {
-        console.error('Error loading pricing:', error);
-      }
-    });
+    this.pricing.set([]);
   }
 
   bookGame(): void {

@@ -32,16 +32,4 @@ export class GameService {
   deleteGame(id: string): Observable<void> {
     return this.apiService.delete<void>(`/games/${id}`);
   }
-
-  getGamePricing(gameId: string): Observable<GamePrice[]> {
-    return this.apiService.get<GamePrice[]>(`/games/${gameId}/pricing`);
-  }
-
-  updateGamePricing(gameId: string, pricing: GamePrice[]): Observable<GamePrice[]> {
-    return this.apiService.put<GamePrice[]>(`/games/${gameId}/pricing`, pricing);
-  }
-
-  getGameAvailability(gameId: string, date: string): Observable<GameAvailability> {
-    return this.apiService.get<GameAvailability>(`/games/${gameId}/availability`, { date });
-  }
 }

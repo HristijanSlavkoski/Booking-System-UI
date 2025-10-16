@@ -1033,9 +1033,12 @@ export class BookingComponent implements OnInit {
   }
 
   loadPricing(): void {
-    this.gameService.getGamePricing(this.selectedGameId).subscribe({
-      next: (pricing) => {
-        this.pricing.set(pricing);
+    this.configService.config$.subscribe({
+      next: (config) => {
+        if (config?.pricingConfig) {
+          const pricingConfig = config.pricingConfig;
+          this.pricing.set([]);
+        }
       },
       error: () => {
         this.notificationService.error('Failed to load pricing');

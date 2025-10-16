@@ -115,12 +115,52 @@ docker-compose ps
    - `USER` (default role)
    - `ADMIN` (for admin users)
 
-#### Create Users
+#### Create Default Users
+
+**IMPORTANT:** You MUST create these two users in Keycloak to match the database users:
+
+##### **Admin User:**
 1. Go to **Users** → **Create new user**
-2. Fill in details
-3. Go to **Credentials** tab → Set password (disable "Temporary")
-4. Go to **Role mapping** → Assign roles
-5. Create at least one ADMIN user and one regular USER
+2. **Username**: `admin@vrroom.com`
+3. **Email**: `admin@vrroom.com`
+4. **Email verified**: ON
+5. **First name**: `Admin`
+6. **Last name**: `User`
+7. Click **Create**
+8. Go to **Credentials** tab → **Set password**:
+   - Password: `admin`
+   - Temporary: **OFF** (important!)
+9. Go to **Role mapping** → **Assign roles**:
+   - Click **Assign role**
+   - Select **ADMIN** and **USER**
+
+##### **Regular User:**
+1. Go to **Users** → **Create new user**
+2. **Username**: `user@vrroom.com`
+3. **Email**: `user@vrroom.com`
+4. **Email verified**: ON
+5. **First name**: `Regular`
+6. **Last name**: `User`
+7. Click **Create**
+8. Go to **Credentials** tab → **Set password**:
+   - Password: `user`
+   - Temporary: **OFF** (important!)
+9. Go to **Role mapping** → **Assign roles**:
+   - Click **Assign role**
+   - Select **USER**
+
+**✅ Default Credentials:**
+```
+Admin User:
+  Email: admin@vrroom.com
+  Password: admin
+  Roles: ADMIN, USER
+
+Regular User:
+  Email: user@vrroom.com
+  Password: user
+  Roles: USER
+```
 
 ### 3. Run the Application
 
@@ -131,13 +171,25 @@ mvn spring-boot:run
 
 The API will start on http://localhost:8081/api
 
+**🎉 On first startup, the application automatically creates:**
+- ✅ 3 default games (Alien Laboratory, Haunted Manor, Space Station Omega)
+- ✅ Default pricing configuration (base: 1000 MKD, additional: 300 MKD)
+- ✅ Default system configuration (2 concurrent rooms, 9:00-22:00)
+- ✅ Default holidays (New Year, Christmas, Independence Day)
+- ✅ 2 users in database (admin@vrroom.com, user@vrroom.com)
+
+**⚠️ IMPORTANT:** The users in the database won't work until you create matching users in Keycloak (see step 2 above)!
+
 ### 4. Verify Installation
 
 ```bash
-# Check health (no auth required)
+# Check games (no auth required)
 curl http://localhost:8081/api/games
 
-# Should return empty array [] or sample games
+# Check system config (no auth required)
+curl http://localhost:8081/api/config
+
+# Should return 3 games and full configuration
 ```
 
 ## API Endpoints
@@ -145,9 +197,16 @@ curl http://localhost:8081/api/games
 ### Public Endpoints (No Auth Required)
 
 #### Games
-- `GET /api/games` - Get all active games
+- `GET /api/games` - Get all games
+- `GET /api/games/active` - Get active games only
 - `GET /api/games/{id}` - Get game by ID
 - `GET /api/games/difficulty/{difficulty}` - Filter by difficulty (EASY, MEDIUM, HARD)
+
+#### Configuration
+- `GET /api/config` - Get full system configuration (hours, pricing, holidays)
+- `GET /api/config/pricing` - Get pricing configuration
+- `GET /api/config/holidays` - Get all holidays
+- `GET /api/config/holidays/active` - Get active holidays
 
 #### Availability
 - `GET /api/bookings/availability?date=2024-12-20&time=14:00:00&rooms=2` - Check slot availability

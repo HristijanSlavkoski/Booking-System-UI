@@ -15,6 +15,7 @@ import com.vrroom.repository.GameRepository;
 import com.vrroom.repository.SystemConfigRepository;
 import com.vrroom.repository.UserRepository;
 import com.vrroom.service.BookingService;
+import com.vrroom.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final SystemConfigRepository systemConfigRepository;
+    private final EmailService emailService;
 
     @Override
     public List<BookingDTO> getAllBookings() {
@@ -110,7 +112,11 @@ public class BookingServiceImpl implements BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         log.info("Booking created successfully with id: {}", savedBooking.getId());
-        return mapToDTO(savedBooking);
+
+        BookingDTO bookingDTO = mapToDTO(savedBooking);
+        emailService.sendBookingConfirmation(bookingDTO);
+
+        return bookingDTO;
     }
 
     @Override

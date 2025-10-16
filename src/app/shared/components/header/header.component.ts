@@ -2,11 +2,13 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LanguageSwitcherComponent, TranslatePipe],
   template: `
     <header class="header">
       <div class="header-container">
@@ -38,19 +40,21 @@ import { AuthService } from '../../../core/services/auth.service';
         </button>
 
         <nav class="nav-links" [class.mobile-open]="mobileMenuOpen">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">Home</a>
-          <a routerLink="/games" routerLinkActive="active" (click)="closeMobileMenu()">Games</a>
-          <a routerLink="/booking" routerLinkActive="active" (click)="closeMobileMenu()">Book Now</a>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/games" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.games' | translate }}</a>
+          <a routerLink="/booking" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.booking' | translate }}</a>
 
           @if (authService.isAuthenticated()) {
             @if (authService.isAdmin()) {
-              <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
+              <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.admin' | translate }}</a>
             }
-            <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">My Profile</a>
-            <button class="logout-btn" (click)="logout()">Logout</button>
+            <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.profile' | translate }}</a>
+            <button class="logout-btn" (click)="logout()">{{ 'nav.logout' | translate }}</button>
           } @else {
-            <a routerLink="/login" routerLinkActive="active" class="login-link" (click)="closeMobileMenu()">Login</a>
+            <a routerLink="/login" routerLinkActive="active" class="login-link" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
           }
+
+          <app-language-switcher></app-language-switcher>
         </nav>
       </div>
     </header>

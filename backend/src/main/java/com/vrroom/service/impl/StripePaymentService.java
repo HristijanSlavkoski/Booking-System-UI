@@ -9,6 +9,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import com.vrroom.domain.enums.BookingStatus;
 import com.vrroom.dto.BookingDTO;
 import com.vrroom.service.BookingService;
+import com.vrroom.service.EmailService;
 import com.vrroom.service.PaymentService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 public class StripePaymentService implements PaymentService {
 
     private final BookingService bookingService;
+    private final EmailService emailService;
 
     @Value("${stripe.api-key}")
     private String stripeApiKey;
@@ -64,10 +66,12 @@ public class StripePaymentService implements PaymentService {
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName("VR Escape Room Booking")
                                                                 .setDescription(
-                                                                        String.format("Booking for %d players on %s at %s",
-                                                                                booking.getPlayerCount(),
+                                                                        String.format("Booking for %d rooms on %s at %s - %s %s",
+                                                                                booking.getNumberOfRooms(),
                                                                                 booking.getBookingDate(),
-                                                                                booking.getStartTime())
+                                                                                booking.getBookingTime(),
+                                                                                booking.getCustomerFirstName(),
+                                                                                booking.getCustomerLastName())
                                                                 )
                                                                 .build()
                                                 )
@@ -77,7 +81,7 @@ public class StripePaymentService implements PaymentService {
                                 .build()
                 )
                 .putMetadata("booking_id", booking.getId())
-                .putMetadata("user_email", booking.getUserEmail())
+                .putMetadata("user_email", booking.getCustomerEmail())
                 .build();
 
         Session session = Session.create(params);
@@ -106,7 +110,8 @@ public class StripePaymentService implements PaymentService {
         String bookingId = session.getMetadata().get("booking_id");
 
         if (bookingId != null) {
-            bookingService.updateBookingStatus(bookingId, BookingStatus.CONFIRMED);
+            BookingDTO booking = bookingService.updateBookingStatus(bookingId, BookingStatus.CONFIRMED);
+            emailService.sendPaymentConfirmation(booking);
             log.info("✅ Booking {} confirmed after successful payment", bookingId);
         } else {
             log.warn("⚠️ No booking ID found in session metadata");
@@ -121,7 +126,8 @@ public class StripePaymentService implements PaymentService {
         String bookingId = session.getMetadata().get("booking_id");
 
         if (bookingId != null) {
-            bookingService.updateBookingStatus(bookingId, BookingStatus.CANCELLED);
+            BookingDTO booking = bookingService.updateBookingStatus(bookingId, BookingStatus.CANCELLED);
+            emailService.sendBookingCancellation(booking);
             log.info("Booking {} cancelled after failed payment", bookingId);
         }
     }

@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal.component';
 import { ButtonComponent } from '../button/button.component';
+import { BookingService } from '../../../core/services/booking.service';
 
 export interface TimeSlotAvailability {
   time: string;
@@ -583,6 +584,8 @@ export interface SlotSelection {
   `]
 })
 export class CalendarComponent implements OnInit {
+  private bookingService = inject(BookingService);
+
   @Input() gameId: string = '';
   @Input() maxConcurrentBookings: number = 2;
   @Output() slotSelected = new EventEmitter<SlotSelection>();
@@ -596,6 +599,7 @@ export class CalendarComponent implements OnInit {
   modalTime = signal('');
   selectedRooms = signal<number>(0);
   currentWeekStart = new Date();
+  availabilityCache = new Map<string, {availableSlots: number; timestamp: number}>();
 
   ngOnInit(): void {
     this.setToStartOfWeek(this.currentWeekStart);
@@ -611,7 +615,7 @@ export class CalendarComponent implements OnInit {
     this.timeSlots.set(slots);
   }
 
-  loadWeekSchedule(): void {
+  async loadWeekSchedule(): Promise<void> {
     const schedule: DaySchedule[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -624,7 +628,9 @@ export class CalendarComponent implements OnInit {
         date: date,
         dateString: date.toISOString().split('T')[0],
         dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        slots: this.timeSlots().map(time => this.getSlotAvailability(date, time, today))
+        slots: await Promise.all(
+          this.timeSlots().map(time => this.getSlotAvailabilityFromBackend(date, time, today))
+        )
       };
 
       schedule.push(daySchedule);
@@ -633,7 +639,7 @@ export class CalendarComponent implements OnInit {
     this.weekSchedule.set(schedule);
   }
 
-  getSlotAvailability(date: Date, time: string, today: Date): TimeSlotAvailability {
+  async getSlotAvailabilityFromBackend(date: Date, time: string, today: Date): Promise<TimeSlotAvailability> {
     const isPast = date < today || (date.getTime() === today.getTime() && this.isTimePast(time));
 
     if (isPast) {
@@ -645,9 +651,42 @@ export class CalendarComponent implements OnInit {
       };
     }
 
-    const bookedCount = Math.floor(Math.random() * (this.maxConcurrentBookings + 1));
+    const dateString = date.toISOString().split('T')[0];
+    const cacheKey = `${dateString}_${time}`;
+    const cached = this.availabilityCache.get(cacheKey);
+    const CACHE_TTL = 30000;
 
-    if (bookedCount >= this.maxConcurrentBookings) {
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      return this.buildSlotFromAvailability(time, cached.availableSlots);
+    }
+
+    try {
+      const response = await new Promise<{available: boolean; availableSlots: number; requestedRooms: number}>((resolve, reject) => {
+        this.bookingService.checkAvailability(dateString, time, 1).subscribe({
+          next: (data) => resolve(data),
+          error: (err) => reject(err)
+        });
+      });
+
+      this.availabilityCache.set(cacheKey, {
+        availableSlots: response.availableSlots,
+        timestamp: Date.now()
+      });
+
+      return this.buildSlotFromAvailability(time, response.availableSlots);
+    } catch (error) {
+      console.error('Failed to check availability:', error);
+      return {
+        time,
+        status: 'available',
+        availableSpots: this.maxConcurrentBookings,
+        maxSpots: this.maxConcurrentBookings
+      };
+    }
+  }
+
+  buildSlotFromAvailability(time: string, availableSlots: number): TimeSlotAvailability {
+    if (availableSlots === 0) {
       return {
         time,
         status: 'booked',
@@ -656,21 +695,10 @@ export class CalendarComponent implements OnInit {
       };
     }
 
-    const isReserved = Math.random() < 0.15 && bookedCount < this.maxConcurrentBookings - 1;
-
-    if (isReserved) {
-      return {
-        time,
-        status: 'reserved',
-        availableSpots: this.maxConcurrentBookings - bookedCount - 1,
-        maxSpots: this.maxConcurrentBookings
-      };
-    }
-
     return {
       time,
       status: 'available',
-      availableSpots: this.maxConcurrentBookings - bookedCount,
+      availableSpots: availableSlots,
       maxSpots: this.maxConcurrentBookings
     };
   }
@@ -759,6 +787,11 @@ export class CalendarComponent implements OnInit {
     const weekStart = new Date(this.currentWeekStart);
     weekStart.setHours(0, 0, 0, 0);
     return weekStart > today;
+  }
+
+  refreshAvailability(): void {
+    this.availabilityCache.clear();
+    this.loadWeekSchedule();
   }
 
   getWeekRange(): string {

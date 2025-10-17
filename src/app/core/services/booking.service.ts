@@ -42,4 +42,11 @@ export class BookingService {
   getAvailableSlots(date: string): Observable<any> {
     return this.apiService.get<any>('/bookings/available-slots', { date });
   }
+
+  checkAvailability(date: string, time: string, rooms: number): Observable<{available: boolean; availableSlots: number; requestedRooms: number}> {
+    return this.apiService.get<{available: boolean; availableSlots: number; requestedRooms: number}>(
+      '/bookings/availability',
+      { date, time, rooms }
+    );
+  }
 }

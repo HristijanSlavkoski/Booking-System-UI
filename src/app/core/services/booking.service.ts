@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { GameService } from './game.service';
 import { Booking, BookingRequest, BookingResponse } from '../../models/booking.model';
+import {DaySchedule} from "../../shared/components/calendar/calendar.component";
 
 @Injectable({
   providedIn: 'root'
@@ -42,4 +43,9 @@ export class BookingService {
   getAvailableSlots(date: string): Observable<any> {
     return this.apiService.get<any>('/bookings/available-slots', { date });
   }
+
+  getAvailability(startDate: string, endDate: string): Observable<DaySchedule[]> {
+    return this.apiService.get<DaySchedule[]>('/bookings/availability', { startDate, endDate });
+  }
+
 }

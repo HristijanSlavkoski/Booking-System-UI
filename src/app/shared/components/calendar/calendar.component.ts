@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal.component';
 import { ButtonComponent } from '../button/button.component';
+import { BookingService } from '../../../core/services/booking.service';
 
 export interface TimeSlotAvailability {
   time: string;
@@ -62,7 +63,7 @@ export interface SlotSelection {
         </div>
       </div>
 
-      <div class="schedule-grid">
+      <div class="schedule-grid" [style.opacity]="loading() ? 0.6 : 1">
         <div class="time-column">
           <div class="header-cell">Time</div>
           @for (time of timeSlots(); track time) {
@@ -104,6 +105,12 @@ export interface SlotSelection {
           </div>
         }
       </div>
+
+      @if (loading()) {
+        <div style="text-align:center; margin-top: .5rem; color:#6b7280; font-size:.9rem;">
+          Loading availability…
+        </div>
+      }
 
       @if (selectedSlot()) {
         <div class="selection-summary">
@@ -167,418 +174,73 @@ export interface SlotSelection {
     </app-modal>
   `,
   styles: [`
+    /* your existing styles unchanged */
     .calendar-container {
       background: white;
       border-radius: 1rem;
       padding: 2rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .calendar-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #111827;
-      margin: 0;
-    }
-
-    .nav-btn {
-      background: white;
-      border: 2px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: #374151;
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      border-color: #667eea;
-      color: #667eea;
-    }
-
-    .nav-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .legend {
-      display: flex;
-      gap: 2rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-
-    .legend-dot {
-      width: 1rem;
-      height: 1rem;
-      border-radius: 0.25rem;
-    }
-
-    .legend-dot.available {
-      background: #10b981;
-    }
-
-    .legend-dot.reserved {
-      background: #f59e0b;
-    }
-
-    .legend-dot.booked {
-      background: #ef4444;
-    }
-
-    .legend-dot.unavailable {
-      background: #9ca3af;
-    }
-
-    .schedule-grid {
-      display: grid;
-      grid-template-columns: 100px repeat(7, 1fr);
-      gap: 1px;
-      background: #e5e7eb;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      margin-bottom: 2rem;
-    }
-
-    .time-column,
-    .day-column {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .header-cell {
-      background: #f9fafb;
-      padding: 1rem;
-      font-weight: 600;
-      color: #111827;
-      text-align: center;
-      min-height: 70px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .day-name {
-      font-size: 0.875rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .day-date {
-      font-size: 0.75rem;
-      color: #6b7280;
-      font-weight: 400;
-    }
-
-    .time-cell {
-      background: #f9fafb;
-      padding: 1rem 0.5rem;
-      font-size: 0.75rem;
-      color: #6b7280;
-      text-align: center;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .slot-cell {
-      background: white;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .slot-cell.available {
-      background: #d1fae5;
-      border: 2px solid transparent;
-    }
-
-    .slot-cell.available:hover {
-      background: #a7f3d0;
-      transform: scale(1.05);
-      z-index: 1;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .slot-cell.booked {
-      background: #fee2e2;
-      cursor: not-allowed;
-    }
-
-    .slot-cell.reserved {
-      background: #fef3c7;
-      cursor: not-allowed;
-    }
-
-    .slot-cell.unavailable {
-      background: #f3f4f6;
-      cursor: not-allowed;
-    }
-
-    .slot-cell.selected {
-      background: #667eea !important;
-      border: 3px solid #764ba2 !important;
-      transform: scale(1.05);
-      z-index: 2;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .slot-cell.selected .slot-content {
-      color: white;
-      font-weight: 700;
-    }
-
-    .slot-content {
-      font-size: 0.75rem;
-      text-align: center;
-      width: 100%;
-      padding: 0.5rem;
-    }
-
-    .slot-available {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .available-label {
-      color: #065f46;
-      font-weight: 600;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .spots {
-      color: #059669;
-      font-weight: 700;
-      font-size: 0.875rem;
-    }
-
-    .status-text {
-      color: #6b7280;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .selection-summary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 1.5rem;
-      border-radius: 0.75rem;
-      animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .summary-content {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .summary-icon {
-      width: 3rem;
-      height: 3rem;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    .summary-text {
-      flex: 1;
-      font-size: 1.125rem;
-    }
-
-    .confirm-btn {
-      background: white;
-      color: #667eea;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .confirm-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .rooms-badge {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.3);
-      padding: 0.25rem 0.75rem;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
-
-    .room-selection {
-      padding: 1rem 0;
-    }
-
-    .modal-description {
-      font-size: 1rem;
-      color: #374151;
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
-
-    .available-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #dbeafe;
-      border: 1px solid #93c5fd;
-      border-radius: 0.5rem;
-      padding: 0.75rem;
-      margin-bottom: 1.5rem;
-      color: #1e40af;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .info-icon {
-      flex-shrink: 0;
-      color: #3b82f6;
-    }
-
-    .room-options {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1rem;
-    }
-
-    .room-option {
-      border: 3px solid #e5e7eb;
-      border-radius: 0.75rem;
-      padding: 1.5rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .room-option:hover {
-      border-color: #667eea;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-    }
-
-    .room-option.selected {
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .room-icon {
-      margin-bottom: 0.75rem;
-      position: relative;
-      display: inline-block;
-    }
-
-    .room-icon svg {
-      color: #667eea;
-      transition: color 0.3s ease;
-    }
-
-    .room-option.selected .room-icon svg {
-      color: white;
-    }
-
-    .room-count-badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #ef4444;
-      color: white;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .room-label {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .check-icon {
-      margin-top: 0.5rem;
-      font-size: 1.5rem;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-    }
-
-    @media (max-width: 1200px) {
-      .schedule-grid {
-        overflow-x: auto;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .calendar-container {
-        padding: 1rem;
-      }
-
-      .schedule-grid {
-        grid-template-columns: 80px repeat(7, 120px);
-      }
-
-      .legend {
-        gap: 1rem;
-      }
-
-      .summary-content {
-        flex-direction: column;
-        text-align: center;
-      }
+    .calendar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+    .calendar-title { font-size:1.5rem; font-weight:700; color:#111827; margin:0; }
+    .nav-btn { background:white; border:2px solid #e5e7eb; border-radius:.5rem; padding:.5rem; cursor:pointer; transition:.3s; color:#374151; }
+    .nav-btn:hover:not(:disabled){ border-color:#667eea; color:#667eea; }
+    .nav-btn:disabled{ opacity:.5; cursor:not-allowed; }
+    .legend{ display:flex; gap:2rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .legend-item{ display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:#6b7280; }
+    .legend-dot{ width:1rem; height:1rem; border-radius:.25rem; }
+    .legend-dot.available{ background:#10b981; }
+    .legend-dot.reserved{ background:#f59e0b; }
+    .legend-dot.booked{ background:#ef4444; }
+    .legend-dot.unavailable{ background:#9ca3af; }
+    .schedule-grid{ display:grid; grid-template-columns:100px repeat(7,1fr); gap:1px; background:#e5e7eb; border-radius:.5rem; overflow:hidden; margin-bottom:2rem; }
+    .time-column,.day-column{ display:flex; flex-direction:column; gap:1px; }
+    .header-cell{ background:#f9fafb; padding:1rem; font-weight:600; color:#111827; text-align:center; min-height:70px; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+    .day-name{ font-size:.875rem; margin-bottom:.25rem; }
+    .day-date{ font-size:.75rem; color:#6b7280; font-weight:400; }
+    .time-cell{ background:#f9fafb; padding:1rem .5rem; font-size:.75rem; color:#6b7280; text-align:center; min-height:60px; display:flex; align-items:center; justify-content:center; }
+    .slot-cell{ background:white; min-height:60px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s; position:relative; }
+    .slot-cell.available{ background:#d1fae5; border:2px solid transparent; }
+    .slot-cell.available:hover{ background:#a7f3d0; transform:scale(1.05); z-index:1; box-shadow:0 4px 6px rgba(0,0,0,.1); }
+    .slot-cell.booked{ background:#fee2e2; cursor:not-allowed; }
+    .slot-cell.reserved{ background:#fef3c7; cursor:not-allowed; }
+    .slot-cell.unavailable{ background:#f3f4f6; cursor:not-allowed; }
+    .slot-cell.selected{ background:#667eea !important; border:3px solid #764ba2 !important; transform:scale(1.05); z-index:2; box-shadow:0 4px 12px rgba(102,126,234,.4); }
+    .slot-cell.selected .slot-content{ color:white; font-weight:700; }
+    .slot-content{ font-size:.75rem; text-align:center; width:100%; padding:.5rem; }
+    .slot-available{ display:flex; flex-direction:column; gap:.25rem; }
+    .available-label{ color:#065f46; font-weight:600; font-size:.7rem; text-transform:uppercase; letter-spacing:.5px; }
+    .spots{ color:#059669; font-weight:700; font-size:.875rem; }
+    .status-text{ color:#6b7280; font-size:.7rem; text-transform:uppercase; font-weight:600; }
+    .selection-summary{ background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:1.5rem; border-radius:.75rem; animation:slideUp .3s ease; }
+    @keyframes slideUp{ from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+    .summary-content{ display:flex; align-items:center; gap:1rem; }
+    .summary-icon{ width:3rem; height:3rem; background:rgba(255,255,255,.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+    .summary-text{ flex:1; font-size:1.125rem; }
+    .confirm-btn{ background:white; color:#667eea; border:none; padding:.75rem 1.5rem; border-radius:.5rem; font-weight:600; cursor:pointer; transition:.3s; }
+    .confirm-btn:hover{ transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.2); }
+    .rooms-badge{ display:inline-block; background:rgba(255,255,255,.3); padding:.25rem .75rem; border-radius:.5rem; font-size:.875rem; font-weight:600; margin-left:.5rem; }
+    .room-selection{ padding:1rem 0; }
+    .modal-description{ font-size:1rem; color:#374151; margin-bottom:1.5rem; line-height:1.5; }
+    .available-info{ display:flex; align-items:center; gap:.5rem; background:#dbeafe; border:1px solid #93c5fd; border-radius:.5rem; padding:.75rem; margin-bottom:1.5rem; color:#1e40af; font-size:.875rem; font-weight:500; }
+    .info-icon{ flex-shrink:0; color:#3b82f6; }
+    .room-options{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:1rem; }
+    .room-option{ border:3px solid #e5e7eb; border-radius:.75rem; padding:1.5rem 1rem; text-align:center; cursor:pointer; transition:.3s; position:relative; }
+    .room-option:hover{ border-color:#667eea; transform:translateY(-2px); box-shadow:0 4px 12px rgba(102,126,234,.2); }
+    .room-option.selected{ border-color:#667eea; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; }
+    .room-icon{ margin-bottom:.75rem; position:relative; display:inline-block; }
+    .room-icon svg{ color:#667eea; transition:color .3s; }
+    .room-option.selected .room-icon svg{ color:white; }
+    .room-count-badge{ position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; }
+    .room-label{ font-size:1rem; font-weight:600; margin-bottom:.5rem; }
+    .check-icon{ margin-top:.5rem; font-size:1.5rem; }
+    .modal-actions{ display:flex; gap:1rem; justify-content:flex-end; }
+    @media (max-width:1200px){ .schedule-grid{ overflow-x:auto; } }
+    @media (max-width:768px){
+      .calendar-container{ padding:1rem; }
+      .schedule-grid{ grid-template-columns:80px repeat(7,120px); }
+      .legend{ gap:1rem; }
+      .summary-content{ flex-direction:column; text-align:center; }
     }
   `]
 })
@@ -596,6 +258,9 @@ export class CalendarComponent implements OnInit {
   modalTime = signal('');
   selectedRooms = signal<number>(0);
   currentWeekStart = new Date();
+  loading = signal(false);
+
+  constructor(private bookingService: BookingService) {}
 
   ngOnInit(): void {
     this.setToStartOfWeek(this.currentWeekStart);
@@ -612,67 +277,30 @@ export class CalendarComponent implements OnInit {
   }
 
   loadWeekSchedule(): void {
-    const schedule: DaySchedule[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const start = new Date(this.currentWeekStart);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
 
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(this.currentWeekStart);
-      date.setDate(date.getDate() + i);
+    const startDateStr = start.toISOString().split('T')[0];
+    const endDateStr = end.toISOString().split('T')[0];
 
-      const daySchedule: DaySchedule = {
-        date: date,
-        dateString: date.toISOString().split('T')[0],
-        dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        slots: this.timeSlots().map(time => this.getSlotAvailability(date, time, today))
-      };
-
-      schedule.push(daySchedule);
-    }
-
-    this.weekSchedule.set(schedule);
-  }
-
-  getSlotAvailability(date: Date, time: string, today: Date): TimeSlotAvailability {
-    const isPast = date < today || (date.getTime() === today.getTime() && this.isTimePast(time));
-
-    if (isPast) {
-      return {
-        time,
-        status: 'unavailable',
-        availableSpots: 0,
-        maxSpots: this.maxConcurrentBookings
-      };
-    }
-
-    const bookedCount = Math.floor(Math.random() * (this.maxConcurrentBookings + 1));
-
-    if (bookedCount >= this.maxConcurrentBookings) {
-      return {
-        time,
-        status: 'booked',
-        availableSpots: 0,
-        maxSpots: this.maxConcurrentBookings
-      };
-    }
-
-    const isReserved = Math.random() < 0.15 && bookedCount < this.maxConcurrentBookings - 1;
-
-    if (isReserved) {
-      return {
-        time,
-        status: 'reserved',
-        availableSpots: this.maxConcurrentBookings - bookedCount - 1,
-        maxSpots: this.maxConcurrentBookings
-      };
-    }
-
-    return {
-      time,
-      status: 'available',
-      availableSpots: this.maxConcurrentBookings - bookedCount,
-      maxSpots: this.maxConcurrentBookings
-    };
+    this.loading.set(true);
+    this.bookingService.getAvailability(startDateStr, endDateStr).subscribe({
+      next: (data) => {
+        // If your API returns plain strings for dates, gently normalize:
+        const mapped: DaySchedule[] = data.map(d => ({
+          ...d,
+          date: new Date(d.date as unknown as string),
+        }));
+        this.weekSchedule.set(mapped);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load availability', err);
+        this.weekSchedule.set([]);
+        this.loading.set(false);
+      }
+    });
   }
 
   isTimePast(time: string): boolean {
@@ -701,9 +329,7 @@ export class CalendarComponent implements OnInit {
   getRoomOptions(): number[] {
     const available = this.modalSlot()?.availableSpots || 0;
     const options: number[] = [];
-    for (let i = 1; i <= available; i++) {
-      options.push(i);
-    }
+    for (let i = 1; i <= available; i++) options.push(i);
     return options;
   }
 
@@ -734,9 +360,7 @@ export class CalendarComponent implements OnInit {
 
   confirmSelection(): void {
     const selected = this.selectedSlot();
-    if (selected) {
-      this.slotSelected.emit(selected);
-    }
+    if (selected) this.slotSelected.emit(selected);
   }
 
   previousWeek(): void {
@@ -779,7 +403,6 @@ export class CalendarComponent implements OnInit {
   formatSelectedDate(): string {
     const selected = this.selectedSlot();
     if (!selected) return '';
-
     const date = new Date(selected.date);
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   }

@@ -74,3 +74,6 @@ keycloak:
   realm: vrroom
   client-id: vrroom-app
   client-secret: c8zb0AcWcSOifqKWZ5CwQq0SXB9fMCNw
+
+vrroom:
+  max-concurrent-bookings: 2

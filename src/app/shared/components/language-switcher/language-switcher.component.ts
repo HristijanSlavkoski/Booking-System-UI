@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslationService, SupportedLanguage } from '../../../core/services/translation.service';
+import { TranslateService } from '@ngx-translate/core';
+
+type SupportedLanguage = 'en' | 'mk';
 
 @Component({
   selector: 'app-language-switcher',
@@ -8,14 +10,13 @@ import { TranslationService, SupportedLanguage } from '../../../core/services/tr
   imports: [CommonModule],
   template: `
     <div class="language-switcher">
-      @for (lang of languages; track lang) {
-        <button
+      <button
+          *ngFor="let lang of languages"
           class="lang-button"
-          [class.active]="translationService.currentLang() === lang"
+          [class.active]="currentLang() === lang"
           (click)="switchLanguage(lang)">
-          {{ getLangLabel(lang) }}
-        </button>
-      }
+        {{ lang.toUpperCase() }}
+      </button>
     </div>
   `,
   styles: [`
@@ -55,14 +56,22 @@ import { TranslationService, SupportedLanguage } from '../../../core/services/tr
   `]
 })
 export class LanguageSwitcherComponent {
-  translationService = inject(TranslationService);
   languages: SupportedLanguage[] = ['en', 'mk'];
+  currentLang = signal<SupportedLanguage>('mk');
 
-  switchLanguage(lang: SupportedLanguage): void {
-    this.translationService.switchLanguage(lang);
+  constructor(private translate: TranslateService) {
+    // initialize
+    const init = (this.translate.currentLang as SupportedLanguage) || (this.translate.getDefaultLang() as SupportedLanguage) || 'mk';
+    this.currentLang.set(init);
+
+    // keep signal in sync with ngx-translate
+    this.translate.onLangChange.subscribe(e => this.currentLang.set(e.lang as SupportedLanguage));
   }
 
-  getLangLabel(lang: SupportedLanguage): string {
-    return lang.toUpperCase();
+  switchLanguage(lang: SupportedLanguage) {
+    if (lang !== this.translate.currentLang) {
+      this.translate.use(lang);            // <-- THIS triggers the pipe to update
+      localStorage.setItem('lang', lang);  // optional
+    }
   }
 }

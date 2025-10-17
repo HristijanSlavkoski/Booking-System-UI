@@ -51,12 +51,46 @@ export class AuthService {
     return user?.role === role;
   }
 
-  private handleAuthResponse(response: AuthResponse): void {
-    localStorage.setItem('auth_token', response.token);
-    localStorage.setItem('current_user', JSON.stringify(response.user));
-    this.currentUserSubject.next(response.user);
+  private handleAuthResponse(response: any): void {
+    // Accept either our own AuthResponse shape or raw Keycloak token response
+    const token =
+        response?.token ??
+        response?.access_token; // from Keycloak
+
+    if (!token) throw new Error('No token in login response');
+
+    const user =
+        response?.user ?? {
+          // Build a minimal user so the header can render
+          email: this.extractEmailFromToken(token) ?? 'unknown@vrroom.com',
+          role: this.extractRoleFromToken(token) ?? 'USER'
+        };
+
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('current_user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
     this.isAuthenticated.set(true);
-    this.isAdmin.set(response.user.role === UserRole.ADMIN);
+    this.isAdmin.set(user.role === 'ADMIN');
+  }
+
+// Very lightweight JWT parsing (no crypto, just reading payload)
+  private extractEmailFromToken(jwt: string): string | null {
+    try {
+      const payload = JSON.parse(atob(jwt.split('.')[1]));
+      return payload?.email ?? payload?.preferred_username ?? null;
+    } catch { return null; }
+  }
+
+  private extractRoleFromToken(jwt: string): 'ADMIN'|'USER' {
+    try {
+      const p = JSON.parse(atob(jwt.split('.')[1]));
+      const realmRoles: string[] = p?.realm_access?.roles ?? [];
+      const clientRoles: string[] = Object
+          .values<any>(p?.resource_access ?? {})
+          .flatMap((r: any) => r?.roles ?? []);
+      const roles = new Set([...realmRoles, ...clientRoles].map(r => r.toUpperCase()));
+      return roles.has('ADMIN') ? 'ADMIN' : 'USER';
+    } catch { return 'USER'; }
   }
 
   private loadUserFromStorage(): void {

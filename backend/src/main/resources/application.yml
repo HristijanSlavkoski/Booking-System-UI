@@ -21,6 +21,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+          # issuer-uri is enough; jwk-set-uri optional if issuer is reachable
           issuer-uri: http://localhost:8080/realms/vrroom
           jwk-set-uri: http://localhost:8080/realms/vrroom/protocol/openid-connect/certs
 
@@ -67,3 +68,9 @@ email:
   from: ${EMAIL_FROM:noreply@vrroom.com}
   from-name: VR Escape Room
   enabled: ${EMAIL_ENABLED:true}
+
+keycloak:
+  auth-server-url: http://localhost:8080
+  realm: vrroom
+  client-id: vrroom-app
+  client-secret: c8zb0AcWcSOifqKWZ5CwQq0SXB9fMCNw

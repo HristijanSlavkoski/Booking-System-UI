@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal.component';
 import { ButtonComponent } from '../button/button.component';
@@ -245,6 +245,8 @@ export interface SlotSelection {
   `]
 })
 export class CalendarComponent implements OnInit {
+  private bookingService = inject(BookingService);
+
   @Input() gameId: string = '';
   @Input() maxConcurrentBookings: number = 2;
   @Output() slotSelected = new EventEmitter<SlotSelection>();
@@ -383,6 +385,11 @@ export class CalendarComponent implements OnInit {
     const weekStart = new Date(this.currentWeekStart);
     weekStart.setHours(0, 0, 0, 0);
     return weekStart > today;
+  }
+
+  refreshAvailability(): void {
+    this.availabilityCache.clear();
+    this.loadWeekSchedule();
   }
 
   getWeekRange(): string {

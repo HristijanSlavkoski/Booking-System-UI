@@ -1017,6 +1017,7 @@ export class BookingComponent implements OnInit {
     this.selectedGames.set(updated);
     this.selectedGameId = gameId;
     this.loadPricing();
+    this.updateTotalPrice();
   }
 
   isGameSelected(gameId: string, roomIndex: number): boolean {
@@ -1086,6 +1087,7 @@ export class BookingComponent implements OnInit {
       updated[roomIndex].playerCount = count;
     }
     this.selectedGames.set(updated);
+    this.updateTotalPrice();
   }
 
   getPlayersForRoom(roomIndex: number): number {
@@ -1117,6 +1119,11 @@ export class BookingComponent implements OnInit {
     }
 
     return total;
+  }
+
+  updateTotalPrice(): void {
+    const total = this.getTotalPrice();
+    this.totalPrice.set(total);
   }
 
   getPriceForPlayers(count: number): number {

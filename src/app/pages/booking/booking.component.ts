@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ConfigService } from '../../core/services/config.service';
 import { Game, GamePrice } from '../../models/game.model';
-import { BookingRequest, PaymentMethod } from '../../models/booking.model';
+import { BookingRequest, BookingGameRequest, PaymentMethod } from '../../models/booking.model';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { CalendarComponent } from '../../shared/components/calendar/calendar.component';
@@ -231,10 +231,6 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
                 <div class="booking-summary">
                   <h3>Booking Summary</h3>
                   <div class="summary-item">
-                    <span class="label">Game:</span>
-                    <span class="value">{{ getSelectedGame()?.name }}</span>
-                  </div>
-                  <div class="summary-item">
                     <span class="label">Date:</span>
                     <span class="value">{{ formatDate(selectedDate) }}</span>
                   </div>
@@ -243,8 +239,18 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
                     <span class="value">{{ selectedTime }}</span>
                   </div>
                   <div class="summary-item">
-                    <span class="label">Players:</span>
-                    <span class="value">{{ playerCount }}</span>
+                    <span class="label">Rooms:</span>
+                    <span class="value">{{ selectedRooms }}</span>
+                  </div>
+                  @for (game of selectedGames(); track game.gameId; let i = $index) {
+                    <div class="summary-item">
+                      <span class="label">Room {{ i + 1 }}:</span>
+                      <span class="value">{{ getGameName(game.gameId) }} - {{ game.playerCount }} players</span>
+                    </div>
+                  }
+                  <div class="summary-item">
+                    <span class="label">Total Players:</span>
+                    <span class="value">{{ getTotalPlayers() }}</span>
                   </div>
                   <div class="summary-item total">
                     <span class="label">Total:</span>
@@ -1212,15 +1218,33 @@ export class BookingComponent implements OnInit {
   }
 
   submitBooking(): void {
+    const games = this.selectedGames().map((g, index) => {
+      const game = this.games().find(game => game.id === g.gameId);
+      const pricing = this.pricing().find(p => p.gameId === g.gameId && p.playerCount === g.playerCount);
+      const price = pricing?.price || 0;
+
+      return {
+        gameId: g.gameId,
+        roomNumber: index + 1,
+        playerCount: g.playerCount,
+        price: price
+      };
+    });
+
     const bookingRequest: BookingRequest = {
-      gameId: this.selectedGameId,
       bookingDate: this.selectedDate,
       bookingTime: this.selectedTime,
-      playerCount: this.playerCount,
+      numberOfRooms: this.selectedRooms,
+      totalPrice: this.totalPrice(),
       paymentMethod: this.paymentMethod,
-      customerInfo: this.customerInfo,
-      userId: this.authService.getCurrentUser()?.id
+      customerFirstName: this.customerInfo.firstName,
+      customerLastName: this.customerInfo.lastName,
+      customerEmail: this.customerInfo.email,
+      customerPhone: this.customerInfo.phone,
+      games: games
     };
+
+    console.log('Submitting booking:', bookingRequest);
 
     this.submitting.set(true);
     this.bookingService.createBooking(bookingRequest).subscribe({
@@ -1229,12 +1253,13 @@ export class BookingComponent implements OnInit {
         if (response.paymentUrl) {
           window.location.href = response.paymentUrl;
         } else {
-          this.router.navigate(['/']);
+          this.router.navigate(['/my-bookings']);
         }
         this.submitting.set(false);
       },
-      error: () => {
-        this.notificationService.error('Failed to create booking');
+      error: (err) => {
+        console.error('Booking error:', err);
+        this.notificationService.error('Failed to create booking: ' + (err.error?.error || 'Unknown error'));
         this.submitting.set(false);
       }
     });
@@ -1243,6 +1268,14 @@ export class BookingComponent implements OnInit {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  getGameName(gameId: string): string {
+    return this.games().find(g => g.id === gameId)?.name || 'Unknown Game';
+  }
+
+  getTotalPlayers(): number {
+    return this.selectedGames().reduce((total, game) => total + game.playerCount, 0);
   }
 
   cancel(): void {

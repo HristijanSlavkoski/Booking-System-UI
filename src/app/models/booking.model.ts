@@ -45,14 +45,24 @@ export interface CustomerInfo {
   phone: string;
 }
 
-export interface BookingRequest {
+export interface BookingGameRequest {
   gameId: string;
+  roomNumber: number;
+  playerCount: number;
+  price: number;
+}
+
+export interface BookingRequest {
   bookingDate: string;
   bookingTime: string;
-  playerCount: number;
+  numberOfRooms: number;
+  totalPrice: number;
   paymentMethod: PaymentMethod;
-  customerInfo: CustomerInfo;
-  userId?: string;
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhone: string;
+  games: BookingGameRequest[];
 }
 
 export interface BookingResponse {

@@ -261,8 +261,7 @@ export class CalendarComponent implements OnInit {
   selectedRooms = signal<number>(0);
   currentWeekStart = new Date();
   loading = signal(false);
-
-  constructor(private bookingService: BookingService) {}
+  availabilityCache = new Map<string, {availableSlots: number; timestamp: number}>();
 
   ngOnInit(): void {
     this.setToStartOfWeek(this.currentWeekStart);

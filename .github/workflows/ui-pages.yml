@@ -1,0 +1,29 @@
+name: Deploy Angular UI to GitHub Pages
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/**"
+      - "angular.json"
+      - "package*.json"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run build -- --configuration=production
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: ./dist/demo }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

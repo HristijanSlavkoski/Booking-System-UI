@@ -1,20 +1,22 @@
 package com.vrroom.domain.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
+import lombok.Setter;
 
 @Entity
 @Table(name = "booking_games")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookingGame {
+public class BookingGame
+{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

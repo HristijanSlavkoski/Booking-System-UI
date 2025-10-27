@@ -3,36 +3,37 @@ package com.vrroom.domain.entity;
 import com.vrroom.domain.enums.BookingStatus;
 import com.vrroom.domain.enums.PaymentMethod;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "bookings")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Booking {
-
+public class Booking
+{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(nullable = false)
@@ -69,7 +70,7 @@ public class Booking {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<BookingGame> bookingGames = new HashSet<>();
+    private List<BookingGame> bookingGames = new ArrayList<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -78,12 +79,14 @@ public class Booking {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public void addBookingGame(BookingGame bookingGame) {
+    public void addBookingGame(BookingGame bookingGame)
+    {
         bookingGames.add(bookingGame);
         bookingGame.setBooking(this);
     }
 
-    public void removeBookingGame(BookingGame bookingGame) {
+    public void removeBookingGame(BookingGame bookingGame)
+    {
         bookingGames.remove(bookingGame);
         bookingGame.setBooking(null);
     }

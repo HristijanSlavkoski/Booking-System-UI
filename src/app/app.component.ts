@@ -34,7 +34,7 @@ import { NotificationComponent } from './shared/components/notification/notifica
 export class AppComponent {
   constructor(private ts: TranslateService) {
     ts.addLangs(['en', 'mk']);
-    ts.setDefaultLang('mk');
-    ts.use('mk');
+    ts.setDefaultLang('en');
+    ts.use('en');
   }
 }

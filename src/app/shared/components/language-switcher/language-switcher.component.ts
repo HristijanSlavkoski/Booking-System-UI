@@ -61,7 +61,7 @@ export class LanguageSwitcherComponent {
 
   constructor(private translate: TranslateService) {
     // initialize
-    const init = (this.translate.currentLang as SupportedLanguage) || (this.translate.getDefaultLang() as SupportedLanguage) || 'mk';
+    const init = (this.translate.currentLang as SupportedLanguage) || (this.translate.getDefaultLang() as SupportedLanguage) || 'en';
     this.currentLang.set(init);
 
     // keep signal in sync with ngx-translate

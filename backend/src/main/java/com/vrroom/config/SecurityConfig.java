@@ -40,16 +40,18 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         http
-                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/bookings").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/bookings/availability").permitAll()
                         .requestMatchers("/auth/**", "/games/**", "/config/**").permitAll()
-                        .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+                        .requestMatchers(HttpMethod.GET, "/bookings/availability").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/bookings").permitAll()
+                        .anyRequest().permitAll() // temporarily open while Keycloak is off
+                )
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2.disable());
+
         return http.build();
     }
 

@@ -33,7 +33,7 @@ jobs:
 
       # ⬅️ Replace <repo> with your EXACT repo name (case-sensitive)
       - name: Build Angular
-        run: npm run build -- --configuration=production --base-href="/<repo>/"
+        run: npm run build -- --configuration=production --base-href="/Booking-System-UI/"
 
       # Debug: show where Angular put index.html
       - name: List dist

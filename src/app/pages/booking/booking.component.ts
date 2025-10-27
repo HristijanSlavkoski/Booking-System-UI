@@ -300,7 +300,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
   styles: [`
     .booking-page {
       min-height: 100vh;
-      background: #f9fafb;
+      background: #0a0a0a;
       padding: 2rem;
     }
 
@@ -312,20 +312,23 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     .page-title {
       font-size: 2.5rem;
       font-weight: 800;
-      color: #111827;
+      color: #ffffff;
       text-align: center;
       margin: 0 0 2rem 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
 
     .selection-summary-bar {
       display: flex;
       gap: 1.5rem;
-      background: white;
+      background: #1a1a1a;
       padding: 1.5rem;
       border-radius: 1rem;
       margin-bottom: 2rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
       flex-wrap: wrap;
+      border: 1px solid #2a2a2a;
     }
 
     .summary-item-bar {
@@ -333,9 +336,9 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem 1.25rem;
-      background: #f9fafb;
+      background: #0a0a0a;
       border-radius: 0.5rem;
-      border: 2px solid #e5e7eb;
+      border: 2px solid #2a2a2a;
     }
 
     .summary-icon {
@@ -349,7 +352,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
 
     .summary-label {
       font-size: 0.75rem;
-      color: #6b7280;
+      color: #888;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -357,7 +360,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
 
     .summary-value {
       font-size: 1rem;
-      color: #111827;
+      color: #ffffff;
       font-weight: 600;
     }
 
@@ -367,9 +370,10 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       justify-content: center;
       margin-bottom: 3rem;
       padding: 2rem;
-      background: white;
+      background: #1a1a1a;
       border-radius: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      border: 1px solid #2a2a2a;
     }
 
     .step {
@@ -383,8 +387,8 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       width: 3rem;
       height: 3rem;
       border-radius: 50%;
-      background: #e5e7eb;
-      color: #9ca3af;
+      background: #2a2a2a;
+      color: #666;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -394,56 +398,60 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .step.active .step-number {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #FF0040;
       color: white;
       transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(255, 0, 64, 0.5);
     }
 
     .step.completed .step-number {
-      background: #10b981;
+      background: #FF0040;
       color: white;
     }
 
     .step-label {
       font-size: 0.875rem;
-      color: #6b7280;
+      color: #888;
       text-align: center;
       font-weight: 500;
     }
 
     .step.active .step-label {
-      color: #667eea;
+      color: #FF0040;
       font-weight: 600;
     }
 
     .step-line {
       width: 4rem;
       height: 2px;
-      background: #e5e7eb;
+      background: #2a2a2a;
       margin: 0 1rem;
       transition: all 0.3s ease;
     }
 
     .step-line.completed {
-      background: #10b981;
+      background: #FF0040;
     }
 
     .step-content {
-      background: white;
+      background: #1a1a1a;
       border-radius: 1rem;
       padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      border: 1px solid #2a2a2a;
     }
 
     .step-content h2 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin: 0 0 1rem 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .step-description {
-      color: #6b7280;
+      color: #aaa;
       margin-bottom: 2rem;
       font-size: 1rem;
     }
@@ -456,23 +464,24 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .game-select-card {
-      border: 3px solid #e5e7eb;
+      border: 3px solid #2a2a2a;
       border-radius: 1rem;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
+      background: #0a0a0a;
     }
 
     .game-select-card:hover {
-      border-color: #667eea;
+      border-color: #FF0040;
       transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+      box-shadow: 0 8px 16px rgba(255, 0, 64, 0.4);
     }
 
     .game-select-card.selected {
-      border-color: #667eea;
-      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+      border-color: #FF0040;
+      box-shadow: 0 8px 16px rgba(255, 0, 64, 0.6);
     }
 
     .game-image {
@@ -488,7 +497,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     .game-info h3 {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin: 0 0 0.5rem 0;
     }
 
@@ -496,7 +505,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       display: flex;
       gap: 1rem;
       font-size: 0.875rem;
-      color: #6b7280;
+      color: #aaa;
       flex-wrap: wrap;
     }
 
@@ -516,12 +525,13 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       position: absolute;
       top: 1rem;
       right: 1rem;
-      background: #667eea;
+      background: #FF0040;
       color: white;
       padding: 0.5rem 1rem;
       border-radius: 0.5rem;
       font-weight: 600;
       font-size: 0.875rem;
+      box-shadow: 0 0 15px rgba(255, 0, 64, 0.6);
     }
 
     .multi-room-selection {
@@ -532,22 +542,23 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .room-game-section {
-      border: 2px solid #e5e7eb;
+      border: 2px solid #2a2a2a;
       border-radius: 1rem;
       padding: 1.5rem;
-      background: #f9fafb;
+      background: #0a0a0a;
     }
 
     .room-title {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #111827;
+      color: white;
       margin: 0 0 1rem 0;
       padding: 0.5rem 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #FF0040;
       border-radius: 0.5rem;
       display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .games-selection-compact {
@@ -557,13 +568,13 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .game-select-card-compact {
-      border: 3px solid #e5e7eb;
+      border: 3px solid #2a2a2a;
       border-radius: 0.75rem;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
-      background: white;
+      background: #1a1a1a;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -571,15 +582,15 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .game-select-card-compact:hover {
-      border-color: #667eea;
+      border-color: #FF0040;
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+      box-shadow: 0 4px 8px rgba(255, 0, 64, 0.4);
     }
 
     .game-select-card-compact.selected {
-      border-color: #667eea;
-      background: #f5f7ff;
-      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+      border-color: #FF0040;
+      background: #2a0a0a;
+      box-shadow: 0 4px 8px rgba(255, 0, 64, 0.5);
     }
 
     .game-image-small {
@@ -597,7 +608,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     .game-info-compact h4 {
       font-size: 1rem;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin: 0 0 0.5rem 0;
     }
 
@@ -611,7 +622,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
-      background: #667eea;
+      background: #FF0040;
       color: white;
       width: 2rem;
       height: 2rem;
@@ -631,10 +642,10 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .room-player-section {
-      border: 2px solid #e5e7eb;
+      border: 2px solid #2a2a2a;
       border-radius: 1rem;
       padding: 1.5rem;
-      background: #f9fafb;
+      background: #0a0a0a;
     }
 
     .room-title-small {
@@ -643,9 +654,11 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       color: white;
       margin: 0 0 1rem 0;
       padding: 0.5rem 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #FF0040;
       border-radius: 0.5rem;
       display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .player-selection-compact {
@@ -655,24 +668,27 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .player-option-compact {
-      border: 3px solid #e5e7eb;
+      border: 3px solid #2a2a2a;
       border-radius: 0.75rem;
       padding: 1rem;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
-      background: white;
+      background: #1a1a1a;
+      color: #fff;
     }
 
     .player-option-compact:hover {
-      border-color: #667eea;
+      border-color: #FF0040;
       transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
     }
 
     .player-option-compact.selected {
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #FF0040;
+      background: #FF0040;
       color: white;
+      box-shadow: 0 0 20px rgba(255, 0, 64, 0.6);
     }
 
     .player-count-compact {
@@ -703,8 +719,10 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     .form-section h3 {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin: 0 0 1rem 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .player-selection {
@@ -715,23 +733,27 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .player-option {
-      border: 3px solid #e5e7eb;
+      border: 3px solid #2a2a2a;
       border-radius: 0.75rem;
       padding: 1.5rem 1rem;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
+      background: #1a1a1a;
+      color: #fff;
     }
 
     .player-option:hover {
-      border-color: #667eea;
+      border-color: #FF0040;
       transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
     }
 
     .player-option.selected {
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #FF0040;
+      background: #FF0040;
       color: white;
+      box-shadow: 0 0 20px rgba(255, 0, 64, 0.6);
     }
 
     .player-count {
@@ -756,25 +778,28 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .price-summary {
-      background: #f0fdf4;
-      border: 2px solid #86efac;
+      background: #1a1a1a;
+      border: 2px solid #FF0040;
       border-radius: 0.75rem;
       padding: 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 0 20px rgba(255, 0, 64, 0.3);
     }
 
     .price-label {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #166534;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .price-amount {
       font-size: 2rem;
       font-weight: 700;
-      color: #166534;
+      color: #FF0040;
     }
 
     .form-grid {
@@ -787,43 +812,65 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       width: 100%;
       padding: 0.75rem;
       font-size: 1rem;
-      border: 2px solid #e5e7eb;
+      border: 2px solid #2a2a2a;
       border-radius: 0.5rem;
       transition: border-color 0.3s ease;
+      background: #0a0a0a;
+      color: #fff;
     }
 
     .text-input:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #FF0040;
+      box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+    }
+
+    .text-input::placeholder {
+      color: #666;
     }
 
     .booking-summary {
-      background: #f9fafb;
+      background: #1a1a1a;
       border-radius: 0.75rem;
       padding: 1.5rem;
       margin-bottom: 2rem;
+      border: 1px solid #2a2a2a;
     }
 
     .booking-summary h3 {
       font-size: 1.25rem;
       font-weight: 700;
       margin: 0 0 1rem 0;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .summary-item {
       display: flex;
       justify-content: space-between;
       padding: 0.75rem 0;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #2a2a2a;
+      color: #aaa;
+    }
+
+    .summary-item .value {
+      color: #fff;
+      font-weight: 600;
     }
 
     .summary-item.total {
       border-bottom: none;
       padding-top: 1rem;
       margin-top: 0.5rem;
-      border-top: 2px solid #111827;
+      border-top: 2px solid #FF0040;
       font-size: 1.25rem;
       font-weight: 700;
+      color: #fff;
+    }
+
+    .summary-item.total .value {
+      color: #FF0040;
     }
 
     .payment-methods {
@@ -832,21 +879,24 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     }
 
     .payment-method {
-      border: 3px solid #e5e7eb;
+      border: 3px solid #2a2a2a;
       border-radius: 0.75rem;
       padding: 1.5rem;
       cursor: pointer;
       transition: all 0.3s ease;
       display: block;
+      background: #1a1a1a;
     }
 
     .payment-method:hover {
-      border-color: #667eea;
+      border-color: #FF0040;
+      box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
     }
 
     .payment-method.selected {
-      border-color: #667eea;
-      background: #f5f7ff;
+      border-color: #FF0040;
+      background: #2a0a0a;
+      box-shadow: 0 0 20px rgba(255, 0, 64, 0.4);
     }
 
     .payment-method input {
@@ -866,13 +916,13 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
     .payment-title {
       font-size: 1.125rem;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin-bottom: 0.25rem;
     }
 
     .payment-desc {
       font-size: 0.875rem;
-      color: #6b7280;
+      color: #aaa;
     }
 
     .step-actions {
@@ -881,7 +931,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
       justify-content: flex-end;
       margin-top: 2rem;
       padding-top: 2rem;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid #2a2a2a;
     }
 
     @media (max-width: 768px) {
@@ -959,11 +1009,20 @@ export class BookingComponent implements OnInit {
     this.loadConfig();
 
     const gameId = this.route.snapshot.queryParamMap.get('gameId');
+    const players = this.route.snapshot.queryParamMap.get('players');
+
     if (gameId) {
       this.selectedGameId = gameId;
       this.loadPricing();
       this.selectedGames.set([{gameId: gameId, playerCount: 0}]);
       this.currentStep.set(1);
+    }
+
+    if (players) {
+      const playerCount = parseInt(players, 10);
+      if (!isNaN(playerCount)) {
+        this.playerCount = playerCount;
+      }
     }
   }
 

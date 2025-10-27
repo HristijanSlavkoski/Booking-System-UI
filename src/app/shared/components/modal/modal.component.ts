@@ -33,7 +33,7 @@ import { CommonModule } from '@angular/common';
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -47,9 +47,9 @@ import { CommonModule } from '@angular/common';
     }
 
     .modal-container {
-      background: white;
+      background: #1a1a1a;
       border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
       max-width: 500px;
       width: 90%;
       max-height: 90vh;
@@ -57,6 +57,7 @@ import { CommonModule } from '@angular/common';
       display: flex;
       flex-direction: column;
       animation: slideUp 0.3s ease;
+      border: 1px solid #2a2a2a;
     }
 
     @keyframes slideUp {
@@ -70,7 +71,7 @@ import { CommonModule } from '@angular/common';
 
     .modal-header {
       padding: 1.5rem;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #2a2a2a;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -79,8 +80,10 @@ import { CommonModule } from '@angular/common';
     .modal-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .modal-close {
@@ -88,12 +91,12 @@ import { CommonModule } from '@angular/common';
       border: none;
       cursor: pointer;
       padding: 0.5rem;
-      color: #6b7280;
+      color: #888;
       transition: color 0.3s ease;
     }
 
     .modal-close:hover {
-      color: #111827;
+      color: #FF0040;
     }
 
     .modal-body {
@@ -104,7 +107,7 @@ import { CommonModule } from '@angular/common';
 
     .modal-footer {
       padding: 1.5rem;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid #2a2a2a;
       display: flex;
       gap: 1rem;
       justify-content: flex-end;

@@ -36,13 +36,16 @@ import { CommonModule } from '@angular/common';
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #FF0040;
       color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(255, 0, 64, 0.6);
+      background: #e6003a;
     }
 
     .btn-secondary {
@@ -74,13 +77,16 @@ import { CommonModule } from '@angular/common';
 
     .btn-outline {
       background: transparent;
-      border: 2px solid #667eea;
-      color: #667eea;
+      border: 2px solid #FF0040;
+      color: #FF0040;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .btn-outline:hover:not(:disabled) {
-      background: #667eea;
+      background: #FF0040;
       color: white;
+      box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
     }
 
     .btn-small {

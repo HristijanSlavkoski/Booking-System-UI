@@ -3,10 +3,17 @@ spring:
     name: vr-escape-room-api
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/vrroom
-    username: vrroom
-    password: vrroom123
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vrroom}
+    username: ${DB_USER:vrroom}
+    password: ${DB_PASS:vrroom123}
     driver-class-name: org.postgresql.Driver
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8080/realms/vrroom}
+          jwk-set-uri: ${OIDC_JWKS_URI:http://localhost:8080/realms/vrroom/protocol/openid-connect/certs}
 
   jpa:
     hibernate:
@@ -20,14 +27,6 @@ spring:
         order_inserts: true
         jdbc:
           batch_size: 25
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # issuer-uri is enough; jwk-set-uri optional if issuer is reachable
-          issuer-uri: http://localhost:8080/realms/vrroom
-          jwk-set-uri: http://localhost:8080/realms/vrroom/protocol/openid-connect/certs
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
@@ -46,7 +45,7 @@ spring:
           writetimeout: 5000
 
 server:
-  port: 8081
+  port: ${PORT:8081}
   servlet:
     context-path: /api
 
@@ -57,7 +56,7 @@ logging:
     org.hibernate.SQL: DEBUG
 
 cors:
-  allowed-origins: http://localhost:4200
+  allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
   allowed-methods: GET,POST,PUT,DELETE,OPTIONS
   allowed-headers: "*"
   allow-credentials: true
@@ -65,8 +64,9 @@ cors:
 stripe:
   api-key: ${STRIPE_SECRET_KEY:sk_test_YOUR_KEY_HERE}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_YOUR_WEBHOOK_SECRET}
-  success-url: http://localhost:4200/booking/success?session_id={CHECKOUT_SESSION_ID}
-  cancel-url: http://localhost:4200/booking/cancel
+  success-url: ${STRIPE_SUCCESS_URL:https://<username>.github.io/<repo>/booking/success?session_id={CHECKOUT_SESSION_ID}}
+  cancel-url:  ${STRIPE_CANCEL_URL:https://<username>.github.io/<repo>/booking/cancel}
+
 
 email:
   from: ${EMAIL_FROM:noreply@vrroom.com}

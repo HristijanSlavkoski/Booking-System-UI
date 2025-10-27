@@ -116,23 +116,36 @@
       <h2>WordPress Integration Guide</h2>
       <p>This page demonstrates how to embed the booking system into your WordPress site. The iframe seamlessly integrates with your dark theme.</p>
 
-      <h3 style="color: #fff; margin-top: 1.5rem;">URL Parameters</h3>
-      <p>Pass data to the booking system via URL parameters:</p>
+      <h3 style="color: #fff; margin-top: 1.5rem;">Integration Options</h3>
+      <p>You have <strong>TWO</strong> ways to embed the booking system:</p>
+
+      <h4 style="color: #FF0040; margin-top: 1rem;">Option 1: Calendar Only (Recommended)</h4>
+      <p>Shows just the calendar. After selection, navigates to full booking flow. Perfect for WordPress homepage or appointment page.</p>
 
       <div class="examples">
         <div class="example">
-          <h3>Basic Booking (No Game Selected)</h3>
+          <h3>Calendar Only - No Game Pre-selected</h3>
+          <pre>&lt;iframe src="https://yourangularapp.com/calendar" width="100%" height="800px"&gt;&lt;/iframe&gt;</pre>
+        </div>
+
+        <div class="example">
+          <h3>Calendar Only - With Game Pre-selected</h3>
+          <pre>&lt;iframe src="https://yourangularapp.com/calendar?gameId=depths-of-osiris" width="100%" height="800px"&gt;&lt;/iframe&gt;</pre>
+        </div>
+      </div>
+
+      <h4 style="color: #FF0040; margin-top: 1.5rem;">Option 2: Full Booking Flow</h4>
+      <p>Shows the complete 4-step booking process with step indicators at the top.</p>
+
+      <div class="examples">
+        <div class="example">
+          <h3>Full Booking - Start from Beginning</h3>
           <pre>&lt;iframe src="https://yourangularapp.com/booking" width="100%" height="900px"&gt;&lt;/iframe&gt;</pre>
         </div>
 
         <div class="example">
-          <h3>Pre-select a Game</h3>
+          <h3>Full Booking - Pre-select Game</h3>
           <pre>&lt;iframe src="https://yourangularapp.com/booking?gameId=depths-of-osiris" width="100%" height="900px"&gt;&lt;/iframe&gt;</pre>
-        </div>
-
-        <div class="example">
-          <h3>Pre-select Game + Players</h3>
-          <pre>&lt;iframe src="https://yourangularapp.com/booking?gameId=depths-of-osiris&players=4" width="100%" height="900px"&gt;&lt;/iframe&gt;</pre>
         </div>
       </div>
 
@@ -150,7 +163,12 @@
       <p>Then on the appointment page, embed the iframe with the game parameter from the URL query string.</p>
     </div>
 
-    <h2 style="color: #fff; margin-bottom: 1rem;">Live Preview</h2>
+    <h2 style="color: #fff; margin-bottom: 1rem;">Live Preview: Calendar Only</h2>
+    <div class="iframe-container">
+      <iframe src="http://localhost:4200/calendar" title="VR Booking Calendar" style="height: 800px;"></iframe>
+    </div>
+
+    <h2 style="color: #fff; margin: 2rem 0 1rem;">Live Preview: Full Booking Flow</h2>
     <div class="iframe-container">
       <iframe src="http://localhost:4200/booking" title="VR Booking System"></iframe>
     </div>

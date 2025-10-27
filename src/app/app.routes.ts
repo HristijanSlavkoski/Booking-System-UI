@@ -20,6 +20,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking/booking.component').then(m => m.BookingComponent)
   },
   {
+    path: 'calendar',
+    loadComponent: () => import('./pages/calendar-only/calendar-only.component').then(m => m.CalendarOnlyComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./pages/auth/login/login.component').then(m => m.LoginComponent)
   },

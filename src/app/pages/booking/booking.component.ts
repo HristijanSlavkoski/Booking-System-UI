@@ -1010,8 +1010,33 @@ export class BookingComponent implements OnInit {
 
     const gameId = this.route.snapshot.queryParamMap.get('gameId');
     const players = this.route.snapshot.queryParamMap.get('players');
+    const date = this.route.snapshot.queryParamMap.get('date');
+    const time = this.route.snapshot.queryParamMap.get('time');
+    const rooms = this.route.snapshot.queryParamMap.get('rooms');
 
-    if (gameId) {
+    if (date && time && rooms) {
+      this.selectedDate = date;
+      this.selectedTime = time;
+      this.selectedRooms = parseInt(rooms, 10);
+
+      const gamesArray = [];
+      for (let i = 0; i < this.selectedRooms; i++) {
+        if (gameId) {
+          gamesArray.push({ gameId: gameId, playerCount: 0 });
+        } else {
+          gamesArray.push({ gameId: '', playerCount: 0 });
+        }
+      }
+      this.selectedGames.set(gamesArray);
+
+      if (gameId) {
+        this.selectedGameId = gameId;
+        this.loadPricing();
+        this.currentStep.set(3);
+      } else {
+        this.currentStep.set(2);
+      }
+    } else if (gameId) {
       this.selectedGameId = gameId;
       this.loadPricing();
       this.selectedGames.set([{gameId: gameId, playerCount: 0}]);

@@ -36,7 +36,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .btn-primary {
-      background: #FF0040;
+      background: #ec3f3a;
       color: white;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -77,14 +77,14 @@ import { CommonModule } from '@angular/common';
 
     .btn-outline {
       background: transparent;
-      border: 2px solid #FF0040;
-      color: #FF0040;
+      border: 2px solid #ec3f3a;
+      color: #ec3f3a;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
     .btn-outline:hover:not(:disabled) {
-      background: #FF0040;
+      background: #ec3f3a;
       color: white;
       box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
     }

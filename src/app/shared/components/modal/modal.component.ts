@@ -96,7 +96,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .modal-close:hover {
-      color: #FF0040;
+      color: #ec3f3a;
     }
 
     .modal-body {

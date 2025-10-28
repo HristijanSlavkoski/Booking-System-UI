@@ -64,7 +64,7 @@ export class CalendarComponent implements OnInit {
 
     generateTimeSlots(): void {
         const slots: string[] = [];
-        for (let hour = 9; hour <= 21; hour++) slots.push(`${hour.toString().padStart(2, '0')}:00`);
+        for (let hour = 9; hour <= 22; hour++) slots.push(`${hour.toString().padStart(2, '0')}:00`);
         this.timeSlots.set(slots);
     }
 

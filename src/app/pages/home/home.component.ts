@@ -80,7 +80,7 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
                     <span class="game-duration">{{ game.duration }} min</span>
                     <span class="game-players">{{ game.minPlayers }}-{{ game.maxPlayers }} players</span>
                   </div>
-                  <div class="game-difficulty" [class]="game.difficulty.toLowerCase()">
+                  <div>
                     {{ game.difficulty }}
                   </div>
                 </div>

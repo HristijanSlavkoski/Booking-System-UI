@@ -71,6 +71,43 @@
     "bookingPending": "Booking Pending",
     "thankYou": "Thank you for your booking!"
   },
+  "calendar": {
+    "time": "Time",
+    "minutes": "min",
+    "players": "players",
+    "legend": {
+      "available": "Available",
+      "reserved": "Reserved (Being Booked)",
+      "booked": "Booked",
+      "unavailable": "Unavailable"
+    },
+    "status": {
+      "available": "Available",
+      "full": "Full",
+      "hold": "Hold",
+      "notAvailable": "Not available"
+    },
+    "loading": "Loading availability…",
+    "selected": "Selected:",
+    "at": "at",
+    "room": "Room",
+    "rooms": "Rooms",
+    "cta": {
+      "continue": "Continue to Game Selection",
+      "confirm": "Confirm Selection"
+    },
+    "modal": {
+      "title": "Select Number of Rooms",
+      "q": "How many rooms would you like to book for",
+      "on": "on",
+      "of": "out of",
+      "roomsAvailable": "rooms available"
+    },
+    "title": "Select Your Date & Time",
+    "subtitle": "Choose an available slot to continue booking",
+    "chooseGame": "Choose a Game",
+    "noGames": "No games available right now"
+  },
   "auth": {
     "loginTitle": "Login to Your Account",
     "registerTitle": "Create New Account",

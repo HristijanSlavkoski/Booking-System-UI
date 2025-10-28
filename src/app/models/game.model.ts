@@ -1,24 +1,18 @@
 export interface Game {
   id: string;
   name: string;
+  code: string,
   description: string;
   shortDescription: string;
   imageUrl: string;
   duration: number;
   minPlayers: number;
   maxPlayers: number;
-  difficulty: GameDifficulty;
+  difficulty: number;
   isActive: boolean;
   tags: string[];
   createdAt: Date;
   updatedAt: Date;
-}
-
-export enum GameDifficulty {
-  EASY = 'EASY',
-  MEDIUM = 'MEDIUM',
-  HARD = 'HARD',
-  EXPERT = 'EXPERT'
 }
 
 export interface GamePrice {

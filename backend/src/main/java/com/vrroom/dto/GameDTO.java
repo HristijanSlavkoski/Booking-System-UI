@@ -1,6 +1,5 @@
 package com.vrroom.dto;
 
-import com.vrroom.domain.enums.Difficulty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,11 +12,12 @@ import lombok.NoArgsConstructor;
 public class GameDTO {
     private String id;
     private String name;
+    private String code;
     private String description;
     private Integer duration;
     private Integer minPlayers;
     private Integer maxPlayers;
-    private Difficulty difficulty;
+    private Integer difficulty;
     private String imageUrl;
     private Boolean active;
 }

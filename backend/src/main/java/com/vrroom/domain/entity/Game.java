@@ -1,6 +1,5 @@
 package com.vrroom.domain.entity;
 
-import com.vrroom.domain.enums.Difficulty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -32,6 +31,9 @@ public class Game
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String code;
+
     @Column(length = 2000)
     private String description;
 
@@ -44,9 +46,8 @@ public class Game
     @Column(nullable = false)
     private Integer maxPlayers;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Difficulty difficulty;
+    private Integer difficulty;
 
     private String imageUrl;
 

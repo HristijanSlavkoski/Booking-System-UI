@@ -1,6 +1,5 @@
 package com.vrroom.controller;
 
-import com.vrroom.domain.enums.Difficulty;
 import com.vrroom.dto.GameDTO;
 import com.vrroom.service.GameService;
 import jakarta.validation.Valid;
@@ -30,13 +29,18 @@ public class GameController {
         return ResponseEntity.ok(gameService.getActiveGames());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<GameDTO> getGameById(@PathVariable String id) {
         return ResponseEntity.ok(gameService.getGameById(id));
     }
 
+    @GetMapping("/{code}")
+    public ResponseEntity<GameDTO> getGameByCode(@PathVariable String code) {
+        return ResponseEntity.ok(gameService.getGameByCode(code));
+    }
+
     @GetMapping("/difficulty/{difficulty}")
-    public ResponseEntity<List<GameDTO>> getGamesByDifficulty(@PathVariable Difficulty difficulty) {
+    public ResponseEntity<List<GameDTO>> getGamesByDifficulty(@PathVariable Integer difficulty) {
         return ResponseEntity.ok(gameService.getGamesByDifficulty(difficulty));
     }
 

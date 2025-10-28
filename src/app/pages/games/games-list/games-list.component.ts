@@ -31,7 +31,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
                       <app-button variant="primary" (clicked)="viewGame(game.id)">
                         View Details
                       </app-button>
-                      <app-button variant="success" (clicked)="bookGame(game.id)">
+                      <app-button variant="success" (clicked)="bookGame(game.code)">
                         Book Now
                       </app-button>
                     </div>
@@ -39,7 +39,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
                   <div class="game-content">
                     <div class="game-header">
                       <h2 class="game-title">{{ game.name }}</h2>
-                      <span class="game-difficulty" [class]="game.difficulty.toLowerCase()">
+                      <span>
                         {{ game.difficulty }}
                       </span>
                     </div>

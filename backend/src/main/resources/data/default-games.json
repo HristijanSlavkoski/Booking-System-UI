@@ -1,32 +1,101 @@
 [
   {
-    "name": "Alien Laboratory",
-    "description": "A secret government facility has been breached. Extraterrestrial specimens have escaped and are wreaking havoc. Your team of elite scientists must navigate through contaminated labs, solve complex alien puzzles, and contain the outbreak before it spreads to the outside world.",
+    "name": "Space Station Tiberia",
+    "code": "space-station-tiberia",
+    "description": "The largest meteor ever encountered is 60 minutes away from destroying Earth. You and your crew are humanity’s only hope of stopping it. Repair the Meteor Defense Platform Tiberia to put an end to this catastrophic event before it’s too late.\n\nThis virtual escape room experience tests players’ ability to solve problems together with accelerating stakes and action while the clock ticks down to disaster.\n\nSpace Station Tiberia is a family-friendly escape game offering sci-fi fun and challenge for all ages.",
     "duration": 60,
     "minPlayers": 2,
     "maxPlayers": 6,
-    "difficulty": "MEDIUM",
-    "imageUrl": "https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg",
+    "difficulty": 3,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/SpaceStationTiberia_sh_1.jpg",
     "active": true
   },
   {
-    "name": "Haunted Manor",
-    "description": "The old Blackwood Manor has been abandoned for decades, but strange occurrences suggest it's far from empty. As paranormal investigators, you must uncover the dark secrets of the manor's past, communicate with restless spirits, and escape before you become permanent residents.",
+    "name": "Depths of Osiris",
+    "code": "depths-of-osiris",
+    "description": "Welcome to deep-sea platform Oceanus 5. Our team of deep sea archaeologists have been stumped for months after the discovering the lost temple of Osiris. This is why we have called in you and your team of specialists to help us gain access to the temple and retrieve the rumoured artifact inside. You have limited oxygen, the gauge on your right wrist lets you know how much time you have left.\n\nIf you need help during your expedition you can contact the surface support vessel twice before the end. Good luck aquanauts, and godspeed.",
     "duration": 60,
     "minPlayers": 2,
     "maxPlayers": 6,
-    "difficulty": "HARD",
-    "imageUrl": "https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg",
+    "difficulty": 4,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/DepthsOfOsiris_sh_1.jpg",
     "active": true
   },
   {
-    "name": "Space Station Omega",
-    "description": "Your crew awakens from cryosleep to find Space Station Omega adrift and systems failing. With limited oxygen and a mysterious saboteur on board, you must restore power, fix life support, and identify the threat before your air runs out in this zero-gravity adventure.",
+    "name": "Dragon Tower",
+    "code": "dragon-tower",
+    "description": "Once Upon a time, several distant travelers came upon a small seaside town. Weary from their travels, they sought rest at the local inn.\n\nUnbeknownst to them, the village was ruled by an evil alchemist who lived isolated in his small fortress called Dragon Tower. The alchemist kept the villagers safe from terrible dragons, but did so only by feeding the dragons thieves and murders once per year atop his tower.\n\nAlas, there was no village crime this past year, but the dragons are hungry all the same! The alchemist instead accused the hapless travelers of being foreign spies and sentenced them to death. Can our brave travelers escape from Dragon Tower before the clock strikes 6 when the dragons return for their annual sacrifice?",
     "duration": 60,
     "minPlayers": 2,
     "maxPlayers": 6,
-    "difficulty": "EASY",
-    "imageUrl": "https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg",
+    "difficulty": 3,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/DragonTower_sh_1.jpg",
+    "active": true
+  },
+  {
+    "name": "Time Travel Paradox",
+    "code": "time-travel-paradox",
+    "description": "The date was “today’s date”, and your research team had just finished work on the world’s first prototype time machine.\n\nHowever, your colleague, Dr. Hessenberg, chose to betray everyone and steal the time machine for himself!\n\nTo hide his crime, he decided to send all his teammates back in time to the Jurassic era to be eaten by dinosaurs.\n\nYou need to find a way to get back to the present and stop Dr. Hessenberg before something catastrophic happens!",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": 3,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/TimeTravelParadox_sh_1.jpg",
+    "active": true
+  },
+  {
+    "name": "Manor Of Escape",
+    "code": "manor-of-escape",
+    "description": "The townspeople have had enough of Count Malum!\n\nCitizens are disappearing and bizarre screams are heard coming from his manor every night.\n\nHe appears to have gone insane while pursuing his mad theories about life in alternate dimensions.\n\nThe mayor has hired your expert team to capture Malum before he does any more harm.\n\nYou must capture Malum before he completes his final experiment at midnight. Hurry!",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": 3,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/ManorOfEscape_sh_1.jpg",
+    "active": true
+  },
+  {
+    "name": "Pirates Plague",
+    "code": "priates-plague",
+    "description": "Your pirate crew has caught the “Pelagic Plague”: a disease that slowly turns people into fish-monsters!\n\nRumors say the only cure is to consume the heart of a kraken, but krakens are supposedly extinct!\n\nHowever, legend tells of a lost temple on an island where the last kraken heart can still be found.\n\nUnfortunately, the waters around the island are swarming with victims of the plague looking for a fight.\n\nHurry! You have little time before the disease is permanent and your crew becomes cursed forever!",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": 4,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/PiratesPlague_sh_1.jpg",
+    "active": true
+  },
+  {
+    "name": "Runaway Train",
+    "code": "runaway-train",
+    "description": "Howdy, deputies! Gather ’round! Time is short so let’s review our plan\n\n\nDr. Steem has escaped and is looking to take revenge on the town that imprisoned him\n\n\nHe ha’s rigged his fancy train full of dynamite and is sending it into town to blow it up!\n\n\nOur plan is to use our own train engine to catch up to his train, and try to board it\n\n\nHe has some steam powered defensive automatons, so we’ll have to destroy those first\n\n\nOnce you board the train, find a way to stop the train and defeat Dr. Steem\n\nHis homemade flying suit looks bulletproof, but it must have some kind of weakness we can exploit\n\n\nAlright! Let’s Giddy-up! Time to get this done!",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": 5,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2017/11/RunawayTrain_sh_1.jpg",
+    "active": true
+  },
+  {
+    "name": "Ninja Trials",
+    "code": "ninja-trials",
+    "description": "You and your fellow Ninja trainees are on the cusp of completing your training. One challenge remains: ascend the thousand steps to the temple on the top of the mountain, proving your worth in the trials along the way. Only then, when you defeat your master, will you become true ninjas.\n\nWelcome apprentices! Tonight, you become true ninjas. You must complete 3 trials to prove you are worthy. Only then can you face me, Sensei Shinji, in your final trial. Good Luck.",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": 2,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/NinjaTrials_sh_1.jpg",
+    "active": true
+  },
+  {
+    "name": "Alien Infection",
+    "code": "alien-infection",
+    "description": "Strange noises have been heard lately. Some say they’ve seen mysterious lights in the sky. Most of all, Whiskers has gone missing.\n\nA brave search party enters the woods in search of the cat. But abducted by an alien spacecraft and implanted with a deadly parasite, the race is on to escape the ship and sabotage the extraterrestrial terror before the infection spreads.",
+    "duration": 60,
+    "minPlayers": 2,
+    "maxPlayers": 6,
+    "difficulty": 4,
+    "imageUrl": "https://intetic.com/escape_pp/wp-content/uploads/2025/10/AlienInfection_sh_1.jpg",
     "active": true
   }
 ]

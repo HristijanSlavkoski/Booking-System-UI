@@ -1,0 +1,253 @@
+/* Layout constants */
+:host {
+    --cell-h: 60px;
+    --header-h: 70px;
+    --line: #2a2a2a;
+    --bg: #1a1a1a;
+    --bg-outer: #0a0a0a;
+    --accent: #ec3f3a;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+}
+
+.calendar-container {
+    background: var(--bg);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid #2a2a2a;
+}
+
+/* Header */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem; /* a bit tighter with the banner present */
+}
+.calendar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.nav-btn {
+    background: #0a0a0a;
+    border: 2px solid #2a2a2a;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: 0.3s;
+    color: #fff;
+}
+.nav-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+}
+.nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Legend */
+.legend {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #aaa;
+}
+.legend-dot {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+}
+.legend-dot.available { background: var(--ok); }
+.legend-dot.reserved  { background: var(--warn); }
+.legend-dot.booked    { background: var(--bad); }
+.legend-dot.unavailable { background: #555; }
+
+/* GRID
+   Use gap:0 and draw separators with inset shadows so cell height never changes.
+*/
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+    gap: 0;
+    background: var(--bg-outer);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+
+/* Columns */
+.time-column,
+.day-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Universal cell base (consistent box model) */
+.header-cell,
+.time-cell,
+.slot-cell {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Draw the “grid lines” without adding size */
+    box-shadow: inset 0 0 0 1px var(--line);
+    background: #2a2a2a;
+}
+
+/* Past slots: dim, non-interactive, no hover */
+.slot-cell.past {
+    background: #171717;
+    color: #777;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.slot-cell.past .slot-content { color: #888; }
+
+/* Row heights */
+.header-cell {
+    height: var(--header-h);
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-direction: column;
+}
+.time-cell {
+    height: var(--cell-h);
+    font-size: 0.75rem;
+    color: #aaa;
+    background: #2a2a2a;
+}
+.slot-cell {
+    height: var(--cell-h);
+    background: #1a1a1a;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+    position: relative;
+}
+
+/* Day header meta */
+.day-name {
+    font-size: 0.875rem;
+    color: #fff;
+    margin-bottom: 0.25rem;
+}
+.day-date {
+    font-size: 0.75rem;
+    color: #aaa;
+    font-weight: 400;
+}
+
+/* Slot states (never change border width → use colors only) */
+.slot-cell.available  { background: #1f1d18; }
+.slot-cell.booked     { background: #3a0f0f; }
+.slot-cell.reserved   { background: #3a2f0f; }
+.slot-cell.unavailable{ background: #1a1a1a; cursor: not-allowed; }
+
+.slot-cell.available:hover {
+    background: #333333;
+    transform: translateZ(0); /* keep same size */
+}
+
+/* Selected: draw an extra ring without changing size */
+.slot-cell.selected {
+    box-shadow:
+            inset 0 0 0 2px var(--accent),
+            0 0 12px rgba(255, 0, 64, 0.35);
+}
+.slot-cell.selected .slot-content {
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Inner content */
+.slot-content { font-size: 0.75rem; text-align: center; width: 100%; padding: 0.5rem; }
+.slot-available { display: flex; flex-direction: column; gap: 0.25rem; }
+.available-label { color: var(--ok); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.spots { color: var(--ok); font-weight: 700; font-size: 0.875rem; }
+.status-text { color: #aaa; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; }
+
+/* Loading hint */
+.loading-hint {
+    text-align: center;
+    margin-top: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* Selection summary */
+.selection-summary {
+    background: var(--accent);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    animation: slideUp 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 0, 64, 0.5);
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.summary-content { display: flex; align-items: center; gap: 1rem; }
+.summary-icon { width: 3rem; height: 3rem; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.summary-text { flex: 1; font-size: 1.125rem; }
+.confirm-btn {
+    background: white; color: var(--accent); border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem;
+    font-weight: 600; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+}
+.confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.4); background: #f5f5f5; }
+.rooms-badge { display: inline-block; background: rgba(255,255,255,.3); padding: 0.25rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; margin-left: 0.5rem; }
+
+/* Game banner */
+.game-banner {
+    display: flex; gap: 1rem; align-items: center;
+    background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 0.75rem;
+    padding: 1rem; margin-bottom: 1rem;
+}
+.game-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 0.5rem; }
+.game-meta { color: #fff; }
+.game-title { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+.game-sub { color: #bbb; font-size: 0.9rem; margin-top: 0.15rem; }
+.game-desc { color: #aaa; margin-top: 0.35rem; font-size: 0.9rem; line-height: 1.35; }
+
+/* Rooms modal bits (kept from your styles) */
+.room-selection { padding: 1rem 0; }
+.modal-description { font-size: 1rem; color: #aaa; margin-bottom: 1.5rem; line-height: 1.5; }
+.available-info { display: flex; align-items: center; gap: 0.5rem; background: #0a2a3a; border: 1px solid #3b82f6; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 1.5rem; color: #93c5fd; font-size: 0.875rem; font-weight: 500; }
+.info-icon { flex-shrink: 0; color: #3b82f6; }
+.room-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+.room-option { box-shadow: inset 0 0 0 1px var(--line); border-radius: 0.75rem; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: 0.3s; background: #1a1a1a; color: #fff; }
+.room-option:hover { box-shadow: inset 0 0 0 1px var(--accent); transform: translateY(-2px); }
+.room-option.selected { box-shadow: inset 0 0 0 2px var(--accent), 0 0 20px rgba(255, 0, 64, 0.6); background: #ec3f3a; color: white; }
+.room-icon { margin-bottom: 0.75rem; position: relative; display: inline-block; }
+.room-count-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+.room-label { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+.check-icon { margin-top: 0.5rem; font-size: 1.5rem; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .schedule-grid { overflow-x: auto; }
+}
+@media (max-width: 768px) {
+    .calendar-container { padding: 1rem; }
+    .legend { gap: 1rem; }
+    .summary-content { flex-direction: column; text-align: center; }
+    .schedule-grid { grid-template-columns: 80px repeat(7, 120px); }
+}

@@ -1,0 +1,156 @@
+<div class="calendar-container">
+    @if (gameData) {
+        <div class="game-banner">
+            <img *ngIf="gameData.imageUrl" [src]="gameData.imageUrl" alt="" class="game-thumb" />
+            <div class="game-meta">
+                <div class="game-title">{{ gameData.name }}</div>
+                <div class="game-sub">
+                    @if (gameData.duration || gameData.duration) {
+                        <span>{{ gameData.duration ?? gameData.duration }} {{ 'calendar.minutes' | translate }}</span>
+                    }
+                    @if (gameData.minPlayers && gameData.maxPlayers) {
+                        <span> · {{ gameData.minPlayers }}–{{ gameData.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+                    }
+                    @if (gameData.difficulty) {
+                        <span> · {{ (gameData.difficulty + '') | titlecase }}</span>
+                    }
+                </div>
+                @if (gameData.shortDescription) { <div class="game-desc">{{ gameData.shortDescription }}</div> }
+            </div>
+        </div>
+    }
+
+    <div class="calendar-header">
+        <button class="nav-btn" (click)="previousWeek()" [disabled]="!canGoPrevious()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+        <h3 class="calendar-title">{{ getWeekRange() }}</h3>
+        <button class="nav-btn" (click)="nextWeek()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><span class="legend-dot available"></span><span>{{ 'calendar.legend.available' | translate }}</span></div>
+        <div class="legend-item"><span class="legend-dot reserved"></span><span>{{ 'calendar.legend.reserved' | translate }}</span></div>
+        <div class="legend-item"><span class="legend-dot booked"></span><span>{{ 'calendar.legend.booked' | translate }}</span></div>
+        <div class="legend-item"><span class="legend-dot unavailable"></span><span>{{ 'calendar.legend.unavailable' | translate }}</span></div>
+    </div>
+
+    <div class="schedule-grid" [style.opacity]="loading() ? 0.6 : 1">
+        <div class="time-column">
+            <div class="header-cell">{{ 'calendar.time' | translate }}</div>
+            @for (time of timeSlots(); track time) {
+                <div class="time-cell">{{ time }}</div>
+            }
+        </div>
+
+        @for (day of weekSchedule(); track day.dateString) {
+            <div class="day-column">
+                <div class="header-cell">
+                    @let h = formatHeader(day.date);
+                    <div class="day-name">{{ h.name }}</div>
+                    <div class="day-date">{{ h.date }}</div>
+                </div>
+
+                @for (slot of day.slots; track slot.time) {
+                    @let past = isPastSlot(day.date, slot.time);
+                    <div
+                            class="slot-cell"
+                            [class.available]="slot.status === 'available' && !past"
+                            [class.booked]="slot.status === 'booked'"
+                            [class.reserved]="slot.status === 'reserved'"
+                            [class.unavailable]="slot.status === 'unavailable'"
+                            [class.past]="past"
+                            [class.selected]="!past && isSelected(day.dateString, slot.time)"
+                            (click)="openSlotModal(day.dateString, slot.time, slot, day.date)"
+                    >
+                        <div class="slot-content">
+                            @if (past || slot.status === 'unavailable') {
+                                <span class="status-text">{{ 'calendar.status.notAvailable' | translate }}</span>
+                            }
+                            @else if (slot.status === 'available') {
+                                <div class="slot-available">
+                                    <span class="available-label">{{ 'calendar.status.available' | translate }}</span>
+                                    <span class="spots">{{ slot.availableSpots }}/{{ slot.maxSpots }}</span>
+                                </div>
+                            }
+                            @else if (slot.status === 'booked') {
+                                <span class="status-text">{{ 'calendar.status.full' | translate }}</span>
+                            }
+                            @else if (slot.status === 'reserved') {
+                                <span class="status-text">{{ 'calendar.status.hold' | translate }}</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    @if (loading()) { <div class="loading-hint">{{ 'calendar.loading' | translate }}</div> }
+
+    @if (selectedSlot()) {
+        <div class="selection-summary">
+            <div class="summary-content">
+                <div class="summary-icon">✓</div>
+                <div class="summary-text">
+                    <strong>{{ 'calendar.selected' | translate }}</strong>
+                    {{ formatSelectedDate() }} {{ 'calendar.at' | translate }} {{ selectedSlot()!.time }}
+                    <span class="rooms-badge">
+            {{ selectedSlot()!.rooms }}
+                        {{ selectedSlot()!.rooms === 1 ? ('calendar.room' | translate) : ('calendar.rooms' | translate) }}
+          </span>
+                </div>
+                <button class="confirm-btn" (click)="confirmSelection()">{{ 'calendar.cta.continue' | translate }}</button>
+            </div>
+        </div>
+    }
+</div>
+
+<app-modal [isOpen]="showRoomModal()" [title]="'calendar.modal.title' | translate" (closed)="closeModal()">
+    <div class="room-selection">
+        <p class="modal-description">
+            {{ 'calendar.modal.q' | translate }}
+            <strong>{{ modalSlot()?.time }}</strong>
+            {{ 'calendar.modal.on' | translate }}
+            <strong>{{ formatModalDate() }}</strong>?
+        </p>
+
+        <div class="available-info">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="info-icon">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <span>{{ modalSlot()?.availableSpots }} {{ 'calendar.modal.of' | translate }} {{ modalSlot()?.maxSpots }} {{ 'calendar.modal.roomsAvailable' | translate }}</span>
+        </div>
+
+        <div class="room-options">
+            @for (num of getRoomOptions(); track num) {
+                <div class="room-option" [class.selected]="selectedRooms() === num" (click)="selectRooms(num)">
+                    <div class="room-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="9" y1="3" x2="9" y2="21"></line>
+                        </svg>
+                        @if (num > 1) { <div class="room-count-badge">{{ num }}</div> }
+                    </div>
+                    <div class="room-label">
+                        {{ num }} {{ num === 1 ? ('calendar.room' | translate) : ('calendar.rooms' | translate) }}
+                    </div>
+                    @if (selectedRooms() === num) { <div class="check-icon">✓</div> }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div footer class="modal-actions">
+        <app-button variant="outline" (clicked)="closeModal()">{{ 'common.cancel' | translate }}</app-button>
+        <app-button (clicked)="confirmRoomSelection()" [disabled]="!selectedRooms()">
+            {{ 'calendar.cta.confirm' | translate }}
+        </app-button>
+    </div>
+</app-modal>

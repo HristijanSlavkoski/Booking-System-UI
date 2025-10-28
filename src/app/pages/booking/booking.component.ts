@@ -110,7 +110,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
                           <div class="game-meta">
                             <span>{{ game.duration }} min</span>
                             <span>{{ game.minPlayers }}-{{ game.maxPlayers }} players</span>
-                            <span class="difficulty" [class]="game.difficulty.toLowerCase()">{{ game.difficulty }}</span>
+                            <span>{{ game.difficulty }}</span>
                           </div>
                         </div>
                         @if (isGameSelected(game.id, 0)) {
@@ -134,7 +134,7 @@ import { CalendarComponent } from '../../shared/components/calendar/calendar.com
                               <div class="game-info-compact">
                                 <h4>{{ game.name }}</h4>
                                 <div class="game-meta-small">
-                                  <span class="difficulty" [class]="game.difficulty.toLowerCase()">{{ game.difficulty }}</span>
+                                  <span>{{ game.difficulty }}</span>
                                 </div>
                               </div>
                               @if (isGameSelected(game.id, roomIndex)) {

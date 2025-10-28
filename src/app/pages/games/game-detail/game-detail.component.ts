@@ -22,7 +22,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
             </div>
             <div class="game-info">
               <h1 class="game-title">{{ game()!.name }}</h1>
-              <span class="game-difficulty" [class]="game()!.difficulty.toLowerCase()">
+              <span>
                 {{ game()!.difficulty }}
               </span>
               <p class="game-description">{{ game()!.description }}</p>

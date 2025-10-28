@@ -18,7 +18,11 @@ export class GameService {
   }
 
   getGameById(id: string): Observable<Game> {
-    return this.apiService.get<Game>(`/games/${id}`);
+    return this.apiService.get<Game>(`/games/id/${id}`);
+  }
+
+  getGameByCode(code: string): Observable<Game> {
+    return this.apiService.get<Game>(`/games/${code}`);
   }
 
   createGame(game: Partial<Game>): Observable<Game> {

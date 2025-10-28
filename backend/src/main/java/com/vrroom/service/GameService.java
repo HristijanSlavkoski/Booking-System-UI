@@ -1,20 +1,20 @@
 package com.vrroom.service;
 
-import com.vrroom.domain.entity.Game;
-import com.vrroom.domain.enums.Difficulty;
 import com.vrroom.dto.GameDTO;
-
 import java.util.List;
 
-public interface GameService {
+public interface GameService
+{
 
     List<GameDTO> getAllGames();
 
     List<GameDTO> getActiveGames();
 
-    List<GameDTO> getGamesByDifficulty(Difficulty difficulty);
+    List<GameDTO> getGamesByDifficulty(Integer difficulty);
 
     GameDTO getGameById(String id);
+
+    GameDTO getGameByCode(String id);
 
     GameDTO createGame(GameDTO gameDTO);
 

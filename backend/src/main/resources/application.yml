@@ -18,7 +18,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -51,9 +51,9 @@ server:
 
 logging:
   level:
-    com.vrroom: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.vrroom: debug
+    org.springframework.security: debug
+    org.hibernate.SQL: error
 
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:4200}

@@ -1,13 +1,17 @@
 package com.vrroom.service.impl;
 
+import com.vrroom.domain.entity.SystemConfig;
+import com.vrroom.domain.enums.BookingStatus;
 import com.vrroom.dto.Availability.DayScheduleDto;
 import com.vrroom.dto.Availability.TimeSlotAvailabilityDto;
+import com.vrroom.repository.BookingRepository;
+import com.vrroom.repository.SystemConfigRepository;
 import com.vrroom.service.AvailabilityService;
+import io.micrometer.common.lang.Nullable;
 import java.time.*;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 // TODO: Make it interface
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +22,15 @@ import org.springframework.stereotype.Service;
 public class AvailabilityServiceImpl implements AvailabilityService
 {
 
+    private final SystemConfigRepository systemConfigRepository;
+
+    private final BookingRepository bookingRepository;
+
     // how many rooms you can run in parallel
     @Value("${vrroom.max-concurrent-bookings:2}")
     private int maxConcurrentBookings;
+
+    private static final Duration HOLD_WINDOW = Duration.ofMinutes(15);
 
     // Example: 09:00–21:00 inclusive, step 60 minutes
     private static final int START_HOUR = 9;
@@ -31,19 +41,29 @@ public class AvailabilityServiceImpl implements AvailabilityService
     // private final BookingRepository bookingRepository;
     // private final ReservationRepository reservationRepository;
 
-    public List<DayScheduleDto> getAvailabilityForRange(
-            LocalDate start, LocalDate end, String maybeGameId)
+    public List<DayScheduleDto> getAvailabilityForRange(LocalDate start, LocalDate end, @Nullable String maybeGameId)
     {
         if (end.isBefore(start))
-        {
             throw new IllegalArgumentException("endDate must be >= startDate");
-        }
 
-        List<String> times = generateTimes();
+        final Optional<SystemConfig> cfg = systemConfigRepository.findLatestConfig();
+        if (cfg.isEmpty())
+        {
+            // TODO: Error
+            return null;
+        }
+        final int maxConcurrent = cfg.get().getMaxConcurrentBookings(); // e.g. 2
+        final LocalTime open = cfg.get().getOpeningTime(); // e.g. 09:00
+        final LocalTime close = cfg.get().getClosingTime(); // e.g. 21:00
+        final int slotMins = cfg.get().getSlotDurationMinutes(); // e.g. 60
+
+        final Map<String, Integer> roomsTaken = preloadRoomsTaken(start, end, maybeGameId);
+
+        final List<String> times = generateTimes(open, close, slotMins);
+        final LocalDate today = LocalDate.now();
 
         List<DayScheduleDto> days = new ArrayList<>();
         LocalDate cursor = start;
-        LocalDate today = LocalDate.now();
 
         while (!cursor.isAfter(end))
         {
@@ -51,71 +71,87 @@ public class AvailabilityServiceImpl implements AvailabilityService
             String dayName = day.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
 
             List<TimeSlotAvailabilityDto> slots = times.stream()
-                    .map(t -> buildSlot(day, t, today, maybeGameId))
-                    .collect(Collectors.toList());
+                    .map(t -> buildSlot(day, t, today, maxConcurrent, roomsTaken))
+                    .toList();
 
             days.add(new DayScheduleDto(day, day.toString(), dayName, slots));
-
             cursor = cursor.plusDays(1);
         }
 
         return days;
     }
 
-    private List<String> generateTimes()
+    /** One pass over bookings → map key "YYYY-MM-DD|HH:mm" -> rooms taken */
+    private Map<String, Integer> preloadRoomsTaken(
+            LocalDate start, LocalDate end, @Nullable String maybeGameId)
     {
-        return IntStream.iterate(START_HOUR, h -> h + (STEP_MINUTES / 60))
-                .limit(((END_HOUR - START_HOUR) * 60) / STEP_MINUTES + 1)
-                .mapToObj(h -> String.format("%02d:%02d", h, 0))
-                .collect(Collectors.toList());
+        final Instant now = Instant.now();
+        final Instant holdCutoff = now.minus(HOLD_WINDOW);
+
+        // ----- If rooms are generic -----
+        List<BookingRepository.BookingFlatRow> rows = bookingRepository.findFlatForRange(start, end);
+
+        Map<String, Integer> map = new HashMap<>();
+        for (var r : rows)
+        {
+            // Treat PENDING as occupied only if still within hold window
+            if (r.getStatus() == BookingStatus.PENDING && r.getCreatedAt().isBefore(holdCutoff))
+            {
+                continue; // expired hold → ignore
+            }
+
+            String key = key(r.getDate(), r.getTime());
+            map.merge(key, safeRooms(r.getRooms()), Integer::sum);
+        }
+        return map;
+    }
+
+    private static int safeRooms(Integer n)
+    {
+        return n == null ? 0 : Math.max(0, n);
+    }
+
+    private static String key(LocalDate d, LocalTime t)
+    {
+        return d + "|" + t.truncatedTo(ChronoUnit.MINUTES).toString(); // "2025-10-29|10:00"
+    }
+
+    private List<String> generateTimes(LocalTime open, LocalTime close, int mins)
+    {
+        List<String> slots = new ArrayList<>();
+        LocalTime t = open;
+        while (!t.isAfter(close))
+        {
+            slots.add(t.truncatedTo(ChronoUnit.MINUTES).toString()); // "HH:mm"
+            t = t.plusMinutes(mins);
+        }
+        return slots;
     }
 
     private TimeSlotAvailabilityDto buildSlot(
-            LocalDate date, String time, LocalDate today, String gameId)
+            LocalDate day,
+            String timeStr,
+            LocalDate today,
+            int maxConcurrent,
+            Map<String, Integer> roomsTaken)
     {
-        // Past times are unavailable
-        boolean isPast = isPast(date, time, today);
-        if (isPast)
+        // Past slots are unavailable
+        if (isPast(day, timeStr, today))
         {
-            return new TimeSlotAvailabilityDto(time, "unavailable", 0, maxConcurrentBookings);
+            return new TimeSlotAvailabilityDto(timeStr, "unavailable", 0, maxConcurrent);
         }
 
-        // ====== TODO: replace with real DB counts ======
-        // Example idea:
-        // int activeBookings = bookingRepository.countConfirmedByDateAndTimeAndGame(date, time,
-        // gameId);
-        // int holds = reservationRepository.countActiveHoldsByDateAndTimeAndGame(date, time, gameId);
-        int activeBookings = 0;
-        int holds = 0;
-        // ===============================================
+        final int booked = roomsTaken.getOrDefault(day + "|" + timeStr, 0);
+        final int available = Math.max(0, maxConcurrent - booked);
 
-        int used = activeBookings + holds;
-        int remaining = Math.max(0, maxConcurrentBookings - used);
-
-        if (activeBookings >= maxConcurrentBookings)
-        {
-            return new TimeSlotAvailabilityDto(time, "booked", 0, maxConcurrentBookings);
-        }
-        else if (holds > 0 && remaining > 0)
-        {
-            return new TimeSlotAvailabilityDto(time, "reserved", remaining, maxConcurrentBookings);
-        }
-        else
-        {
-            return new TimeSlotAvailabilityDto(time, "available", remaining, maxConcurrentBookings);
-        }
+        String status = available > 0 ? "available" : "booked";
+        return new TimeSlotAvailabilityDto(timeStr, status, available, maxConcurrent);
     }
 
-    private boolean isPast(LocalDate date, String time, LocalDate today)
+    private boolean isPast(LocalDate day, String timeStr, LocalDate today)
     {
-        if (date.isBefore(today))
-            return true;
-        if (date.isAfter(today))
-            return false;
-
-        // same day: compare time
-        LocalTime slotTime = LocalTime.of(
-                Integer.parseInt(time.substring(0, 2)), Integer.parseInt(time.substring(3, 5)));
-        return slotTime.isBefore(LocalTime.now());
+        final LocalTime time = LocalTime.parse(timeStr); // "HH:mm"
+        final LocalDateTime dt = LocalDateTime.of(day, time);
+        return dt.isBefore(LocalDateTime.now());
     }
 }

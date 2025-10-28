@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ModalComponent } from '../modal/modal.component';
-import { ButtonComponent } from '../button/button.component';
-import { BookingService } from '../../../core/services/booking.service';
-import { Game } from '../../../models/game.model';
+import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ModalComponent} from '../modal/modal.component';
+import {ButtonComponent} from '../button/button.component';
+import {BookingService} from '../../../core/services/booking.service';
+import {Game} from '../../../models/game.model';
 import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 
 export interface TimeSlotAvailability {
@@ -112,7 +112,7 @@ export class CalendarComponent implements OnInit {
     if (slot.status !== 'available' || this.isPastSlot(dayObj, time)) return;
 
     if (!this.gameId || this.gameId.trim().length === 0) {
-      this.gamePickRequested.emit({ date, time });
+      this.gamePickRequested.emit({date, time});
       return;
     }
 
@@ -130,7 +130,7 @@ export class CalendarComponent implements OnInit {
 
   getRoomOptions(): number[] {
     const available = this.modalSlot()?.availableSpots || 0;
-    return Array.from({ length: available }, (_, i) => i + 1);
+    return Array.from({length: available}, (_, i) => i + 1);
   }
 
   selectRooms(count: number): void {
@@ -184,20 +184,20 @@ export class CalendarComponent implements OnInit {
     const start = new Date(this.currentWeekStart);
     const end = new Date(this.currentWeekStart);
     end.setDate(end.getDate() + 6);
-    const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const startStr = start.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+    const endStr = end.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
     return `${startStr} - ${endStr}`;
   }
 
   formatHeader(day: Date): { name: string; date: string } {
     return {
-      name: day.toLocaleDateString(this.locale, { weekday: 'short' }).toUpperCase(),
-      date: day.toLocaleDateString(this.locale, { month: 'numeric', day: 'numeric' }),
+      name: day.toLocaleDateString(this.locale, {weekday: 'short'}).toUpperCase(),
+      date: day.toLocaleDateString(this.locale, {month: 'numeric', day: 'numeric'}),
     };
   }
 
   formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+    return date.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric'});
   }
 
   formatModalDate(): string {

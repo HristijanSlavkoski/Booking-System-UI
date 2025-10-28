@@ -136,3 +136,77 @@
   text-align: center;
   padding: 1rem;
 }
+/* --- Selected Game chip (above calendar) --- */
+.selected-game-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  margin: 0 0 1rem 0;
+  background: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: 0.5rem;
+
+  img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 0.35rem;
+  }
+
+  .chip-meta { line-height: 1.2; }
+  .chip-name { color: #fff; font-weight: 700; }
+  .chip-sub  { color: #bbb; font-size: .9rem; }
+}
+
+/* --- Inline Players header with back button + crumbs --- */
+.players-inline-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem 0;
+
+  .back-btn {
+    appearance: none;
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    color: #eee;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: border-color .15s ease, transform .15s ease;
+
+    &:hover { border-color: #ec3f3a; transform: translateY(-1px); }
+    &:active { transform: translateY(0); }
+  }
+
+  .crumb {
+    color: #bbb;
+    font-size: .95rem;
+    span + span { margin-left: 0.5rem; }
+  }
+}
+
+/* --- Modal header: add a "back" button on the left to match your theme --- */
+.gpm-header {
+  gap: .5rem; /* keep your existing layout, just allow spacing */
+}
+
+.gpm-back {
+  background: transparent;
+  color: #eee;
+  border: 1px solid #2a2a2a;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color .15s ease, transform .15s ease;
+
+  &:hover  { border-color: #ec3f3a; transform: translateY(-1px); }
+  &:active { transform: translateY(0); }
+}
+
+/* --- Small polish for consistency --- */
+.calendar-header { margin-bottom: 1.25rem; } /* a bit tighter for embeds */
+.game-picker-modal { padding: 0.85rem; }     /* aligns with chip spacing */

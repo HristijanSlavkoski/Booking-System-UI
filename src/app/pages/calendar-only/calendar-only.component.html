@@ -1,45 +1,26 @@
+<!-- calendar-only.component.html -->
 <div class="calendar-only-page">
     <div class="calendar-header">
         <h1 class="title">{{ 'calendar.title' | translate }}</h1>
         <p class="subtitle">{{ 'calendar.subtitle' | translate }}</p>
     </div>
 
-    <!-- NEW: step switch -->
     @if (step() === 'calendar') {
-        <!-- (optional) small selected-game chip when a game is preselected -->
-        @if (game()) {
-            <div class="selected-game-chip">
-                <img *ngIf="game()?.imageUrl" [src]="game()?.imageUrl" alt=""/>
-                <div class="chip-meta">
-                    <div class="chip-name">{{ game()?.name }}</div>
-                    <div class="chip-sub">
-                        @if (game()?.duration) {
-                            <span>{{ game()?.duration }} min</span>
-                        }
-                        @if (game()?.minPlayers && game()?.maxPlayers) {
-                            <span>· {{ game()?.minPlayers }}
-                                –{{ game()?.maxPlayers }} {{ 'calendar.players' | translate }}</span>
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-
-        <!-- your existing calendar -->
         <app-calendar
                 [lang]="lang()"
                 [gameId]="gameId()"
                 [gameData]="game()"
                 [maxConcurrentBookings]="maxConcurrentBookings()"
                 (slotSelected)="onSlotSelected($event)"
-                (gamePickRequested)="onGamePickRequested($event)">
-        </app-calendar>
+                (gamePickRequested)="onGamePickRequested($event)"
+                (clearGameRequested)="clearGameFromParent()"
+                ></app-calendar>
 
-        <!-- your existing picker modal (shown only in calendar step) -->
         @if (showGamePicker()) {
             <div class="game-picker-backdrop" (click)="closeGamePicker()"></div>
             <div class="game-picker-modal" (click)="$event.stopPropagation()">
                 <div class="gpm-header">
+                    <button class="gpm-back" (click)="closeGamePicker()">← {{ 'common.back' | translate }}</button>
                     <div class="gpm-title">{{ 'calendar.chooseGame' | translate }}</div>
                     <button class="gpm-close" (click)="closeGamePicker()">✕</button>
                 </div>
@@ -54,17 +35,12 @@
                             <div class="gpm-meta">
                                 <div class="gpm-name">{{ g.name }}</div>
                                 <div class="gpm-sub">
-                                    @if (g.duration) {
-                                        <span>{{ g.duration }} min</span>
-                                    }
+                                    @if (g.duration) { <span>{{ g.duration }} {{ 'calendar.minutes' | translate }}</span> }
                                     @if (g.minPlayers && g.maxPlayers) {
-                                        <span> · {{ g.minPlayers }}
-                                            –{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+                                        <span> · {{ g.minPlayers }}–{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
                                     }
                                 </div>
-                                @if (g.shortDescription) {
-                                    <div class="gpm-desc">{{ g.shortDescription }}</div>
-                                }
+                                @if (g.shortDescription) { <div class="gpm-desc">{{ g.shortDescription }}</div> }
                             </div>
                         </div>
                     }
@@ -75,19 +51,6 @@
             </div>
         }
     } @else {
-        <!-- NEW: inline players view -->
-        <div class="players-inline-header">
-            <button class="back-btn" (click)="step.set('calendar')">← {{ 'common.back' | translate }}</button>
-            <div class="crumb">
-                <span>{{ (route.snapshot.queryParamMap.get('date') || '') | date:'fullDate' }}</span>
-                <span> · {{ route.snapshot.queryParamMap.get('time') }}</span>
-                @if (game()) {
-                    <span> · {{ game()?.name }}</span>
-                }
-            </div>
-        </div>
-
-        <!-- Reuse your PlayersComponent inside /calendar -->
-        <app-players></app-players>
+        <app-players [inline]="true" (back)="backToCalendar()"></app-players>
     }
 </div>

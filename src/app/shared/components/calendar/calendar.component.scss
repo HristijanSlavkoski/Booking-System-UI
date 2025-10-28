@@ -484,3 +484,31 @@
     grid-template-columns: 80px repeat(7, 120px);
   }
 }
+
+.game-banner {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  padding: .75rem;
+  margin: 0 0 1rem 0;
+  background: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: .5rem;
+}
+.banner-clear {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color .15s ease, transform .15s ease;
+}
+.banner-clear:hover {
+  color: #ec3f3a;
+  transform: scale(1.1);
+}
+

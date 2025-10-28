@@ -19,6 +19,8 @@
                 @if (gameData.shortDescription) {
                     <div class="game-desc">{{ gameData.shortDescription }}</div>
                 }
+
+                <button class="banner-clear" (click)="onClearGameClick($event)" title="{{ 'calendar.clearGame' | translate }}">✕</button>
             </div>
         </div>
     }

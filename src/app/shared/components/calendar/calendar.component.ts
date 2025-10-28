@@ -44,6 +44,7 @@ export class CalendarComponent implements OnInit {
     /** Parent hooks */
     @Output() slotSelected = new EventEmitter<SlotSelection>();                   // go straight to next page
     @Output() gamePickRequested = new EventEmitter<{ date: string; time: string }>(); // open game picker in parent
+    @Output() clearGameRequested = new EventEmitter<void>();
 
     weekSchedule = signal<DaySchedule[]>([]);
     timeSlots = signal<string[]>([]);
@@ -65,6 +66,11 @@ export class CalendarComponent implements OnInit {
         const slots: string[] = [];
         for (let hour = 9; hour <= 21; hour++) slots.push(`${hour.toString().padStart(2, '0')}:00`);
         this.timeSlots.set(slots);
+    }
+
+    onClearGameClick(ev: MouseEvent) {
+        ev.stopPropagation();
+        this.clearGameRequested.emit();
     }
 
     loadWeekSchedule(): void {

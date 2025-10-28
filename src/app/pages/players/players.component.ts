@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -19,6 +19,12 @@ export class PlayersComponent implements OnInit {
     private router = inject(Router);
     private gameService = inject(GameService);
     private i18n = inject(TranslateService);
+
+    /** If true, we’re rendered inline inside /calendar; parent will handle back */
+    @Input() inline = false;
+
+    /** Emit when inline back is pressed (parent decides how to clear URL/state) */
+    @Output() back = new EventEmitter<void>();
 
     // from query params
     date = signal<string>('');
@@ -82,19 +88,30 @@ export class PlayersComponent implements OnInit {
     }
 
     backToCalendar(): void {
-        this.router.navigate(['/'], {queryParams: {lang: this.lang(), gameId: this.gameCode()}});
+        if (this.inline && this.back.observed) {
+            // INLINE MODE: let parent do the param clearing and step switch
+            this.back.emit();
+            return;
+        }
+        // STANDALONE MODE (/players route): navigate to /calendar with only the params you want to keep
+        this.router.navigate(['/calendar'], {
+            queryParams: {
+                lang: this.lang(),
+                gameId: this.gameCode() || undefined
+                // (omit date/time/players/step so they get dropped)
+            }
+        });
     }
 
     continueToBooking(): void {
-        // Pass players + defaults. Your BookingComponent reads date, time, gameId, players (+ rooms=1)
         const q = {
             date: this.date(),
             time: this.time(),
             gameId: this.gameCode(),
             players: this.players(),
-            rooms: 1,       // default 1 room in the new flow
+            rooms: 1,
             lang: this.lang()
         };
-        this.router.navigate(['/booking'], {queryParams: q});
+        this.router.navigate(['/booking'], { queryParams: q });
     }
 }

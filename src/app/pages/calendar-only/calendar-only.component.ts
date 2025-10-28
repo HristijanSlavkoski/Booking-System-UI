@@ -6,14 +6,14 @@ import {ConfigService} from '../../core/services/config.service';
 import {GameService} from '../../core/services/game.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {Game} from '../../models/game.model';
-import { PlayersComponent } from '../players/players.component';
+import {PlayersComponent} from '../players/players.component';
 
 @Component({
-  selector: 'app-calendar-only',
-  standalone: true,
-  imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent],
-  templateUrl: './calendar-only.component.html',
-  styleUrls: ['./calendar-only.component.scss']
+    selector: 'app-calendar-only',
+    standalone: true,
+    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent],
+    templateUrl: './calendar-only.component.html',
+    styleUrls: ['./calendar-only.component.scss']
 })
 export class CalendarOnlyComponent implements OnInit {
     private router = inject(Router);
@@ -27,18 +27,51 @@ export class CalendarOnlyComponent implements OnInit {
     game = signal<Game | null>(null);
     lang = signal<'en' | 'mk'>('en');
 
-    // picker UI
     showGamePicker = signal(false);
     games = signal<Game[]>([]);
     gamesLoading = signal(false);
 
-    // slot that triggered the picker
     pendingSlot = signal<{ date: string; time: string } | null>(null);
-
     step = signal<'calendar' | 'players'>('calendar');
 
+    /** Utility: remove specific query params */
+    private removeQueryParams(keys: string[]) {
+        const qp: any = {};
+        keys.forEach(k => qp[k] = null); // null -> remove
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: qp,
+            queryParamsHandling: 'merge',
+        });
+    }
+
+    /** Back from PLAYERS to CALENDAR, clear date/time/players/step */
+    backToCalendar() {
+        this.step.set('calendar');
+        this.removeQueryParams(['date', 'time', 'players', 'step']);
+        // keep gameId if you want the chip to remain; otherwise also clear it
+        // this.removeQueryParams(['gameId']);
+    }
+
+    clearGameFromParent(): void {
+        this.game.set(null);
+        this.gameId.set('');
+        // also clear dependent params so the UI is consistent
+        this.removeQueryParams(['gameId', 'date', 'time', 'players', 'step']);
+        // ensure we’re back on the calendar step
+        this.step.set('calendar');
+    }
+
+
+    /** Close modal safely (no navigation) */
+    closeGamePicker(): void {
+        this.showGamePicker.set(false);
+        this.pendingSlot.set(null);
+        // optional: also clear date/time if you had pre-filled them when opening the picker
+        // this.removeQueryParams(['date','time']);
+    }
+
     private goToPlayersInline(date: string, time: string, gameCode: string) {
-        // preserve params for deep-link/share
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: {...this.route.snapshot.queryParams, date, time, gameId: gameCode, step: 'players'},
@@ -84,6 +117,7 @@ export class CalendarOnlyComponent implements OnInit {
 
     selectGame(g: Game) {
         this.gameId.set(g.code);
+        this.game.set(g);
         this.showGamePicker.set(false);
 
         const ps = this.pendingSlot();
@@ -100,7 +134,6 @@ export class CalendarOnlyComponent implements OnInit {
         }
     }
 
-    /** When a slot is clicked with NO game selected -> open the picker */
     onGamePickRequested(e: { date: string; time: string }): void {
         this.pendingSlot.set({date: e.date, time: e.time});
         this.openGamePicker();
@@ -123,15 +156,10 @@ export class CalendarOnlyComponent implements OnInit {
         }
     }
 
-    closeGamePicker(): void {
-        this.showGamePicker.set(false);
+    formatDate(dateString: string): string {
+        if (!dateString) return '';
+        const d = new Date(dateString);
+        const locale = this.lang() === 'mk' ? 'mk-MK' : 'en-GB';
+        return d.toLocaleDateString(locale, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
     }
-
-  formatDate(dateString: string): string {
-    if (!dateString) return '';
-    const d = new Date(dateString);
-    // Localize as you prefer (you already keep lang())
-    const locale = this.lang() === 'mk' ? 'mk-MK' : 'en-GB';
-    return d.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-  }
 }

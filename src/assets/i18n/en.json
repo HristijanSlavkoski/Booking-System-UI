@@ -106,7 +106,15 @@
     "title": "Select Your Date & Time",
     "subtitle": "Choose an available slot to continue booking",
     "chooseGame": "Choose a Game",
-    "noGames": "No games available right now"
+    "noGames": "No games available right now",
+    "clearGame": "Remove selected game"
+  },
+  "players": {
+    "title": "Select Number of Players",
+    "subtitle": "Pick how many players will join this session",
+    "continue": "Continue to Details",
+    "back": "Back to Calendar",
+    "players": "players"
   },
   "auth": {
     "loginTitle": "Login to Your Account",

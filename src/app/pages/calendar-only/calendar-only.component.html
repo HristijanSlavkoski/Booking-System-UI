@@ -4,51 +4,90 @@
         <p class="subtitle">{{ 'calendar.subtitle' | translate }}</p>
     </div>
 
-    <app-calendar
-            [lang]="lang()"
-            [gameId]="gameId()"
-            [gameData]="game()"
-            [maxConcurrentBookings]="maxConcurrentBookings()"
-            (slotSelected)="onSlotSelected($event)"
-            (gamePickRequested)="onGamePickRequested($event)">
-    </app-calendar>
-
-    @if (showGamePicker()) {
-        <div class="game-picker-backdrop" (click)="closeGamePicker()"></div>
-        <div class="game-picker-modal" (click)="$event.stopPropagation()">
-            <div class="gpm-header">
-                <div class="gpm-title">{{ 'calendar.chooseGame' | translate }}</div>
-                <button class="gpm-close" (click)="closeGamePicker()">✕</button>
+    <!-- NEW: step switch -->
+    @if (step() === 'calendar') {
+        <!-- (optional) small selected-game chip when a game is preselected -->
+        @if (game()) {
+            <div class="selected-game-chip">
+                <img *ngIf="game()?.imageUrl" [src]="game()?.imageUrl" alt=""/>
+                <div class="chip-meta">
+                    <div class="chip-name">{{ game()?.name }}</div>
+                    <div class="chip-sub">
+                        @if (game()?.duration) {
+                            <span>{{ game()?.duration }} min</span>
+                        }
+                        @if (game()?.minPlayers && game()?.maxPlayers) {
+                            <span>· {{ game()?.minPlayers }}
+                                –{{ game()?.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+                        }
+                    </div>
+                </div>
             </div>
+        }
 
-            <div class="gpm-list">
-                @if (gamesLoading()) {
-                    <div class="gpm-loading">{{ 'common.loading' | translate }}</div>
-                }
-                @for (g of games(); track g.id) {
-                    <div class="gpm-item" (click)="selectGame(g)">
-                        <img *ngIf="g.imageUrl" [src]="g.imageUrl" alt=""/>
-                        <div class="gpm-meta">
-                            <div class="gpm-name">{{ g.name }}</div>
-                            <div class="gpm-sub">
-                                @if (g.duration) {
-                                    <span>{{ g.duration }} min</span>
-                                }
-                                @if (g.minPlayers && g.maxPlayers) {
-                                    <span> · {{ g.minPlayers }}
-                                        –{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+        <!-- your existing calendar -->
+        <app-calendar
+                [lang]="lang()"
+                [gameId]="gameId()"
+                [gameData]="game()"
+                [maxConcurrentBookings]="maxConcurrentBookings()"
+                (slotSelected)="onSlotSelected($event)"
+                (gamePickRequested)="onGamePickRequested($event)">
+        </app-calendar>
+
+        <!-- your existing picker modal (shown only in calendar step) -->
+        @if (showGamePicker()) {
+            <div class="game-picker-backdrop" (click)="closeGamePicker()"></div>
+            <div class="game-picker-modal" (click)="$event.stopPropagation()">
+                <div class="gpm-header">
+                    <div class="gpm-title">{{ 'calendar.chooseGame' | translate }}</div>
+                    <button class="gpm-close" (click)="closeGamePicker()">✕</button>
+                </div>
+
+                <div class="gpm-list">
+                    @if (gamesLoading()) {
+                        <div class="gpm-loading">{{ 'common.loading' | translate }}</div>
+                    }
+                    @for (g of games(); track g.id) {
+                        <div class="gpm-item" (click)="selectGame(g)">
+                            <img *ngIf="g.imageUrl" [src]="g.imageUrl" alt=""/>
+                            <div class="gpm-meta">
+                                <div class="gpm-name">{{ g.name }}</div>
+                                <div class="gpm-sub">
+                                    @if (g.duration) {
+                                        <span>{{ g.duration }} min</span>
+                                    }
+                                    @if (g.minPlayers && g.maxPlayers) {
+                                        <span> · {{ g.minPlayers }}
+                                            –{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+                                    }
+                                </div>
+                                @if (g.shortDescription) {
+                                    <div class="gpm-desc">{{ g.shortDescription }}</div>
                                 }
                             </div>
-                            @if (g.shortDescription) {
-                                <div class="gpm-desc">{{ g.shortDescription }}</div>
-                            }
                         </div>
-                    </div>
-                }
-                @if (!gamesLoading() && games().length === 0) {
-                    <div class="gpm-empty">{{ 'calendar.noGames' | translate }}</div>
+                    }
+                    @if (!gamesLoading() && games().length === 0) {
+                        <div class="gpm-empty">{{ 'calendar.noGames' | translate }}</div>
+                    }
+                </div>
+            </div>
+        }
+    } @else {
+        <!-- NEW: inline players view -->
+        <div class="players-inline-header">
+            <button class="back-btn" (click)="step.set('calendar')">← {{ 'common.back' | translate }}</button>
+            <div class="crumb">
+                <span>{{ (route.snapshot.queryParamMap.get('date') || '') | date:'fullDate' }}</span>
+                <span> · {{ route.snapshot.queryParamMap.get('time') }}</span>
+                @if (game()) {
+                    <span> · {{ game()?.name }}</span>
                 }
             </div>
         </div>
+
+        <!-- Reuse your PlayersComponent inside /calendar -->
+        <app-players></app-players>
     }
 </div>

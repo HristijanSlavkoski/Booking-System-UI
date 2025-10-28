@@ -24,18 +24,63 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="info-right">
-                        <div class="picker-title">{{ 'players.title' | translate : {default: 'How many players?'} }}</div>
+                        <div class="picker-title">
+                            {{ 'players.howMany' | translate : {default: 'How many players?'} }}
+                        </div>
+
+                        <!-- SIMPLIFIED CHIPS: only the number -->
                         <div class="player-grid">
                             @for (n of options(); track n) {
                                 <button
-                                        class="player-chip"
+                                        class="player-chip simple"
                                         [class.selected]="players() === n"
                                         (click)="selectPlayers(n)">
                                     {{ n }}
                                 </button>
                             }
                         </div>
+
+                        <!-- per-person price (VAT included) once a choice is made -->
+                        @if (players()) {
+                            <div class="per-person-line">
+                                <span class="label">
+                                  {{ 'players.pricePerPerson' | translate:{default: 'Price per person'} }}
+                                    ({{ 'players.vatIncluded' | translate:{default: 'incl. VAT'} }})
+                                </span>
+                                <span class="value">{{ pricePerPersonInclVat(players()!) }} MKD</span>
+                            </div>
+                        }
+
+                        <!-- tax note: VAT included -->
+                        <div class="tax-note">
+                            {{ 'players.taxNoteIncluded' | translate:{percent: (taxPercentage() || 0)} }}
+                        </div>
+
+                        @if (players()) {
+                            <div class="mini-total">
+                                <!-- Main line: total (VAT included) -->
+                                <div class="line total">
+                                    <span>{{ 'players.total' | translate : {default: 'Total'} }}</span>
+                                    <span>{{ selectedTotalInclVat() }} MKD</span>
+                                </div>
+
+                                <!-- Optional small breakdown (Net + VAT portion) -->
+                                <div class="breakdown">
+                                    <div class="line small">
+                                        <span>{{ 'players.net' | translate:{default: 'Net (excl. VAT)'} }}</span>
+                                        <span>{{ selectedNetPortion() }} MKD</span>
+                                    </div>
+                                    <div class="line small">
+                                        <span>{{ 'players.vatPortion' | translate:{default: 'VAT portion'} }}
+                                            ({{ taxPercentage() }}%)</span>
+                                        <span>{{ selectedVatPortion() }} MKD</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
                         <div class="actions">
                             <app-button variant="outline" (clicked)="backToCalendar()">
                                 {{ 'common.back' | translate : {default: 'Back'} }}

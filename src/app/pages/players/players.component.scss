@@ -126,3 +126,40 @@
     height: 120px;
   }
 }
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: .5rem;
+}
+.player-chip.simple {
+  display: grid;
+  place-items: center;
+  height: 56px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  border-radius: .6rem;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #fff;
+  transition: .2s;
+}
+.player-chip.simple:hover { border-color: #ec3f3a; transform: translateY(-1px); }
+.player-chip.simple.selected { background: #ec3f3a; border-color: #ec3f3a; }
+
+.per-person-line,
+.tax-note {
+  margin-top: .75rem;
+  display: flex;
+  justify-content: space-between;
+  color: #ddd;
+}
+.per-person-line .label { color: #bbb; }
+.per-person-line .value { font-weight: 700; color: #fff; }
+
+.mini-total {
+  margin-top: .5rem;
+  .line { display: flex; justify-content: space-between; padding: .35rem 0; color: #eee; }
+  .line.total { font-size: 1.1rem; font-weight: 800; }
+  .breakdown .line.small { color: #bbb; font-size: .95rem; }
+}

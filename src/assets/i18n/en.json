@@ -110,11 +110,17 @@
     "clearGame": "Remove selected game"
   },
   "players": {
-    "title": "Select Number of Players",
-    "subtitle": "Pick how many players will join this session",
-    "continue": "Continue to Details",
-    "back": "Back to Calendar",
-    "players": "players"
+    "title": "Choose Players",
+    "howMany": "How many players?",
+    "perPerson": "per person",
+    "pricePerPerson": "Price per person",
+    "vatIncluded": "incl. VAT",
+    "taxNoteIncluded": "Prices include {{percent}}% VAT.",
+    "total": "Total",
+    "net": "Net (excl. VAT)",
+    "vatPortion": "VAT portion",
+    "continue": "Continue",
+    "noGame": "Game not found."
   },
   "auth": {
     "loginTitle": "Login to Your Account",

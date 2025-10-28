@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -13,10 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PricingConfigDTO {
     private String id;
-    private Integer minPlayers;
-    private Integer maxPlayers;
-    private BigDecimal basePrice;
-    private BigDecimal additionalPlayerPrice;
+    private List<PricingTierDTO> tiers;
     private BigDecimal weekendMultiplier;
     private BigDecimal holidayMultiplier;
     private BigDecimal groupDiscount;

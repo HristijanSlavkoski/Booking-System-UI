@@ -1,6 +1,8 @@
 package com.vrroom.domain.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.AllArgsConstructor;
@@ -22,7 +24,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class SystemConfig
 {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -40,6 +41,9 @@ public class SystemConfig
     @Column(nullable = false)
     @Builder.Default
     private Integer slotDurationMinutes = 60;
+
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal taxPercentage;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

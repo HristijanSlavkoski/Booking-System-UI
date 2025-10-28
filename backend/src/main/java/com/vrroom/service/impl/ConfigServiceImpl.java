@@ -2,9 +2,11 @@ package com.vrroom.service.impl;
 
 import com.vrroom.domain.entity.Holiday;
 import com.vrroom.domain.entity.PricingConfig;
+import com.vrroom.domain.entity.PricingTier;
 import com.vrroom.domain.entity.SystemConfig;
 import com.vrroom.dto.HolidayDTO;
 import com.vrroom.dto.PricingConfigDTO;
+import com.vrroom.dto.PricingTierDTO;
 import com.vrroom.dto.SystemConfigDTO;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.HolidayRepository;
@@ -12,22 +14,22 @@ import com.vrroom.repository.PricingConfigRepository;
 import com.vrroom.repository.SystemConfigRepository;
 import com.vrroom.service.ConfigService;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class ConfigServiceImpl implements ConfigService {
+public class ConfigServiceImpl implements ConfigService
+{
 
     private final SystemConfigRepository systemConfigRepository;
     private final PricingConfigRepository pricingConfigRepository;
@@ -35,53 +37,63 @@ public class ConfigServiceImpl implements ConfigService {
 
     @PostConstruct
     @Transactional
-    public void initializeDefaultConfig() {
+    public void initializeDefaultConfig()
+    {
         long systemConfigCount = systemConfigRepository.count();
-        if (systemConfigCount == 0) {
-            log.info("Creating default system configuration...");
+        if (systemConfigCount == 0)
+        {
             SystemConfig systemConfig = SystemConfig.builder()
                     .maxConcurrentBookings(2)
                     .openingTime(LocalTime.of(9, 0))
                     .closingTime(LocalTime.of(22, 0))
                     .slotDurationMinutes(60)
+                    .taxPercentage(BigDecimal.valueOf(18.00))
                     .build();
             systemConfigRepository.save(systemConfig);
-            log.info("Default system configuration created");
         }
 
         long pricingConfigCount = pricingConfigRepository.count();
-        if (pricingConfigCount == 0) {
-            log.info("Creating default pricing configuration...");
+        if (pricingConfigCount == 0)
+        {
             PricingConfig pricingConfig = PricingConfig.builder()
-                    .minPlayers(2)
-                    .maxPlayers(6)
-                    .basePrice(BigDecimal.valueOf(1000))
-                    .additionalPlayerPrice(BigDecimal.valueOf(300))
                     .weekendMultiplier(BigDecimal.valueOf(1.2))
                     .holidayMultiplier(BigDecimal.valueOf(1.5))
                     .groupDiscount(BigDecimal.valueOf(0.1))
                     .groupDiscountThreshold(5)
                     .active(true)
                     .build();
+
+            pricingConfig = pricingConfigRepository.save(pricingConfig);
+
+            List<PricingTier> tiers = List.of(
+                    PricingTier.builder().pricingConfig(pricingConfig).minPlayers(2).maxPlayers(2).pricePerPlayer(BigDecimal.valueOf(1000))
+                            .build(),
+                    PricingTier.builder().pricingConfig(pricingConfig).minPlayers(3).maxPlayers(3).pricePerPlayer(BigDecimal.valueOf(950))
+                            .build(),
+                    PricingTier.builder().pricingConfig(pricingConfig).minPlayers(4).maxPlayers(5).pricePerPlayer(BigDecimal.valueOf(900))
+                            .build(),
+                    PricingTier.builder().pricingConfig(pricingConfig).minPlayers(6).maxPlayers(6).pricePerPlayer(BigDecimal.valueOf(850))
+                            .build());
+            pricingConfig.setTiers(tiers);
             pricingConfigRepository.save(pricingConfig);
-            log.info("Default pricing configuration created");
         }
 
         long holidayCount = holidayRepository.count();
-        if (holidayCount == 0) {
+        if (holidayCount == 0)
+        {
             log.info("Creating default holidays...");
             List<Holiday> defaultHolidays = List.of(
                     Holiday.builder().name("New Year's Day").date(LocalDate.of(2025, 1, 1)).active(true).build(),
                     Holiday.builder().name("Christmas Day").date(LocalDate.of(2024, 12, 25)).active(true).build(),
-                    Holiday.builder().name("Independence Day").date(LocalDate.of(2025, 9, 8)).active(true).build()
-            );
+                    Holiday.builder().name("Independence Day").date(LocalDate.of(2025, 9, 8)).active(true).build());
             holidayRepository.saveAll(defaultHolidays);
             log.info("Default holidays created");
         }
     }
 
     @Override
-    public SystemConfigDTO getSystemConfig() {
+    public SystemConfigDTO getSystemConfig()
+    {
         SystemConfig systemConfig = systemConfigRepository.findLatestConfig()
                 .orElseThrow(() -> new ResourceNotFoundException("System configuration not found"));
 
@@ -96,11 +108,13 @@ public class ConfigServiceImpl implements ConfigService {
                 .slotDurationMinutes(systemConfig.getSlotDurationMinutes())
                 .pricingConfig(pricingConfigDTO)
                 .holidays(holidays)
+                .taxPercentage(systemConfig.getTaxPercentage())
                 .build();
     }
 
     @Override
-    public PricingConfigDTO getActivePricingConfig() {
+    public PricingConfigDTO getActivePricingConfig()
+    {
         PricingConfig pricingConfig = pricingConfigRepository.findActiveConfig()
                 .orElseThrow(() -> new ResourceNotFoundException("Active pricing configuration not found"));
 
@@ -109,13 +123,10 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     @Transactional
-    public PricingConfigDTO createPricingConfig(PricingConfigDTO pricingConfigDTO) {
+    public PricingConfigDTO createPricingConfig(PricingConfigDTO pricingConfigDTO)
+    {
         log.info("Creating new pricing configuration");
         PricingConfig pricingConfig = PricingConfig.builder()
-                .minPlayers(pricingConfigDTO.getMinPlayers())
-                .maxPlayers(pricingConfigDTO.getMaxPlayers())
-                .basePrice(pricingConfigDTO.getBasePrice())
-                .additionalPlayerPrice(pricingConfigDTO.getAdditionalPlayerPrice())
                 .weekendMultiplier(pricingConfigDTO.getWeekendMultiplier())
                 .holidayMultiplier(pricingConfigDTO.getHolidayMultiplier())
                 .groupDiscount(pricingConfigDTO.getGroupDiscount())
@@ -130,15 +141,12 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     @Transactional
-    public PricingConfigDTO updatePricingConfig(String id, PricingConfigDTO pricingConfigDTO) {
+    public PricingConfigDTO updatePricingConfig(String id, PricingConfigDTO pricingConfigDTO)
+    {
         log.info("Updating pricing configuration with id: {}", id);
         PricingConfig pricingConfig = pricingConfigRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pricing configuration not found with id: " + id));
 
-        pricingConfig.setMinPlayers(pricingConfigDTO.getMinPlayers());
-        pricingConfig.setMaxPlayers(pricingConfigDTO.getMaxPlayers());
-        pricingConfig.setBasePrice(pricingConfigDTO.getBasePrice());
-        pricingConfig.setAdditionalPlayerPrice(pricingConfigDTO.getAdditionalPlayerPrice());
         pricingConfig.setWeekendMultiplier(pricingConfigDTO.getWeekendMultiplier());
         pricingConfig.setHolidayMultiplier(pricingConfigDTO.getHolidayMultiplier());
         pricingConfig.setGroupDiscount(pricingConfigDTO.getGroupDiscount());
@@ -151,14 +159,16 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public List<HolidayDTO> getAllHolidays() {
+    public List<HolidayDTO> getAllHolidays()
+    {
         return holidayRepository.findAll().stream()
                 .map(this::mapHolidayToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<HolidayDTO> getActiveHolidays() {
+    public List<HolidayDTO> getActiveHolidays()
+    {
         return holidayRepository.findByActiveTrue().stream()
                 .map(this::mapHolidayToDTO)
                 .collect(Collectors.toList());
@@ -166,7 +176,8 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     @Transactional
-    public HolidayDTO createHoliday(HolidayDTO holidayDTO) {
+    public HolidayDTO createHoliday(HolidayDTO holidayDTO)
+    {
         log.info("Creating holiday: {}", holidayDTO.getName());
         Holiday holiday = Holiday.builder()
                 .name(holidayDTO.getName())
@@ -181,7 +192,8 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     @Transactional
-    public HolidayDTO updateHoliday(String id, HolidayDTO holidayDTO) {
+    public HolidayDTO updateHoliday(String id, HolidayDTO holidayDTO)
+    {
         log.info("Updating holiday with id: {}", id);
         Holiday holiday = holidayRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Holiday not found with id: " + id));
@@ -197,9 +209,11 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     @Transactional
-    public void deleteHoliday(String id) {
+    public void deleteHoliday(String id)
+    {
         log.info("Deleting holiday with id: {}", id);
-        if (!holidayRepository.existsById(id)) {
+        if (!holidayRepository.existsById(id))
+        {
             throw new ResourceNotFoundException("Holiday not found with id: " + id);
         }
         holidayRepository.deleteById(id);
@@ -207,26 +221,31 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public boolean isHoliday(LocalDate date) {
+    public boolean isHoliday(LocalDate date)
+    {
         return holidayRepository.existsByDateAndActiveTrue(date);
     }
 
-    private PricingConfigDTO mapPricingToDTO(PricingConfig pricingConfig) {
+    private PricingConfigDTO mapPricingToDTO(PricingConfig pc)
+    {
         return PricingConfigDTO.builder()
-                .id(pricingConfig.getId())
-                .minPlayers(pricingConfig.getMinPlayers())
-                .maxPlayers(pricingConfig.getMaxPlayers())
-                .basePrice(pricingConfig.getBasePrice())
-                .additionalPlayerPrice(pricingConfig.getAdditionalPlayerPrice())
-                .weekendMultiplier(pricingConfig.getWeekendMultiplier())
-                .holidayMultiplier(pricingConfig.getHolidayMultiplier())
-                .groupDiscount(pricingConfig.getGroupDiscount())
-                .groupDiscountThreshold(pricingConfig.getGroupDiscountThreshold())
-                .active(pricingConfig.getActive())
+                .id(pc.getId())
+                .weekendMultiplier(pc.getWeekendMultiplier())
+                .holidayMultiplier(pc.getHolidayMultiplier())
+                .groupDiscount(pc.getGroupDiscount())
+                .groupDiscountThreshold(pc.getGroupDiscountThreshold())
+                .active(pc.getActive())
+                .tiers(pc.getTiers().stream().map(t -> PricingTierDTO.builder()
+                        .id(t.getId())
+                        .minPlayers(t.getMinPlayers())
+                        .maxPlayers(t.getMaxPlayers())
+                        .pricePerPlayer(t.getPricePerPlayer())
+                        .build()).toList())
                 .build();
     }
 
-    private HolidayDTO mapHolidayToDTO(Holiday holiday) {
+    private HolidayDTO mapHolidayToDTO(Holiday holiday)
+    {
         return HolidayDTO.builder()
                 .id(holiday.getId())
                 .name(holiday.getName())

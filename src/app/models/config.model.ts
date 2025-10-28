@@ -11,14 +11,12 @@ export interface SystemConfig {
   holidays: Holiday[];
   blockedDates?: string[];
   pricingConfig?: PricingConfig;
+  taxPercentage?: number;
 }
 
 export interface PricingConfig {
   id?: string;
-  minPlayers: number;
-  maxPlayers: number;
-  basePrice: number;
-  additionalPlayerPrice: number;
+  tiers?: Tier[];
   weekendMultiplier: number;
   holidayMultiplier: number;
   groupDiscount: number;
@@ -62,3 +60,5 @@ export enum DiscountType {
   PERCENTAGE = 'PERCENTAGE',
   FIXED_AMOUNT = 'FIXED_AMOUNT'
 }
+
+export type Tier = { minPlayers: number; maxPlayers: number; pricePerPlayer: number };

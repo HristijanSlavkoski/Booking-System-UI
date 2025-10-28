@@ -403,7 +403,13 @@ export class BookingComponent implements OnInit {
                 if (res?.paymentUrl) {
                     window.location.href = res.paymentUrl;
                 } else {
-                    this.router.navigate(['/my-bookings']);
+                    if (this.embedded){
+                        this.router.navigate(['/calendar']);
+                    }
+                    else {
+                        // TODO: if authenticated, go to my-booking, else home?
+                        this.router.navigate(['/my-booking']);
+                    }
                 }
                 this.submitting.set(false);
             },

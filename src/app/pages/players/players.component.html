@@ -1,0 +1,56 @@
+<div class="players-page">
+    <div class="players-container">
+        <h1 class="title">
+            {{ 'players.title' | translate : {default: 'Choose Players'} }}
+        </h1>
+
+        @if (loading()) {
+            <div class="loading">{{ 'common.loading' | translate }}</div>
+        } @else {
+            @if (game()) {
+                <div class="info-card">
+                    <div class="info-left">
+                        <img *ngIf="game()?.imageUrl" [src]="game()?.imageUrl!" class="thumb" alt=""/>
+                        <div class="meta">
+                            <div class="game-name">{{ game()?.name }}</div>
+                            <div class="game-sub">
+                                <span>{{ game()?.duration }} {{ 'calendar.minutes' | translate }}</span>
+                                <span> · {{ minPlayers() }}
+                                    –{{ maxPlayers() }} {{ 'calendar.players' | translate }}</span>
+                            </div>
+                            <div class="datetime">
+                                <span>📅 {{ date() }}</span>
+                                <span>🕒 {{ time() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-right">
+                        <div class="picker-title">{{ 'players.howMany' | translate : {default: 'How many players?'} }}</div>
+                        <div class="player-grid">
+                            @for (n of options(); track n) {
+                                <button
+                                        class="player-chip"
+                                        [class.selected]="players() === n"
+                                        (click)="selectPlayers(n)">
+                                    {{ n }}
+                                </button>
+                            }
+                        </div>
+                        <div class="actions">
+                            <app-button variant="outline" (clicked)="backToCalendar()">
+                                {{ 'common.back' | translate : {default: 'Back'} }}
+                            </app-button>
+                            <app-button (clicked)="continueToBooking()" [disabled]="!players()">
+                                {{ 'players.continue' | translate : {default: 'Continue'} }}
+                            </app-button>
+                        </div>
+                    </div>
+                </div>
+            } @else {
+                <div class="error">
+                    {{ 'players.noGame' | translate : {default: 'Game not found.'} }}
+                </div>
+            }
+        }
+    </div>
+</div>

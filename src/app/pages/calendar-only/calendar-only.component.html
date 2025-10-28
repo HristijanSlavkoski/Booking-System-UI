@@ -1,0 +1,54 @@
+<div class="calendar-only-page">
+    <div class="calendar-header">
+        <h1 class="title">{{ 'calendar.title' | translate }}</h1>
+        <p class="subtitle">{{ 'calendar.subtitle' | translate }}</p>
+    </div>
+
+    <app-calendar
+            [lang]="lang()"
+            [gameId]="gameId()"
+            [gameData]="game()"
+            [maxConcurrentBookings]="maxConcurrentBookings()"
+            (slotSelected)="onSlotSelected($event)"
+            (gamePickRequested)="onGamePickRequested($event)">
+    </app-calendar>
+
+    @if (showGamePicker()) {
+        <div class="game-picker-backdrop" (click)="closeGamePicker()"></div>
+        <div class="game-picker-modal" (click)="$event.stopPropagation()">
+            <div class="gpm-header">
+                <div class="gpm-title">{{ 'calendar.chooseGame' | translate }}</div>
+                <button class="gpm-close" (click)="closeGamePicker()">✕</button>
+            </div>
+
+            <div class="gpm-list">
+                @if (gamesLoading()) {
+                    <div class="gpm-loading">{{ 'common.loading' | translate }}</div>
+                }
+                @for (g of games(); track g.id) {
+                    <div class="gpm-item" (click)="selectGame(g)">
+                        <img *ngIf="g.imageUrl" [src]="g.imageUrl" alt=""/>
+                        <div class="gpm-meta">
+                            <div class="gpm-name">{{ g.name }}</div>
+                            <div class="gpm-sub">
+                                @if (g.duration) {
+                                    <span>{{ g.duration }} min</span>
+                                }
+                                @if (g.minPlayers && g.maxPlayers) {
+                                    <span> · {{ g.minPlayers }}
+                                        –{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+                                }
+                            </div>
+                            @if (g.shortDescription) {
+                                <div class="gpm-desc">{{ g.shortDescription }}</div>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (!gamesLoading() && games().length === 0) {
+                    <div class="gpm-empty">{{ 'calendar.noGames' | translate }}</div>
+                }
+            </div>
+        </div>
+    }
+</div>

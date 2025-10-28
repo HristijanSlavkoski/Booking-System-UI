@@ -1,0 +1,138 @@
+.calendar-only-page {
+  min-height: 100vh;
+  background: #0a0a0a;
+  padding: 2rem;
+}
+
+.calendar-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #aaa;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .calendar-only-page {
+    padding: 1rem;
+  }
+  .title {
+    font-size: 1.75rem;
+  }
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Game Picker Modal styles */
+.game-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .6);
+  z-index: 1000;
+}
+
+.game-picker-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, 96vw);
+  max-height: 80vh;
+  overflow: auto;
+  background: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: .75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .6);
+  z-index: 1001;
+  padding: 1rem;
+}
+
+.gpm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .5rem;
+}
+
+.gpm-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.gpm-close {
+  background: transparent;
+  color: #aaa;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.gpm-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.gpm-item {
+  display: flex;
+  gap: 1rem;
+  padding: .75rem;
+  border: 1px solid #2a2a2a;
+  border-radius: .5rem;
+  background: #1a1a1a;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.gpm-item:hover {
+  border-color: #ec3f3a;
+  transform: translateY(-1px);
+}
+
+.gpm-item img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: .5rem;
+}
+
+.gpm-meta {
+  color: #fff;
+}
+
+.gpm-name {
+  font-weight: 700;
+}
+
+.gpm-sub {
+  color: #bbb;
+  font-size: .9rem;
+  margin-top: .15rem;
+}
+
+.gpm-desc {
+  color: #aaa;
+  margin-top: .35rem;
+  font-size: .9rem;
+  line-height: 1.35;
+}
+
+.gpm-loading, .gpm-empty {
+  color: #aaa;
+  text-align: center;
+  padding: 1rem;
+}

@@ -1,0 +1,684 @@
+.booking-page {
+  min-height: 100vh;
+  background: #0a0a0a;
+  padding: 2rem;
+}
+
+.booking-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  margin: 0 0 2rem 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.selection-summary-bar {
+  display: flex;
+  gap: 1.5rem;
+  background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  flex-wrap: wrap;
+  border: 1px solid #2a2a2a;
+}
+
+.summary-item-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: #0a0a0a;
+  border-radius: 0.5rem;
+  border: 2px solid #2a2a2a;
+}
+
+.summary-icon {
+  font-size: 1.5rem;
+}
+
+.summary-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 1rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.booking-steps {
+}
+
+.steps-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: #1a1a1a;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a2a2a;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-number {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: #2a2a2a;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background: #ec3f3a;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 0, 64, 0.5);
+}
+
+.step.completed .step-number {
+  background: #ec3f3a;
+  color: white;
+}
+
+.step-label {
+  font-size: 0.875rem;
+  color: #888;
+  text-align: center;
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  color: #ec3f3a;
+  font-weight: 600;
+}
+
+.step-line {
+  width: 4rem;
+  height: 2px;
+  background: #2a2a2a;
+  margin: 0 1rem;
+  transition: all 0.3s ease;
+}
+
+.step-line.completed {
+  background: #ec3f3a;
+}
+
+.step-content {
+  background: #1a1a1a;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a2a2a;
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.step-description {
+  color: #aaa;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.games-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.game-select-card {
+  border: 3px solid #2a2a2a;
+  border-radius: 1rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background: #0a0a0a;
+
+  &:hover {
+    border-color: #ec3f3a;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(255, 0, 64, 0.4);
+  }
+
+  &.selected {
+    border-color: #ec3f3a;
+    box-shadow: 0 8px 16px rgba(255, 0, 64, 0.6);
+  }
+}
+
+.game-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.game-info {
+  padding: 1rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+  }
+}
+
+.game-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #aaa;
+  flex-wrap: wrap;
+}
+
+.difficulty {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+
+  &.easy {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &.medium {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &.hard {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.selected-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ec3f3a;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 0 0 15px rgba(255, 0, 64, 0.6);
+}
+
+.multi-room-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.room-game-section {
+  border: 2px solid #2a2a2a;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: #0a0a0a;
+}
+
+.room-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 1rem;
+  background: #ec3f3a;
+  border-radius: 0.5rem;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.games-selection-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.game-select-card-compact {
+  border: 3px solid #2a2a2a;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+
+  &:hover {
+    border-color: #ec3f3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 0, 64, 0.4);
+  }
+
+  &.selected {
+    border-color: #ec3f3a;
+    background: #2a0a0a;
+    box-shadow: 0 4px 8px rgba(255, 0, 64, 0.5);
+  }
+}
+
+.game-image-small {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.game-info-compact {
+  flex: 1;
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+  }
+}
+
+.game-meta-small {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.selected-badge-small {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #ec3f3a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.multi-room-players {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.room-player-section {
+  border: 2px solid #2a2a2a;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: #0a0a0a;
+}
+
+.room-title-small {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 1rem;
+  background: #ec3f3a;
+  border-radius: 0.5rem;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.player-selection-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.player-option-compact {
+  border: 3px solid #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #1a1a1a;
+  color: #fff;
+
+  &:hover {
+    border-color: #ec3f3a;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
+  }
+
+  &.selected {
+    border-color: #ec3f3a;
+    background: #ec3f3a;
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 0, 64, 0.6);
+  }
+}
+
+.player-count-compact {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.player-label-compact {
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.player-price-compact {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.player-option-compact.selected .player-price-compact {
+  color: white;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.player-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.player-option {
+  border: 3px solid #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #1a1a1a;
+  color: #fff;
+
+  &:hover {
+    border-color: #ec3f3a;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
+  }
+
+  &.selected {
+    border-color: #ec3f3a;
+    background: #ec3f3a;
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 0, 64, 0.6);
+  }
+}
+
+.player-count {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.player-label {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.player-price {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.player-option.selected .player-price {
+  color: white;
+}
+
+.price-summary {
+  background: #1a1a1a;
+  border: 2px solid #ec3f3a;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(255, 0, 64, 0.3);
+}
+
+.price-label {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.price-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ec3f3a;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.text-input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid #2a2a2a;
+  border-radius: 0.5rem;
+  transition: border-color 0.3s ease;
+  background: #0a0a0a;
+  color: #fff;
+
+  &::placeholder {
+    color: #666;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #ec3f3a;
+    box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+  }
+}
+
+.booking-summary {
+  background: #1a1a1a;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #2a2a2a;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #2a2a2a;
+  color: #aaa;
+
+  .value {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  &.total {
+    border-bottom: none;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid #ec3f3a;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+
+    .value {
+      color: #ec3f3a;
+    }
+  }
+}
+
+.payment-methods {
+  display: grid;
+  gap: 1rem;
+}
+
+.payment-method {
+  border: 3px solid #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: block;
+  background: #1a1a1a;
+
+  &:hover {
+    border-color: #ec3f3a;
+    box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
+  }
+
+  &.selected {
+    border-color: #ec3f3a;
+    background: #2a0a0a;
+    box-shadow: 0 0 20px rgba(255, 0, 64, 0.4);
+  }
+
+  input {
+    display: none;
+  }
+}
+
+.payment-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.payment-icon {
+  font-size: 2.5rem;
+}
+
+.payment-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.payment-desc {
+  font-size: 0.875rem;
+  color: #aaa;
+}
+
+.step-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #2a2a2a;
+}
+
+@media (max-width: 768px) {
+  .booking-container {
+    padding: 0;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .steps-indicator {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .step-line {
+    width: 2rem;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+  }
+
+  .games-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-actions {
+    flex-direction: column;
+  }
+}

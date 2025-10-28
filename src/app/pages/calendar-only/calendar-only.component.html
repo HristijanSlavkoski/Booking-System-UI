@@ -50,7 +50,16 @@
                 </div>
             </div>
         }
+    } @else if (step() === 'players') {
+        <!-- INLINE PLAYERS -->
+        <app-players [inline]="true"
+                     (back)="backToCalendar()">
+        </app-players>
     } @else {
-        <app-players [inline]="true" (back)="backToCalendar()"></app-players>
+        <!-- INLINE BOOKING -->
+        <div class="players-inline-header">
+            <button class="back-btn" (click)="backToPlayers()">← {{ 'common.back' | translate }}</button>
+        </div>
+        <app-booking [embedded]="true"></app-booking>
     }
 </div>

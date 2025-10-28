@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CalendarComponent, SlotSelection} from '../../shared/components/calendar/calendar.component';
@@ -7,11 +7,14 @@ import {GameService} from '../../core/services/game.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {Game} from '../../models/game.model';
 import {PlayersComponent} from '../players/players.component';
+import {BookingComponent} from '../booking/booking.component';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {distinctUntilChanged, map} from "rxjs";
 
 @Component({
     selector: 'app-calendar-only',
     standalone: true,
-    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent],
+    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent, BookingComponent],
     templateUrl: './calendar-only.component.html',
     styleUrls: ['./calendar-only.component.scss']
 })
@@ -21,6 +24,7 @@ export class CalendarOnlyComponent implements OnInit {
     private configService = inject(ConfigService);
     private gameService = inject(GameService);
     private i18n = inject(TranslateService);
+    private destroyRef = inject(DestroyRef);
 
     maxConcurrentBookings = signal(2);
     gameId = signal<string>('');
@@ -32,7 +36,7 @@ export class CalendarOnlyComponent implements OnInit {
     gamesLoading = signal(false);
 
     pendingSlot = signal<{ date: string; time: string } | null>(null);
-    step = signal<'calendar' | 'players'>('calendar');
+    step = signal<'calendar' | 'players' | 'booking'>('calendar');
 
     /** Utility: remove specific query params */
     private removeQueryParams(keys: string[]) {
@@ -62,6 +66,14 @@ export class CalendarOnlyComponent implements OnInit {
         this.step.set('calendar');
     }
 
+    backToPlayers() {
+        this.step.set('players');
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {step: 'players'},
+            queryParamsHandling: 'merge',
+        });
+    }
 
     /** Close modal safely (no navigation) */
     closeGamePicker(): void {
@@ -82,27 +94,32 @@ export class CalendarOnlyComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const qp = this.route.snapshot.queryParamMap;
-        const lang = (qp.get('lang') || qp.get('locale') || 'en').toLowerCase();
-        this.lang.set(lang === 'mk' ? 'mk' : 'en');
-        this.i18n.use(this.lang());
+        this.route.queryParamMap
+            .pipe(
+                map(pm => ({
+                    step: (pm.get('step') as 'calendar' | 'players' | 'booking') ?? 'calendar',
+                    gameId: pm.get('gameId') ?? '',
+                    date: pm.get('date') ?? '',
+                    time: pm.get('time') ?? '',
+                })),
+                // avoid noisy repeats
+                distinctUntilChanged((a, b) =>
+                    a.step === b.step && a.gameId === b.gameId && a.date === b.date && a.time === b.time
+                ),
+                takeUntilDestroyed(this.destroyRef) // ✅ pass the injected DestroyRef
+            )
+            .subscribe(({step, gameId}) => {
+                this.step.set(step);
+                this.gameId.set(gameId);
 
-        const gid = qp.get('gameId') ?? '';
-        this.gameId.set(gid);
-
-        if (gid) {
-            this.gameService.getGameByCode(gid).subscribe({
-                next: (g) => this.game.set(g),
-                error: () => this.game.set(null),
+                if (gameId && this.game()?.code !== gameId) {
+                    this.gameService.getGameByCode(gameId).subscribe({
+                        next: g => this.game.set(g),
+                        error: () => this.game.set(null),
+                    });
+                }
+                if (!gameId) this.game.set(null);
             });
-        }
-
-        this.configService.loadConfig().subscribe({
-            next: (config) => this.maxConcurrentBookings.set(config.maxConcurrentBookings)
-        });
-
-        const step = (qp.get('step') ?? 'calendar') as 'calendar' | 'players';
-        this.step.set(step === 'players' ? 'players' : 'calendar');
     }
 
     onSlotSelected(slot: SlotSelection) {

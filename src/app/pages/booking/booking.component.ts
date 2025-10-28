@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, Input, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -12,6 +12,7 @@ import {BookingRequest, PaymentMethod} from '../../models/booking.model';
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {LoadingComponent} from '../../shared/components/loading/loading.component';
 import {CalendarComponent} from '../../shared/components/calendar/calendar.component';
+import {Tier} from "../../models/config.model";
 
 @Component({
     selector: 'app-booking',
@@ -21,6 +22,8 @@ import {CalendarComponent} from '../../shared/components/calendar/calendar.compo
     styleUrls: ['./booking.component.scss']
 })
 export class BookingComponent implements OnInit {
+    @Input() embedded = false;
+
     private gameService = inject(GameService);
     private bookingService = inject(BookingService);
     private authService = inject(AuthService);
@@ -50,6 +53,13 @@ export class BookingComponent implements OnInit {
         phone: ''
     };
 
+    // PRICING (same model as PlayersComponent)
+    tiers = signal<Tier[]>([]);
+    weekendMultiplier = signal<number>(1.0);
+    holidayMultiplier = signal<number>(1.0);
+    holidays = signal<string[]>([]); // ISO 'YYYY-MM-DD'
+    taxPercentage = signal<number>(0);
+
     pricing = signal<GamePrice[]>([]);
     totalPrice = signal(0);
 
@@ -58,52 +68,62 @@ export class BookingComponent implements OnInit {
         this.loadUserInfo();
         this.loadConfig();
 
-        const gameId = this.route.snapshot.queryParamMap.get('gameId');
-        const players = this.route.snapshot.queryParamMap.get('players');
-        const date = this.route.snapshot.queryParamMap.get('date');
-        const time = this.route.snapshot.queryParamMap.get('time');
-        const rooms = this.route.snapshot.queryParamMap.get('rooms');
+        const qp = this.route.snapshot.queryParamMap;
+        const gameId = qp.get('gameId') || '';
+        const players = qp.get('players');
+        const date = qp.get('date') || '';
+        const time = qp.get('time') || '';
+        const rooms = qp.get('rooms');
 
-        if (date && time && rooms) {
-            this.selectedDate = date;
-            this.selectedTime = time;
-            this.selectedRooms = parseInt(rooms, 10);
+        if (date) this.selectedDate = date;
+        if (time) this.selectedTime = time;
+        if (rooms) this.selectedRooms = parseInt(rooms, 10) || 1;
+        else this.selectedRooms = 1;
 
-            const gamesArray: { gameId: string; playerCount: number }[] = [];
-            for (let i = 0; i < this.selectedRooms; i++) {
-                if (gameId) {
-                    gamesArray.push({gameId: gameId, playerCount: 0});
-                } else {
-                    gamesArray.push({gameId: '', playerCount: 0});
-                }
-            }
-            this.selectedGames.set(gamesArray);
-
-            if (gameId) {
-                this.selectedGameId = gameId;
-                this.loadPricing();
-                this.currentStep.set(3);
-            } else {
-                this.currentStep.set(2);
-            }
-        } else if (gameId) {
+        if (gameId) {
             this.selectedGameId = gameId;
-            this.loadPricing();
-            this.selectedGames.set([{gameId: gameId, playerCount: 0}]);
-            this.currentStep.set(1);
+            // seed selectedGames for 1 room by default
+            this.selectedGames.set([{gameId, playerCount: 0}]);
         }
 
         if (players) {
             const p = parseInt(players, 10);
             if (!isNaN(p)) {
                 this.playerCount = p;
+                // also store into room 0 if present
+                const arr = this.selectedGames();
+                if (arr.length === 0 && gameId) {
+                    this.selectedGames.set([{gameId, playerCount: p}]);
+                } else if (arr[0]) {
+                    arr[0] = {gameId: arr[0].gameId || gameId, playerCount: p};
+                    this.selectedGames.set([...arr]);
+                }
             }
         }
 
-        // If date/time/gameId exist and players exist, ensure step 3
+        this.loadPricing();
+
+        // Decide current step:
+        // In embedded mode we already have date/time/gameId/players, so jump to Players & Details (3)
+        if (this.embedded) {
+            this.currentStep.set(3);
+            this.updateTotalPrice();
+            return;
+        }
+
+        // Original logic for full-page flow:
         if (this.selectedDate && this.selectedTime && this.selectedGameId && this.playerCount > 0) {
             this.currentStep.set(3);
+        } else if (this.selectedDate && this.selectedTime && this.selectedRooms) {
+            this.currentStep.set(gameId ? 3 : 2);
+        } else if (gameId) {
+            this.currentStep.set(1);
         }
+    }
+
+    // Optional: when embedded, lock player selection (hide or disable)
+    isEmbeddedPlayersLocked(): boolean {
+        return this.embedded && !!this.playerCount;
     }
 
     loadGames(): void {
@@ -250,7 +270,7 @@ export class BookingComponent implements OnInit {
 
         for (const game of games) {
             if (game.gameId && game.playerCount > 0) {
-                const gameObj = this.games().find(g => g.id === game.gameId);
+                const gameObj = this.games().find(g => g.code === game.gameId);
                 if (gameObj) {
                     const price = this.getPriceForGame(game.gameId, game.playerCount);
                     total += price;
@@ -278,7 +298,7 @@ export class BookingComponent implements OnInit {
     }
 
     getPriceForGame(gameId: string, playerCount: number): number {
-        const game = this.games().find(g => g.id === gameId);
+        const game = this.games().find(g => g.code === gameId);
         if (!game) return 0;
 
         // Placeholder pricing logic
@@ -286,7 +306,7 @@ export class BookingComponent implements OnInit {
     }
 
     playerOptions(): number[] {
-        const game = this.games().find(g => g.id === this.selectedGameId);
+        const game = this.games().find(g => g.code === this.selectedGameId);
         if (!game) return [];
 
         const options: number[] = [];
@@ -300,7 +320,7 @@ export class BookingComponent implements OnInit {
         const gameData = this.selectedGames()[roomIndex];
         if (!gameData?.gameId) return [];
 
-        const game = this.games().find(g => g.id === gameData.gameId);
+        const game = this.games().find(g => g.code === gameData.gameId);
         if (!game) return [];
 
         const options: number[] = [];
@@ -314,7 +334,7 @@ export class BookingComponent implements OnInit {
         const game = this.selectedGames()[roomIndex];
         if (!game?.gameId) return 'No game selected';
 
-        const gameObj = this.games().find(g => g.id === game.gameId);
+        const gameObj = this.games().find(g => g.code === game.gameId);
         return gameObj?.name || 'Unknown game';
     }
 
@@ -323,7 +343,7 @@ export class BookingComponent implements OnInit {
         const gameNames = games
             .filter(g => g.gameId)
             .map((g) => {
-                const gameObj = this.games().find(game => game.id === g.gameId);
+                const gameObj = this.games().find(game => game.code === g.gameId);
                 return gameObj?.name || 'Unknown';
             });
 
@@ -339,7 +359,7 @@ export class BookingComponent implements OnInit {
     }
 
     getSelectedGame(): Game | undefined {
-        return this.games().find(g => g.id === this.selectedGameId);
+        return this.games().find(g => g.code === this.selectedGameId);
     }
 
     isStep3Valid(): boolean {
@@ -418,7 +438,7 @@ export class BookingComponent implements OnInit {
     }
 
     getGameName(gameId: string): string {
-        return this.games().find(g => g.id === gameId)?.name || 'Unknown Game';
+        return this.games().find(g => g.code === gameId)?.name || 'Unknown Game';
     }
 
     getTotalPlayers(): number {

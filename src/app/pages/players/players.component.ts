@@ -191,8 +191,20 @@ export class PlayersComponent implements OnInit {
             gameId: this.gameCode(),
             players: this.players(),
             rooms: 1,
-            lang: this.lang()
+            lang: this.lang(),
+            step: 'booking' // 👈 key change
         };
+
+        if (this.inline) {
+            // Inline inside /calendar → just merge query params and flip step
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: q,
+                queryParamsHandling: 'merge'
+            });
+            return;
+        }
+
         this.router.navigate(['/booking'], { queryParams: q });
     }
 }

@@ -14,7 +14,7 @@
                 (slotSelected)="onSlotSelected($event)"
                 (gamePickRequested)="onGamePickRequested($event)"
                 (clearGameRequested)="clearGameFromParent()"
-                ></app-calendar>
+        ></app-calendar>
 
         @if (showGamePicker()) {
             <div class="game-picker-backdrop" (click)="closeGamePicker()"></div>
@@ -35,12 +35,17 @@
                             <div class="gpm-meta">
                                 <div class="gpm-name">{{ g.name }}</div>
                                 <div class="gpm-sub">
-                                    @if (g.duration) { <span>{{ g.duration }} {{ 'calendar.minutes' | translate }}</span> }
+                                    @if (g.duration) {
+                                        <span>{{ g.duration }} {{ 'calendar.minutes' | translate }}</span>
+                                    }
                                     @if (g.minPlayers && g.maxPlayers) {
-                                        <span> · {{ g.minPlayers }}–{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
+                                        <span> · {{ g.minPlayers }}
+                                            –{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
                                     }
                                 </div>
-                                @if (g.shortDescription) { <div class="gpm-desc">{{ g.shortDescription }}</div> }
+                                @if (g.shortDescription) {
+                                    <div class="gpm-desc">{{ g.shortDescription }}</div>
+                                }
                             </div>
                         </div>
                     }
@@ -56,10 +61,7 @@
                      (back)="backToCalendar()">
         </app-players>
     } @else {
-        <!-- INLINE BOOKING -->
-        <div class="players-inline-header">
-            <button class="back-btn" (click)="backToPlayers()">← {{ 'common.back' | translate }}</button>
-        </div>
-        <app-booking [embedded]="true"></app-booking>
+        <app-booking [embedded]="true"
+                     (back)="backToPlayers()"></app-booking>
     }
 </div>

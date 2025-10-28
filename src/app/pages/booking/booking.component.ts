@@ -1,424 +1,407 @@
-import {Component, inject, Input, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {GameService} from '../../core/services/game.service';
-import {BookingService} from '../../core/services/booking.service';
-import {AuthService} from '../../core/services/auth.service';
-import {NotificationService} from '../../core/services/notification.service';
-import {ConfigService} from '../../core/services/config.service';
-import {Game, GamePrice} from '../../models/game.model';
-import {BookingRequest, PaymentMethod} from '../../models/booking.model';
-import {ButtonComponent} from '../../shared/components/button/button.component';
-import {LoadingComponent} from '../../shared/components/loading/loading.component';
-import {CalendarComponent} from '../../shared/components/calendar/calendar.component';
-import {Tier} from "../../models/config.model";
+import {
+    Component,
+    Input,
+    OnInit,
+    inject,
+    signal,
+    computed, Output, EventEmitter,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { GameService } from '../../core/services/game.service';
+import { BookingService } from '../../core/services/booking.service';
+import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { ConfigService } from '../../core/services/config.service';
+
+import { Game } from '../../models/game.model';
+import { BookingRequest, PaymentMethod } from '../../models/booking.model';
+import { Tier } from '../../models/config.model';
+
+import { ButtonComponent } from '../../shared/components/button/button.component';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { CalendarComponent } from '../../shared/components/calendar/calendar.component';
+
+type RoomSelection = { game: Game | null; playerCount: number };
 
 @Component({
     selector: 'app-booking',
     standalone: true,
     imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent],
     templateUrl: './booking.component.html',
-    styleUrls: ['./booking.component.scss']
+    styleUrls: ['./booking.component.scss'],
 })
 export class BookingComponent implements OnInit {
     @Input() embedded = false;
+    @Output() back = new EventEmitter<void>();
 
+    // services
     private gameService = inject(GameService);
     private bookingService = inject(BookingService);
     private authService = inject(AuthService);
-    private notificationService = inject(NotificationService);
+    private notify = inject(NotificationService);
     private configService = inject(ConfigService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
-    games = signal<Game[]>([]);
+    // ui state
     loading = signal(false);
     submitting = signal(false);
-    currentStep = signal(1);
+    currentStep = signal<1 | 2 | 3 | 4>(1);
+
+    // data
+    games = signal<Game[]>([]);
     maxConcurrentBookings = signal(2);
 
-    selectedGameId = '';
-    selectedGames = signal<{ gameId: string; playerCount: number }[]>([]);
-    selectedDate = '';
-    selectedTime = '';
-    selectedRooms: number = 0;
-    playerCount: number = 0;
-    paymentMethod: PaymentMethod = PaymentMethod.CASH;
+    // selection (signals)
+    selectedDate = signal<string>('');
+    selectedTime = signal<string>('');
+    selectedRooms = signal<number>(1);
+    selectedGames = signal<RoomSelection[]>([]); // [{ game: Game|null, playerCount }]
 
-    customerInfo = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: ''
-    };
-
-    // PRICING (same model as PlayersComponent)
+    // pricing config (same logic as PlayersComponent)
     tiers = signal<Tier[]>([]);
     weekendMultiplier = signal<number>(1.0);
     holidayMultiplier = signal<number>(1.0);
     holidays = signal<string[]>([]); // ISO 'YYYY-MM-DD'
     taxPercentage = signal<number>(0);
 
-    pricing = signal<GamePrice[]>([]);
-    totalPrice = signal(0);
+    // customer
+    paymentMethod: PaymentMethod = PaymentMethod.CASH;
+    customerInfo = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+    };
 
+    // ------- helpers (pricing/date) -------
+    private isWeekend(d: Date): boolean {
+        const day = d.getDay(); // 0 Sun, 6 Sat
+        return day === 0 || day === 6;
+    }
+    private isoOnly(s: string): string {
+        return s?.split('T')?.[0] ?? s ?? '';
+    }
+    private isHolidayISO(iso: string): boolean {
+        return this.holidays().includes(iso);
+    }
+
+    /** price-per-person (VAT included in tier), with weekend/holiday multipliers */
+    pricePerPersonInclVat = (nPlayers: number): number => {
+        if (!nPlayers) return 0;
+        const t = this.tiers().find((tt) => nPlayers >= tt.minPlayers && nPlayers <= tt.maxPlayers);
+        if (!t) return 0;
+
+        let gross = Number(t.pricePerPlayer) || 0;
+        let mult = 1.0;
+
+        const ds = this.selectedDate();
+        if (ds) {
+            const d = new Date(ds);
+            if (this.isWeekend(d)) mult *= this.weekendMultiplier();
+            if (this.isHolidayISO(this.isoOnly(ds))) mult *= this.holidayMultiplier();
+        }
+        return Math.round(gross * mult);
+    };
+
+    /** per-room total (VAT-incl) */
+    roomTotalInclVat = (roomIndex: number): number => {
+        const r = this.selectedGames()[roomIndex];
+        if (!r || !r.game || r.playerCount <= 0) return 0;
+        return r.playerCount * this.pricePerPersonInclVat(r.playerCount);
+    };
+
+    /** booking total (VAT-incl) */
+    totalInclVat = computed(() =>
+        this.selectedGames().reduce((sum, _, i) => sum + this.roomTotalInclVat(i), 0)
+    );
+
+    /** VAT portion out of VAT-incl total */
+    vatPortion = computed(() => {
+        const total = this.totalInclVat();
+        const vat = this.taxPercentage() || 0;
+        return Math.round(total * (vat / (100 + vat)));
+    });
+
+    /** net portion (excl. VAT) */
+    netPortion = computed(() => this.totalInclVat() - this.vatPortion());
+
+    // ------- lifecycle -------
     ngOnInit(): void {
-        this.loadGames();
-        this.loadUserInfo();
-        this.loadConfig();
-
         const qp = this.route.snapshot.queryParamMap;
-        const gameId = qp.get('gameId') || '';
-        const players = qp.get('players');
+        const stepQP = qp.get('step'); // "booking" | "payment" | null
+
+        // ✅ DO NOT return here in embedded mode
+        // if embedded, we’ll just decide which step to show, but still load data.
+        this.loading.set(true);
+
+        // 1) config (pricing etc.)
+        this.configService.loadConfig().subscribe({
+            next: (cfg) => {
+                const pc = cfg?.pricingConfig;
+                this.weekendMultiplier.set(Number(pc?.weekendMultiplier ?? 1.0));
+                this.holidayMultiplier.set(Number(pc?.holidayMultiplier ?? 1.0));
+
+                const rawTiers = Array.isArray(pc?.tiers) ? pc!.tiers! : [];
+                this.tiers.set(rawTiers.map(t => ({
+                    minPlayers: Number(t.minPlayers),
+                    maxPlayers: Number(t.maxPlayers),
+                    pricePerPlayer: Number(t.pricePerPlayer),
+                })));
+
+                this.holidays.set((cfg?.holidays ?? []).map((h: any) => h.date));
+                this.taxPercentage.set(Number((cfg as any)?.taxPercentage ?? 0));
+                this.maxConcurrentBookings.set(Number(cfg?.maxConcurrentBookings ?? 2));
+            },
+            error: () => {}
+        });
+
+        // 2) read query params early
         const date = qp.get('date') || '';
         const time = qp.get('time') || '';
-        const rooms = qp.get('rooms');
+        const rooms = Number(qp.get('rooms') ?? 1);
+        const gameCodeFromQP = qp.get('gameId') || '';
+        const playersQP = qp.get('players');
 
-        if (date) this.selectedDate = date;
-        if (time) this.selectedTime = time;
-        if (rooms) this.selectedRooms = parseInt(rooms, 10) || 1;
-        else this.selectedRooms = 1;
+        if (date) this.selectedDate.set(date);
+        if (time) this.selectedTime.set(time);
+        this.selectedRooms.set(rooms > 0 ? rooms : 1);
 
-        if (gameId) {
-            this.selectedGameId = gameId;
-            // seed selectedGames for 1 room by default
-            this.selectedGames.set([{gameId, playerCount: 0}]);
-        }
+        // build rooms array (temporary, game resolved after games load)
+        const baseRooms: RoomSelection[] = Array.from({ length: this.selectedRooms() }, () => ({
+            game: null,
+            playerCount: 0,
+        }));
+        this.selectedGames.set(baseRooms);
 
-        if (players) {
-            const p = parseInt(players, 10);
-            if (!isNaN(p)) {
-                this.playerCount = p;
-                // also store into room 0 if present
-                const arr = this.selectedGames();
-                if (arr.length === 0 && gameId) {
-                    this.selectedGames.set([{gameId, playerCount: p}]);
-                } else if (arr[0]) {
-                    arr[0] = {gameId: arr[0].gameId || gameId, playerCount: p};
-                    this.selectedGames.set([...arr]);
-                }
+        if (playersQP) {
+            const p = parseInt(playersQP, 10);
+            if (!Number.isNaN(p) && p > 0) {
+                const updated = [...this.selectedGames()];
+                if (updated[0]) updated[0] = { game: updated[0].game, playerCount: p };
+                this.selectedGames.set(updated);
             }
         }
 
-        this.loadPricing();
-
-        // Decide current step:
-        // In embedded mode we already have date/time/gameId/players, so jump to Players & Details (3)
-        if (this.embedded) {
-            this.currentStep.set(3);
-            this.updateTotalPrice();
-            return;
-        }
-
-        // Original logic for full-page flow:
-        if (this.selectedDate && this.selectedTime && this.selectedGameId && this.playerCount > 0) {
-            this.currentStep.set(3);
-        } else if (this.selectedDate && this.selectedTime && this.selectedRooms) {
-            this.currentStep.set(gameId ? 3 : 2);
-        } else if (gameId) {
-            this.currentStep.set(1);
-        }
-    }
-
-    // Optional: when embedded, lock player selection (hide or disable)
-    isEmbeddedPlayersLocked(): boolean {
-        return this.embedded && !!this.playerCount;
-    }
-
-    loadGames(): void {
-        this.loading.set(true);
+        // 3) load active games, then resolve gameId ONCE (no infinite loop)
         this.gameService.getActiveGames().subscribe({
-            next: (games) => {
-                this.games.set(games);
-                this.loading.set(false);
+            next: (list) => {
+                this.games.set(list);
+                if (gameCodeFromQP) this.resolveGameFromQP(gameCodeFromQP);
             },
-            error: () => {
-                this.notificationService.error('Failed to load games');
-                this.loading.set(false);
-            }
+            error: () => this.games.set([]),
+            complete: () => this.loading.set(false),
         });
-    }
 
-    loadUserInfo(): void {
-        const user = this.authService.getCurrentUser();
+        // 4) user info (prefill)
+        const user = this.authService.getCurrentUser?.();
         if (user) {
             this.customerInfo.firstName = user.firstName;
             this.customerInfo.lastName = user.lastName;
             this.customerInfo.email = user.email;
             this.customerInfo.phone = user.phone;
         }
+
+        // 5) decide step
+        if (this.embedded) {
+            // calendar-only iframe flow uses ?step=booking|payment
+            if (stepQP === 'payment') this.currentStep.set(4);
+            else this.currentStep.set(3); // default embedded landing
+        } else {
+            const hasDateTime = !!(this.selectedDate() && this.selectedTime());
+            const firstRoom = this.selectedGames()[0];
+            const hasGame = !!firstRoom?.game;
+            const hasPlayers = !!firstRoom?.playerCount;
+
+            if (hasDateTime && hasGame && hasPlayers) this.currentStep.set(3);
+            else if (hasDateTime) this.currentStep.set(hasGame ? 3 : 2);
+            else this.currentStep.set(1);
+        }
     }
 
-    loadConfig(): void {
-        this.configService.loadConfig().subscribe({
-            next: (config) => {
-                this.maxConcurrentBookings.set(config.maxConcurrentBookings);
-            }
+    private resolveGameFromQP(code: string): void {
+        const g = this.games().find(x => x.code === code);
+        if (!g) return; // if not found, don’t spin; keep UI usable
+
+        const updated = [...this.selectedGames()];
+        for (let i = 0; i < updated.length; i++) {
+            updated[i] = { game: g, playerCount: updated[i].playerCount };
+        }
+        this.selectedGames.set(updated);
+    }
+
+    // ------- ui helpers -------
+    calendarGameCode = computed(() => this.selectedGames()[0]?.game?.code ?? '');
+
+    formatDate(dateString: string): string {
+        if (!dateString) return '';
+        const d = new Date(dateString);
+        return d.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
         });
     }
 
-    selectGame(gameId: string): void {
-        this.selectedGameId = gameId;
-        this.loadPricing();
-    }
-
-    selectGameForRoom(gameId: string, roomIndex: number): void {
-        const currentGames = this.selectedGames();
-        const updated = [...currentGames];
-
-        if (updated[roomIndex]) {
-            updated[roomIndex] = {gameId, playerCount: updated[roomIndex].playerCount};
-        } else {
-            updated[roomIndex] = {gameId, playerCount: 0};
-        }
-
-        this.selectedGames.set(updated);
-        this.selectedGameId = gameId;
-        this.loadPricing();
-        this.updateTotalPrice();
-    }
-
-    isGameSelected(gameId: string, roomIndex: number): boolean {
-        const games = this.selectedGames();
-        return games[roomIndex]?.gameId === gameId;
-    }
-
     getRoomIndexes(): number[] {
-        return Array.from({length: this.selectedRooms}, (_, i) => i);
+        return Array.from({ length: this.selectedRooms() }, (_, i) => i);
+    }
+
+    selectGameForRoom(game: Game, roomIndex: number): void {
+        const updated = [...this.selectedGames()];
+        const prev = updated[roomIndex] ?? { game: null, playerCount: 0 };
+        updated[roomIndex] = { game, playerCount: prev.playerCount };
+        this.selectedGames.set(updated);
+    }
+
+    isGameSelected(game: Game, roomIndex: number): boolean {
+        return this.selectedGames()[roomIndex]?.game?.code === game.code;
     }
 
     allRoomsHaveGames(): boolean {
-        const games = this.selectedGames();
-        for (let i = 0; i < this.selectedRooms; i++) {
-            if (!games[i]?.gameId) {
-                return false;
-            }
+        const arr = this.selectedGames();
+        for (let i = 0; i < this.selectedRooms(); i++) {
+            if (!arr[i]?.game) return false;
         }
         return true;
     }
 
-    loadPricing(): void {
-        this.configService.config$.subscribe({
-            next: (config) => {
-                if (config?.pricingConfig) {
-                    const pricingConfig = config.pricingConfig;
-                    // TODO: transform pricingConfig into this.pricing if needed
-                    this.pricing.set([]);
-                }
-            },
-            error: () => {
-                this.notificationService.error('Failed to load pricing');
-            }
-        });
-    }
-
-    onSlotSelected(slot: { date: string; time: string; rooms: number }): void {
-        this.selectedDate = slot.date;
-        this.selectedTime = slot.time;
-        this.selectedRooms = slot.rooms;
-
-        const games: { gameId: string; playerCount: number }[] = [];
-        for (let i = 0; i < slot.rooms; i++) {
-            if (this.selectedGameId) {
-                games.push({gameId: this.selectedGameId, playerCount: 0});
-            } else {
-                games.push({gameId: '', playerCount: 0});
-            }
-        }
-        this.selectedGames.set(games);
-
-        if (this.selectedGameId) {
-            this.currentStep.set(3);
-        } else {
-            this.nextStep();
-        }
-    }
-
-    selectPlayers(count: number): void {
-        this.playerCount = count;
-        this.calculatePrice();
-    }
-
-    selectPlayersForRoom(count: number, roomIndex: number): void {
-        const games = this.selectedGames();
-        const updated = [...games];
-        if (updated[roomIndex]) {
-            updated[roomIndex].playerCount = count;
-        }
-        this.selectedGames.set(updated);
-        this.updateTotalPrice();
-    }
-
-    getPlayersForRoom(roomIndex: number): number {
-        return this.selectedGames()[roomIndex]?.playerCount || 0;
-    }
-
-    calculatePrice(): void {
-        if (!this.playerCount) {
-            this.totalPrice.set(0);
-            return;
-        }
-
-        const price = this.pricing().find(p => p.playerCount === this.playerCount);
-        this.totalPrice.set(price?.price || 0);
-    }
-
-    getTotalPrice(): number {
-        let total = 0;
-        const games = this.selectedGames();
-
-        for (const game of games) {
-            if (game.gameId && game.playerCount > 0) {
-                const gameObj = this.games().find(g => g.code === game.gameId);
-                if (gameObj) {
-                    const price = this.getPriceForGame(game.gameId, game.playerCount);
-                    total += price;
-                }
-            }
-        }
-
-        return total;
-    }
-
-    updateTotalPrice(): void {
-        const total = this.getTotalPrice();
-        this.totalPrice.set(total);
-    }
-
-    getPriceForPlayers(count: number): number {
-        const price = this.pricing().find(p => p.playerCount === count);
-        return price?.price || 0;
-    }
-
-    getPriceForRoom(count: number, roomIndex: number): number {
-        const game = this.selectedGames()[roomIndex];
-        if (!game?.gameId) return 0;
-        return this.getPriceForGame(game.gameId, count);
-    }
-
-    getPriceForGame(gameId: string, playerCount: number): number {
-        const game = this.games().find(g => g.code === gameId);
-        if (!game) return 0;
-
-        // Placeholder pricing logic
-        return playerCount * 1000 + (playerCount - 1) * 300;
-    }
-
-    playerOptions(): number[] {
-        const game = this.games().find(g => g.code === this.selectedGameId);
-        if (!game) return [];
-
-        const options: number[] = [];
-        for (let i = game.minPlayers; i <= game.maxPlayers; i++) {
-            options.push(i);
-        }
-        return options;
-    }
-
     playerOptionsForRoom(roomIndex: number): number[] {
-        const gameData = this.selectedGames()[roomIndex];
-        if (!gameData?.gameId) return [];
-
-        const game = this.games().find(g => g.code === gameData.gameId);
-        if (!game) return [];
-
-        const options: number[] = [];
-        for (let i = game.minPlayers; i <= game.maxPlayers; i++) {
-            options.push(i);
-        }
-        return options;
+        const g = this.selectedGames()[roomIndex]?.game;
+        if (!g) return [];
+        const out: number[] = [];
+        for (let i = g.minPlayers; i <= g.maxPlayers; i++) out.push(i);
+        return out;
     }
 
     getGameNameForRoom(roomIndex: number): string {
-        const game = this.selectedGames()[roomIndex];
-        if (!game?.gameId) return 'No game selected';
-
-        const gameObj = this.games().find(g => g.code === game.gameId);
-        return gameObj?.name || 'Unknown game';
+        const g = this.selectedGames()[roomIndex]?.game;
+        return g?.name ?? 'No game selected';
     }
 
     getSelectedGamesText(): string {
-        const games = this.selectedGames();
-        const gameNames = games
-            .filter(g => g.gameId)
-            .map((g) => {
-                const gameObj = this.games().find(game => game.code === g.gameId);
-                return gameObj?.name || 'Unknown';
-            });
+        const names = this.selectedGames()
+            .filter((r) => !!r.game)
+            .map((r) => r.game!.name);
 
-        if (gameNames.length === 0) return 'None selected';
-        if (gameNames.length === 1) return gameNames[0];
+        if (names.length === 0) return 'None selected';
+        if (names.length === 1) return names[0];
+        const uniq = [...new Set(names)];
+        if (uniq.length === 1) return `${uniq[0]} (${names.length}x)`;
+        return names.join(', ');
+    }
 
-        const uniqueGames = [...new Set(gameNames)];
-        if (uniqueGames.length === 1) {
-            return `${uniqueGames[0]} (${gameNames.length}x)`;
+    getPlayersForRoom(roomIndex: number): number {
+        return this.selectedGames()[roomIndex]?.playerCount ?? 0;
+    }
+
+    getTotalPlayers(): number {
+        return this.selectedGames().reduce((sum, r) => sum + (r.playerCount || 0), 0);
+    }
+
+    selectPlayersForRoom(n: number, roomIndex: number) {
+        const updated = [...this.selectedGames()];
+        if (updated[roomIndex]) {
+            updated[roomIndex].playerCount = n;
+            this.selectedGames.set(updated);
         }
-
-        return gameNames.join(', ');
     }
 
-    getSelectedGame(): Game | undefined {
-        return this.games().find(g => g.code === this.selectedGameId);
-    }
-
-    isStep3Valid(): boolean {
-        const games = this.selectedGames();
-        const allRoomsHavePlayers = games.every(g => g.playerCount > 0);
-
-        return !!(
-            allRoomsHavePlayers &&
-            this.customerInfo.firstName &&
-            this.customerInfo.lastName &&
-            this.customerInfo.email &&
-            this.customerInfo.phone
-        );
-    }
-
+    // steps
     nextStep(): void {
-        this.currentStep.update(step => step + 1);
+        const s = this.currentStep();
+        this.currentStep.set((Math.min(4, s + 1) as 1 | 2 | 3 | 4));
         window.scrollTo(0, 0);
     }
-
     previousStep(): void {
-        this.currentStep.update(step => step - 1);
+        const s = this.currentStep();
+        this.currentStep.set((Math.max(1, s - 1) as 1 | 2 | 3 | 4));
         window.scrollTo(0, 0);
     }
 
+    // calendar child (full-page flow)
+    onSlotSelected(slot: { date: string; time: string; rooms: number }): void {
+        this.selectedDate.set(slot.date);
+        this.selectedTime.set(slot.time);
+        this.selectedRooms.set(slot.rooms);
+
+        // resize rooms and keep existing selections where possible
+        const prev = this.selectedGames();
+        const next: RoomSelection[] = Array.from({ length: slot.rooms }, (_, i) => ({
+            game: prev[i]?.game ?? prev[0]?.game ?? null,
+            playerCount: 0,
+        }));
+        this.selectedGames.set(next);
+
+        if (next[0]?.game) this.currentStep.set(3);
+        else this.nextStep();
+    }
+
+    onGamePickRequested(e: { date: string; time: string }) {
+        // user clicked a slot without preselected game
+        this.selectedDate.set(e.date);
+        this.selectedTime.set(e.time);
+        this.selectedRooms.set(1);
+        this.selectedGames.set([{ game: null, playerCount: 0 }]);
+        this.currentStep.set(2);
+        window.scrollTo(0, 0);
+    }
+
+    // validation for step 3 → step 4
+    isStep3Valid(): boolean {
+        const arr = this.selectedGames();
+        const roomsValid = arr.length > 0 && arr.every((r) => !!r.game && r.playerCount > 0);
+        const userValid =
+            !!this.customerInfo.firstName &&
+            !!this.customerInfo.lastName &&
+            !!this.customerInfo.email &&
+            !!this.customerInfo.phone;
+        return roomsValid && userValid;
+    }
+
+    cancel(): void {
+        this.router.navigate(['/games']);
+    }
+
+    onBackClick() {
+        // if you ever want to do local cleanup, do it here first
+        this.back.emit();
+    }
+
+    // ------- submit -------
     submitBooking(): void {
-        const games = this.selectedGames().map((g, index) => {
-            const pricing = this.pricing().find(p => p.gameId === g.gameId && p.playerCount === g.playerCount);
-            const price = pricing?.price || 0;
+        const gamesPayload = this.selectedGames().map((r, idx) => ({
+            // if backend expects 'code', use code; if it expects UUID id, flip here:
+            gameId: r.game?.id ?? '',
+            roomNumber: idx + 1,
+            playerCount: r.playerCount,
+            // optional preview price per room (backend is source of truth anyway)
+            price: this.roomTotalInclVat(idx),
+        }));
 
-            return {
-                gameId: g.gameId,
-                roomNumber: index + 1,
-                playerCount: g.playerCount,
-                price: price
-            };
-        });
-
-        const bookingRequest: BookingRequest = {
-            bookingDate: this.selectedDate,
-            bookingTime: this.selectedTime,
-            numberOfRooms: this.selectedRooms,
-            totalPrice: this.totalPrice(),
+        const request: BookingRequest = {
+            bookingDate: this.selectedDate(),
+            bookingTime: this.selectedTime(),
+            numberOfRooms: this.selectedRooms(),
+            totalPrice: this.totalInclVat(), // preview; backend should recompute
             paymentMethod: this.paymentMethod,
             customerFirstName: this.customerInfo.firstName,
             customerLastName: this.customerInfo.lastName,
             customerEmail: this.customerInfo.email,
             customerPhone: this.customerInfo.phone,
-            games: games
+            games: gamesPayload,
         };
 
-        console.log('Submitting booking:', bookingRequest);
-
         this.submitting.set(true);
-        this.bookingService.createBooking(bookingRequest).subscribe({
-            next: (response) => {
-                this.notificationService.success('Booking created successfully!');
-                if (response.paymentUrl) {
-                    window.location.href = response.paymentUrl;
+        this.bookingService.createBooking(request).subscribe({
+            next: (res: any) => {
+                this.notify.success('Booking created successfully!');
+                if (res?.paymentUrl) {
+                    window.location.href = res.paymentUrl;
                 } else {
                     this.router.navigate(['/my-bookings']);
                 }
@@ -426,47 +409,9 @@ export class BookingComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Booking error:', err);
-                this.notificationService.error('Failed to create booking: ' + (err.error?.error || 'Unknown error'));
+                this.notify.error('Failed to create booking: ' + (err?.error?.error || 'Unknown error'));
                 this.submitting.set(false);
-            }
+            },
         });
-    }
-
-    formatDate(dateString: string): string {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
-    }
-
-    getGameName(gameId: string): string {
-        return this.games().find(g => g.code === gameId)?.name || 'Unknown Game';
-    }
-
-    getTotalPlayers(): number {
-        return this.selectedGames().reduce((total, game) => total + game.playerCount, 0);
-    }
-
-    cancel(): void {
-        this.router.navigate(['/games']);
-    }
-
-    onGamePickRequested(e: { date: string; time: string }) {
-        // user clicked a slot but no game is preselected
-        this.selectedDate = e.date;
-        this.selectedTime = e.time;
-        this.selectedRooms = 1;
-
-        // prepare one room with empty game, to be set in Step 2
-        this.selectedGames.set([{gameId: '', playerCount: 0}]);
-
-        // reflect in URL but keep current route
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {date: e.date, time: e.time},
-            queryParamsHandling: 'merge',
-        });
-
-        // move to "Select Game"
-        this.currentStep.set(2);
-        window.scrollTo(0, 0);
     }
 }

@@ -15,6 +15,8 @@
         (function () {
             const PARENT_ORIGIN = 'https://intetic.com';
             let lastHeight = 0;
+            let ro = null;               // <-- define in outer scope so helpers can use it
+            let rafId = null;
 
             function getHeight() {
                 const b = document.body, d = document.documentElement;
@@ -25,43 +27,53 @@
                 );
             }
 
-            function postHeight() {
-                const h = getHeight();
-                const shrank = lastHeight && h < lastHeight - 80;
-                lastHeight = h;
+            function post(msg) {
+                window.parent.postMessage(msg, PARENT_ORIGIN);
+            }
 
-                window.parent.postMessage({
-                    type: 'booking-system:heightAndMaybeScroll',
-                    height: h,
-                    shrank
-                }, PARENT_ORIGIN);
+            // Throttled height sender
+            function schedulePostHeight(shrinkAware = true) {
+                if (rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(function () {
+                    const h = getHeight();
+                    const shrank = shrinkAware && lastHeight && h < lastHeight - 80; // 80px threshold
+                    lastHeight = h;
+                    post({type: 'booking-system:heightAndMaybeScroll', height: h, shrank});
+                });
             }
 
             function safeObserve(el) {
-                if (el && el instanceof Element) {
-                    try {
-                        ro.observe(el);
-                    } catch (err) {
-                        console.warn('ResizeObserver failed for', el, err);
-                    }
+                if (!el || el.nodeType !== 1) return; // ensure it's an Element
+                try {
+                    ro.observe(el);
+                } catch (err) { /* ignore */
                 }
             }
 
-            // Wait until DOM is ready
             window.addEventListener('load', function () {
-                postHeight();
+                // Initial post
+                schedulePostHeight(false);
 
-                const ro = new ResizeObserver(postHeight);
-                safeObserve(document.body);
+                // Observe size/layout changes
+                ro = new ResizeObserver(() => schedulePostHeight(true));
+
+                // Prefer a dedicated content root if you have one (e.g., '#app', '#root')
+                const contentRoot =
+                    document.getElementById('app') ||
+                    document.getElementById('root') ||
+                    document.body;
+
+                safeObserve(contentRoot);
+                // As a fallback, also observe the documentElement
                 safeObserve(document.documentElement);
 
-                // fallback for dynamic UI changes
-                setInterval(postHeight, 800);
+                // Periodic fallback for async layout shifts (fonts/images/routes)
+                setInterval(() => schedulePostHeight(true), 800);
             });
 
-            // Allow manual scroll trigger from child
+            // Optional: call from your code after major UI transitions
             window.requestParentScrollToTop = function () {
-                window.parent.postMessage({type: 'booking-system:scrollToTop'}, PARENT_ORIGIN);
+                post({type: 'booking-system:scrollToTop'});
             };
         })();
     </script>

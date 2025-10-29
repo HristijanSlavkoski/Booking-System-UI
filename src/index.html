@@ -9,43 +9,79 @@
     <base href="/">
     <script>
         (function () {
-            const PARENT_ORIGIN = '*';
-
+            const PARENT_ORIGIN = '*'; // set to 'https://intetic.com' in production
             let lastSent = 0;
+            let ro = null;
+            let rafId = null;
 
-            function getDocHeight() {
-                const b = document.body;
-                const d = document.documentElement;
-                return Math.max(
-                    b.scrollHeight, d.scrollHeight,
-                    b.offsetHeight, d.offsetHeight,
-                    b.clientHeight, d.clientHeight
-                );
-            }
+            // Pick a stable content root that reflects intrinsic content height,
+            // not the viewport.
+            function getContentRoot() {
+                const byId = document.getElementById('app-root') || document.getElementById('app') || document.getElementById('root');
+                if (byId) return byId;
 
-            function postHeight() {
-                const h = getDocHeight();
-                // Throttle: only send if changed by >= 5px to reduce spam
-                if (Math.abs(h - lastSent) >= 5) {
-                    lastSent = h;
-                    window.parent.postMessage({type: 'booking-system:height', height: h}, PARENT_ORIGIN);
+                // Fallback: choose the tallest direct child of body
+                let tallest = null, maxH = 0;
+                const kids = document.body ? Array.from(document.body.children) : [];
+                for (const el of kids) {
+                    const h = Math.max(el.scrollHeight, el.offsetHeight);
+                    if (h > maxH) { maxH = h; tallest = el; }
                 }
+                // As last resort, use body (but avoid html/documentElement)
+                return tallest || document.body;
             }
 
-            // Initial
-            window.addEventListener('load', postHeight);
+            function measureHeight(root) {
+                if (!root) return 0;
+                // Use scrollHeight/offsetHeight of the ROOT ONLY (avoid html/body clientHeight).
+                return Math.max(root.scrollHeight, root.offsetHeight);
+            }
 
-            // Observe any DOM changes that could affect height
-            const ro = new ResizeObserver(postHeight);
-            ro.observe(document.documentElement);
-            ro.observe(document.body);
+            function postHeight(root) {
+                const h = measureHeight(root);
+                if (!h) return;
 
-            // Also listen for route/content changes if your app uses a router
-            // Example (pseudo):
-            // myRouter.on('afterNavigation', postHeight);
+                // Hysteresis: only send if |Δ| >= 8px to avoid tiny oscillations
+                if (Math.abs(h - lastSent) < 8) return;
 
-            // As a safety net, ping height periodically (lightweight)
-            setInterval(postHeight, 800);
+                // If content shrank substantially, flag it so parent can scroll to top of iframe.
+                const shrank = lastSent && h < lastSent - 40;
+                lastSent = h;
+
+                window.parent.postMessage({ type: 'booking-system:height', height: h, shrank }, PARENT_ORIGIN);
+            }
+
+            function schedulePost(root) {
+                if (rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(() => postHeight(root));
+            }
+
+            function start() {
+                const root = getContentRoot();
+                // Initial send
+                schedulePost(root);
+
+                // Observe intrinsic content changes on the root only (not <html>).
+                try {
+                    ro = new ResizeObserver(() => schedulePost(root));
+                    ro.observe(root);
+                } catch (e) {
+                    // Fallback: MutationObserver
+                    try {
+                        const mo = new MutationObserver(() => schedulePost(root));
+                        mo.observe(root, { childList: true, subtree: true, attributes: true, characterData: true });
+                    } catch (_) {}
+                }
+
+                // Safety ping for async layout shifts (fonts/images)
+                setInterval(() => schedulePost(root), 700);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', start);
+            } else {
+                start();
+            }
         })();
     </script>
 

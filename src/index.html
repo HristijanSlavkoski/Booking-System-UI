@@ -13,10 +13,17 @@
     />
     <script>
         (function () {
-            const PARENT_ORIGIN = 'https://intetic.com';
+            // Derive the parent origin from document.referrer (works cross-origin)
+            const ref = document.referrer || '';
+            let PARENT_ORIGIN = '*';
+            try {
+                PARENT_ORIGIN = new URL(ref).origin;
+            } catch (_) {
+            }
+
             let lastHeight = 0;
-            let ro = null;               // <-- define in outer scope so helpers can use it
             let rafId = null;
+            let ro = null;
 
             function getHeight() {
                 const b = document.body, d = document.documentElement;
@@ -28,55 +35,52 @@
             }
 
             function post(msg) {
-                window.parent.postMessage(msg, PARENT_ORIGIN);
+                // If you want strict security, replace '*' with PARENT_ORIGIN
+                window.parent.postMessage(msg, PARENT_ORIGIN || '*');
             }
 
-            // Throttled height sender
             function schedulePostHeight(shrinkAware = true) {
                 if (rafId) cancelAnimationFrame(rafId);
-                rafId = requestAnimationFrame(function () {
+                rafId = requestAnimationFrame(() => {
                     const h = getHeight();
-                    const shrank = shrinkAware && lastHeight && h < lastHeight - 80; // 80px threshold
+                    const shrank = shrinkAware && lastHeight && h < lastHeight - 80;
                     lastHeight = h;
                     post({type: 'booking-system:heightAndMaybeScroll', height: h, shrank});
                 });
             }
 
             function safeObserve(el) {
-                if (!el || el.nodeType !== 1) return; // ensure it's an Element
+                if (!el || el.nodeType !== 1) return;
                 try {
                     ro.observe(el);
-                } catch (err) { /* ignore */
+                } catch (_) {
                 }
             }
 
-            window.addEventListener('load', function () {
-                // Initial post
+            window.addEventListener('load', () => {
                 schedulePostHeight(false);
 
-                // Observe size/layout changes
                 ro = new ResizeObserver(() => schedulePostHeight(true));
 
-                // Prefer a dedicated content root if you have one (e.g., '#app', '#root')
                 const contentRoot =
                     document.getElementById('app') ||
                     document.getElementById('root') ||
                     document.body;
 
                 safeObserve(contentRoot);
-                // As a fallback, also observe the documentElement
                 safeObserve(document.documentElement);
 
-                // Periodic fallback for async layout shifts (fonts/images/routes)
+                // Fallback for async layout shifts (fonts/images/route changes)
                 setInterval(() => schedulePostHeight(true), 800);
             });
 
-            // Optional: call from your code after major UI transitions
+            // Call this from your app after major UI changes if needed
             window.requestParentScrollToTop = function () {
                 post({type: 'booking-system:scrollToTop'});
             };
         })();
     </script>
+
 </head>
 <body>
 <app-root>Loading...</app-root>

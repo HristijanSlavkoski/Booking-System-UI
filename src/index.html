@@ -1,61 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <title>VR Escape - Virtual Reality Escape Rooms</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Experience the ultimate VR escape room adventure. Book your immersive virtual reality experience today!" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description"
+          content="Experience the ultimate VR escape room adventure. Book your immersive virtual reality experience today!"/>
     <base href="/">
-      <script>
-          (function () {
-              const PARENT_ORIGIN = 'https://intetic.com';
-              let lastHeight = 0;
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script>
+        (function () {
+            const PARENT_ORIGIN = 'https://intetic.com';
+            let lastHeight = 0;
 
-              function docHeight() {
-                  const b = document.body, d = document.documentElement;
-                  return Math.max(
-                      b.scrollHeight, d.scrollHeight,
-                      b.offsetHeight, d.offsetHeight,
-                      b.clientHeight, d.clientHeight
-                  );
-              }
+            function getHeight() {
+                const b = document.body, d = document.documentElement;
+                return Math.max(
+                    b.scrollHeight, d.scrollHeight,
+                    b.offsetHeight, d.offsetHeight,
+                    b.clientHeight, d.clientHeight
+                );
+            }
 
-              function postAll() {
-                  const h = docHeight();
-                  const shrank = lastHeight && h < lastHeight - 80;
-                  lastHeight = h;
+            function postHeight() {
+                const h = getHeight();
+                const shrank = lastHeight && h < lastHeight - 80;
+                lastHeight = h;
 
-                  // 1) plain height (what you were looking for)
-                  window.parent.postMessage({ type: 'booking-system:height', height: h }, PARENT_ORIGIN);
+                window.parent.postMessage({
+                    type: 'booking-system:heightAndMaybeScroll',
+                    height: h,
+                    shrank
+                }, PARENT_ORIGIN);
+            }
 
-                  // 2) combined height + maybe scroll
-                  window.parent.postMessage({
-                      type: 'booking-system:heightAndMaybeScroll',
-                      height: h,
-                      shrank
-                  }, PARENT_ORIGIN);
+            function safeObserve(el) {
+                if (el && el instanceof Element) {
+                    try {
+                        ro.observe(el);
+                    } catch (err) {
+                        console.warn('ResizeObserver failed for', el, err);
+                    }
+                }
+            }
 
-                  // Debug in child console (optional)
-                  console.log('[child] posted heights:', { h, shrank });
-              }
+            // Wait until DOM is ready
+            window.addEventListener('load', function () {
+                postHeight();
 
-              window.addEventListener('load', postAll);
+                const ro = new ResizeObserver(postHeight);
+                safeObserve(document.body);
+                safeObserve(document.documentElement);
 
-              const ro = new ResizeObserver(postAll);
-              ro.observe(document.body);
-              ro.observe(document.documentElement);
+                // fallback for dynamic UI changes
+                setInterval(postHeight, 800);
+            });
 
-              setInterval(postAll, 800); // fallback
-
-              // Optional manual trigger
-              window.requestParentScrollToTop = function() {
-                  window.parent.postMessage({ type: 'booking-system:scrollToTop' }, PARENT_ORIGIN);
-                  console.log('[child] requested parent scrollToTop');
-              };
-          })();
-      </script>
-  </head>
-  <body>
-    <app-root>Loading...</app-root>
-  </body>
+            // Allow manual scroll trigger from child
+            window.requestParentScrollToTop = function () {
+                window.parent.postMessage({type: 'booking-system:scrollToTop'}, PARENT_ORIGIN);
+            };
+        })();
+    </script>
+</head>
+<body>
+<app-root>Loading...</app-root>
+</body>
 </html>

@@ -1,10 +1,5 @@
 <!-- calendar-only.component.html -->
 <div class="calendar-only-page">
-    <div class="calendar-header">
-        <h1 class="title">{{ 'calendar.title' | translate }}</h1>
-        <p class="subtitle">{{ 'calendar.subtitle' | translate }}</p>
-    </div>
-
     @if (step() === 'calendar') {
         <app-calendar
                 [lang]="lang()"

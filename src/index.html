@@ -8,12 +8,11 @@
     <base href="/">
       <script>
           (function () {
-              const PARENT_ORIGIN = '*';
+              const PARENT_ORIGIN = 'https://intetic.com';
+              let lastHeight = 0;
 
-              let lastSent = 0;
-              function getDocHeight() {
-                  const b = document.body;
-                  const d = document.documentElement;
+              function docHeight() {
+                  const b = document.body, d = document.documentElement;
                   return Math.max(
                       b.scrollHeight, d.scrollHeight,
                       b.offsetHeight, d.offsetHeight,
@@ -21,28 +20,38 @@
                   );
               }
 
-              function postHeight() {
-                  const h = getDocHeight();
-                  if (Math.abs(h - lastSent) >= 5) {
-                      lastSent = h;
-                      window.parent.postMessage({ type: 'booking-system:height', height: h }, PARENT_ORIGIN);
-                  }
+              function postAll() {
+                  const h = docHeight();
+                  const shrank = lastHeight && h < lastHeight - 80;
+                  lastHeight = h;
+
+                  // 1) plain height (what you were looking for)
+                  window.parent.postMessage({ type: 'booking-system:height', height: h }, PARENT_ORIGIN);
+
+                  // 2) combined height + maybe scroll
+                  window.parent.postMessage({
+                      type: 'booking-system:heightAndMaybeScroll',
+                      height: h,
+                      shrank
+                  }, PARENT_ORIGIN);
+
+                  // Debug in child console (optional)
+                  console.log('[child] posted heights:', { h, shrank });
               }
 
-              // Initial
-              window.addEventListener('load', postHeight);
+              window.addEventListener('load', postAll);
 
-              // Observe any DOM changes that could affect height
-              const ro = new ResizeObserver(postHeight);
-              ro.observe(document.documentElement);
+              const ro = new ResizeObserver(postAll);
               ro.observe(document.body);
+              ro.observe(document.documentElement);
 
-              // Also listen for route/content changes if your app uses a router
-              // Example (pseudo):
-              // myRouter.on('afterNavigation', postHeight);
+              setInterval(postAll, 800); // fallback
 
-              // As a safety net, ping height periodically (lightweight)
-              setInterval(postHeight, 800);
+              // Optional manual trigger
+              window.requestParentScrollToTop = function() {
+                  window.parent.postMessage({ type: 'booking-system:scrollToTop' }, PARENT_ORIGIN);
+                  console.log('[child] requested parent scrollToTop');
+              };
           })();
       </script>
   </head>

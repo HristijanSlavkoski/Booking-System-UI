@@ -9,42 +9,72 @@
     <base href="/">
     <script>
         (function () {
-            const PARENT_ORIGIN = 'https://intetic.com';
+            let PARENT_ORIGIN = 'www.intetic.com';
+
             let lastHeight = 0;
+            let ro = null;
+            let rafId = 0;
 
             function getDocHeight() {
                 const b = document.body, d = document.documentElement;
                 return Math.max(
-                    b.scrollHeight, d.scrollHeight,
-                    b.offsetHeight, d.offsetHeight,
-                    b.clientHeight, d.clientHeight
+                    b ? b.scrollHeight : 0, d.scrollHeight,
+                    b ? b.offsetHeight : 0, d.offsetHeight,
+                    b ? b.clientHeight : 0, d.clientHeight
                 );
             }
 
-            function postHeight() {
-                const h = getDocHeight();
-                const shrank = lastHeight && h < lastHeight - 50;
-                lastHeight = h;
-
-                window.parent.postMessage({
-                    type: 'booking-system:resize',
-                    height: h,
-                    shrank: shrank
-                }, PARENT_ORIGIN);
+            function post(msg) {
+                window.parent.postMessage(msg, PARENT_ORIGIN);
             }
 
-            // Initial
-            window.addEventListener('load', postHeight);
+            function postHeight(shrinkAware = true) {
+                if (rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(() => {
+                    const h = getDocHeight();
+                    const shrank = shrinkAware && lastHeight && h < lastHeight - 80;
+                    lastHeight = h;
+                    post({type: 'booking-system:resize', height: h, shrank});
+                });
+            }
 
-            // Observe layout changes
-            const ro = new ResizeObserver(postHeight);
-            ro.observe(document.body);
-            ro.observe(document.documentElement);
+            function safeObserve(el) {
+                if (el && el.nodeType === 1) { // Element nodes only
+                    try {
+                        ro.observe(el);
+                    } catch (_) {
+                    }
+                }
+            }
 
-            // Fallback
-            setInterval(postHeight, 800);
+            // Wait until DOM is ready so body exists
+            window.addEventListener('load', function () {
+                // initial height
+                postHeight(false);
+
+                // set up ResizeObserver now that elements exist
+                ro = new ResizeObserver(() => postHeight(true));
+
+                // observe your main content root if you have one, else body/html
+                const root =
+                    document.getElementById('app') ||
+                    document.getElementById('root') ||
+                    document.body;
+
+                safeObserve(root);
+                safeObserve(document.documentElement);
+
+                // periodic fallback (images/fonts/route changes)
+                setInterval(() => postHeight(true), 800);
+            });
+
+            // optional API you can call after big UI transitions
+            window.requestParentScrollToTop = function () {
+                post({type: 'booking-system:scrollToTop'});
+            };
         })();
     </script>
+
 
 </head>
 <body>

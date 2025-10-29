@@ -512,3 +512,71 @@
   transform: scale(1.1);
 }
 
+/* Difficulty chips */
+.reviews_stars_wrap {
+  position: relative;
+  display: inline-block;
+  height: 22px;               /* chip size */
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.reviews_stars_bg,
+.reviews_stars_hover {
+  white-space: nowrap;
+}
+
+.reviews_stars_bg .reviews_star,
+.reviews_stars_hover .reviews_star {
+  --size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  margin-right: 6px;
+  font-size: 12px;
+  user-select: none;
+}
+
+/* gray background row */
+.reviews_stars_bg .reviews_star {
+  background: #9aa0a6;        /* gray */
+  color: #161616;
+  opacity: .6;
+}
+
+/* red overlay row (clipped by width) */
+.reviews_stars_hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;           /* this is what creates the "fill" */
+}
+
+.reviews_stars_hover .reviews_star {
+  background: #ec3f3a;        /* your brand red */
+  color: #fff;
+}
+
+.reviews_stars_bg .reviews_star::before,
+.reviews_stars_hover .reviews_star::before {
+  content: "\e804";                 /* <-- correct codepoint from demo */
+  font-family: 'fontello' !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* optional: tighter spacing on very small screens */
+@media (max-width: 420px) {
+  .reviews_stars_bg .reviews_star,
+  .reviews_stars_hover .reviews_star {
+    --size: 16px;
+    margin-right: 4px;
+    font-size: 11px;
+  }
+}

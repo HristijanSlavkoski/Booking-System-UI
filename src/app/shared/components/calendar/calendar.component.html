@@ -13,7 +13,26 @@
                             –{{ gameData.maxPlayers }} {{ 'calendar.players' | translate }}</span>
                     }
                     @if (gameData.difficulty) {
-                        <span> · {{ (gameData.difficulty + '') | titlecase }}</span>
+                        <div class="sc_services_item_meta sc_services_item_difficulty">
+                            <div class="reviews_stars_wrap">
+                                <div class="reviews_stars_bg">
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                </div>
+
+                                <!-- red fill equals N * 20% -->
+                                <div class="reviews_stars_hover" [style.width.%]="difficultyPercent(gameData.difficulty)">
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                    <span class="reviews_star"></span>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
                 @if (gameData.shortDescription) {

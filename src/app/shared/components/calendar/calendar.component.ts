@@ -73,6 +73,11 @@ export class CalendarComponent implements OnInit {
         this.clearGameRequested.emit();
     }
 
+    difficultyPercent(diff?: number): number {
+        const n = Number(diff ?? 0);
+        return Math.max(0, Math.min(5, n)) * 20;
+    }
+
     loadWeekSchedule(): void {
         const start = new Date(this.currentWeekStart);
         const end = new Date(start);

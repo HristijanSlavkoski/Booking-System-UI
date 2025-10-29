@@ -192,7 +192,7 @@ src/
 │       ├── user/                # User profile and bookings
 │       └── admin/               # Admin dashboard
 ├── environments/                 # Environment configs
-└── global_styles.css            # Global styles
+└── global_styles.scss            # Global styles
 ```
 
 ## Technologies Used

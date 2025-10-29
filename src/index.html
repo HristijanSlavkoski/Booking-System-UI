@@ -6,6 +6,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Experience the ultimate VR escape room adventure. Book your immersive virtual reality experience today!" />
     <base href="/">
+      <script>
+          (function () {
+              const PARENT_ORIGIN = '*';
+
+              let lastSent = 0;
+              function getDocHeight() {
+                  const b = document.body;
+                  const d = document.documentElement;
+                  return Math.max(
+                      b.scrollHeight, d.scrollHeight,
+                      b.offsetHeight, d.offsetHeight,
+                      b.clientHeight, d.clientHeight
+                  );
+              }
+
+              function postHeight() {
+                  const h = getDocHeight();
+                  if (Math.abs(h - lastSent) >= 5) {
+                      lastSent = h;
+                      window.parent.postMessage({ type: 'booking-system:height', height: h }, PARENT_ORIGIN);
+                  }
+              }
+
+              // Initial
+              window.addEventListener('load', postHeight);
+
+              // Observe any DOM changes that could affect height
+              const ro = new ResizeObserver(postHeight);
+              ro.observe(document.documentElement);
+              ro.observe(document.body);
+
+              // Also listen for route/content changes if your app uses a router
+              // Example (pseudo):
+              // myRouter.on('afterNavigation', postHeight);
+
+              // As a safety net, ping height periodically (lightweight)
+              setInterval(postHeight, 800);
+          })();
+      </script>
   </head>
   <body>
     <app-root>Loading...</app-root>

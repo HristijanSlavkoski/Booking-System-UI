@@ -12,10 +12,8 @@
             const PARENT_ORIGIN = 'https://intetic.com';
             let lastHeight = 0;
 
-            // Calculate the full document height
-            function getDocumentHeight() {
-                const b = document.body;
-                const d = document.documentElement;
+            function getDocHeight() {
+                const b = document.body, d = document.documentElement;
                 return Math.max(
                     b.scrollHeight, d.scrollHeight,
                     b.offsetHeight, d.offsetHeight,
@@ -23,28 +21,28 @@
                 );
             }
 
-            function sendResizeInfo() {
-                const newHeight = getDocumentHeight();
-                const shrank = lastHeight && newHeight < lastHeight - 60; // if shrank a lot
-                lastHeight = newHeight;
+            function postHeight() {
+                const h = getDocHeight();
+                const shrank = lastHeight && h < lastHeight - 50;
+                lastHeight = h;
 
                 window.parent.postMessage({
                     type: 'booking-system:resize',
-                    height: newHeight,
+                    height: h,
                     shrank: shrank
                 }, PARENT_ORIGIN);
             }
 
-            // Run on load
-            window.addEventListener('load', sendResizeInfo);
+            // Initial
+            window.addEventListener('load', postHeight);
 
-            // Observe layout changes dynamically
-            const ro = new ResizeObserver(sendResizeInfo);
+            // Observe layout changes
+            const ro = new ResizeObserver(postHeight);
             ro.observe(document.body);
             ro.observe(document.documentElement);
 
-            // Fallback in case ResizeObserver misses changes
-            setInterval(sendResizeInfo, 1000);
+            // Fallback
+            setInterval(postHeight, 800);
         })();
     </script>
 

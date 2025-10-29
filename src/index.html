@@ -7,6 +7,28 @@
     <meta name="description"
           content="Experience the ultimate VR escape room adventure. Book your immersive virtual reality experience today!"/>
     <base href="/">
+    <script>
+        (function () {
+            const PARENT_ORIGIN = 'https://intetic.com';
+            var previousHeight = 0;
+
+            function sendMessage() {
+                var h = document.getElementsByTagName("html")[0].scrollHeight;
+                if (previousHeight >= h) return;
+                previousHeight = h;
+                window.parent.postMessage({
+                    type: 'booking-system:resize',
+                    height: h
+                }, PARENT_ORIGIN);
+            }
+
+            function start() {
+                setInterval(() => sendMessage(), 1000);
+            }
+
+            start();
+        })();
+    </script>
 </head>
 <body>
 <app-root>Loading...</app-root>

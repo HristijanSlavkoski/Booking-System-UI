@@ -33,8 +33,8 @@ public class AvailabilityServiceImpl implements AvailabilityService
     private static final Duration HOLD_WINDOW = Duration.ofMinutes(15);
 
     // Example: 09:00–21:00 inclusive, step 60 minutes
-    private static final int START_HOUR = 9;
-    private static final int END_HOUR = 21;
+    private static final int START_HOUR = 12;
+    private static final int END_HOUR = 22;
     private static final int STEP_MINUTES = 60;
 
     // Inject your repositories here

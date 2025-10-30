@@ -44,7 +44,7 @@ public class ConfigServiceImpl implements ConfigService
         {
             SystemConfig systemConfig = SystemConfig.builder()
                     .maxConcurrentBookings(2)
-                    .openingTime(LocalTime.of(9, 0))
+                    .openingTime(LocalTime.of(12, 0))
                     .closingTime(LocalTime.of(22, 0))
                     .slotDurationMinutes(60)
                     .taxPercentage(BigDecimal.valueOf(18.00))

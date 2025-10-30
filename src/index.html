@@ -17,7 +17,6 @@
                 if (!h) return;
                 h = h.offsetHeight;
                 if (Math.abs(h - previousHeight) <= 10) return;
-                console.log(h);
                 previousHeight = h;
                 window.parent.postMessage({
                     type: 'booking-system:resize',

@@ -13,8 +13,8 @@
             var previousHeight = 0;
 
             function sendMessage() {
-                var h = document.getElementsByTagName("html")[0].scrollHeight;
-                if (previousHeight >= h) return;
+                var h = document.getElementById('app-root').offsetHeight;
+                if (Math.abs(h - previousHeight) <= 10) return;
                 previousHeight = h;
                 window.parent.postMessage({
                     type: 'booking-system:resize',
@@ -23,7 +23,7 @@
             }
 
             function start() {
-                setInterval(() => sendMessage(), 1000);
+                setInterval(() => sendMessage(), 800);
             }
 
             start();

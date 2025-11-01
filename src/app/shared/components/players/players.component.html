@@ -49,36 +49,24 @@
                                   {{ 'players.pricePerPerson' | translate:{default: 'Price per person'} }}
                                     ({{ 'players.vatIncluded' | translate:{default: 'incl. VAT'} }})
                                 </span>
-                                <span class="value">{{ pricePerPersonInclVat(players()!) }} MKD</span>
+                                <span class="value">{{ pricePerPersonInclVat() }} MKD</span>
                             </div>
                         }
 
-                        <!-- tax note: VAT included -->
+                        <!-- tax note stays as-is -->
                         <div class="tax-note">
                             {{ 'players.taxNoteIncluded' | translate:{percent: (taxPercentage() || 0)} }}
                         </div>
 
                         @if (players()) {
-                            <div class="mini-total">
-                                <!-- Main line: total (VAT included) -->
-                                <div class="line total">
-                                    <span>{{ 'players.total' | translate : {default: 'Total'} }}</span>
-                                    <span>{{ selectedTotalInclVat() }} MKD</span>
-                                </div>
-
-                                <!-- Optional small breakdown (Net + VAT portion) -->
-                                <div class="breakdown">
-                                    <div class="line small">
-                                        <span>{{ 'players.net' | translate:{default: 'Net (excl. VAT)'} }}</span>
-                                        <span>{{ selectedNetPortion() }} MKD</span>
-                                    </div>
-                                    <div class="line small">
-                                        <span>{{ 'players.vatPortion' | translate:{default: 'VAT portion'} }}
-                                            ({{ taxPercentage() }}%)</span>
-                                        <span>{{ selectedVatPortion() }} MKD</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <app-price-summary
+                                    [net]="selectedNetPortion()"
+                                    [vat]="selectedVatPortion()"
+                                    [total]="selectedTotalInclVat()"
+                                    [taxPercent]="taxPercentage()"
+                                    currency="MKD"
+                                    [compact]="false"
+                            />
                         }
 
                         <div class="actions">

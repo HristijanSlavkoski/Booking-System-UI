@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -6,11 +6,19 @@ import {CommonModule} from '@angular/common';
     standalone: true,
     imports: [CommonModule],
     templateUrl: './price-summary.component.html',
-    styleUrls: ['./price-summary.component.scss']
+    styleUrls: ['./price-summary.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PriceSummaryComponent {
-    @Input() net = 0;
-    @Input() vat = 0;
-    @Input() taxPercent = 18;
-    @Input() total = 0;
+    /** Numbers should arrive already computed from parent */
+    @Input() net: number = 0;
+    @Input() vat: number = 0;
+    @Input() total: number = 0;
+    @Input() taxPercent: number = 0;
+
+    /** Optional UI knobs */
+    @Input() currency: string = 'MKD';
+    @Input() showSubtotal: boolean = true;
+    @Input() showBreakdown: boolean = true;
+    @Input() compact: boolean = false;
 }

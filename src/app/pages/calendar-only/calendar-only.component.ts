@@ -72,8 +72,8 @@ export class CalendarOnlyComponent implements OnInit {
 
 
     backToGames(){
-        this.ensureGamesLoaded();     // make sure list is available instantly
-        this.store.setRooms(Math.max(1, this.store.selectedRooms())); // keep rooms as chosen
+        this.ensureGamesLoaded();
+        this.store.setRooms(Math.max(1, this.store.selectedRooms()));
         this.setStep('game');
     }
 

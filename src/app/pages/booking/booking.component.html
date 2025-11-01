@@ -23,8 +23,8 @@
                                 <div class="summary-info">
                                     <span class="summary-label">Rooms</span>
                                     <span class="summary-value">
-                    {{ selectedRooms() }} {{ selectedRooms() === 1 ? 'Room' : 'Rooms' }}
-                  </span>
+                                        {{ selectedRooms() }} {{ selectedRooms() === 1 ? 'Room' : 'Rooms' }}
+                                      </span>
                                 </div>
                             </div>
                         }
@@ -140,7 +140,7 @@
                                                     (click)="selectPlayersForRoom(num, 0)">
                                                 <div class="player-count">{{ num }}</div>
                                                 <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                <div class="player-price">{{ pricePerPersonInclVat(num) * num }}MKD
+                                                <div class="player-price">{{ pricePerPersonFor(num) * num }}MKD
                                                 </div>
                                             </div>
                                         }
@@ -161,7 +161,7 @@
                                                             (click)="selectPlayersForRoom(num, roomIndex)">
                                                         <div class="player-count-compact">{{ num }}</div>
                                                         <div class="player-label-compact">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                        <div class="player-price-compact">{{ pricePerPersonInclVat(num) * num }}
+                                                        <div class="player-price-compact">  {{ pricePerPersonFor(num) * num }}
                                                             MKD
                                                         </div>
                                                     </div>

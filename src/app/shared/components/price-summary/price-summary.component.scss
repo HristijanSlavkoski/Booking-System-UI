@@ -1,65 +1,41 @@
-.price-label {
-  color: #6b7280;
-}
-
-.price-amount {
-  font-weight: 700;
-}
-
-.price-breakdown {
-  text-align: right;
-  color: #6b7280;
-  font-size: .9rem;
+:host {
+  display: block;
 }
 
 .price-summary {
-  background: #1a1a1a;
-  border: 2px solid #ec3f3a;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 0 20px rgba(255, 0, 64, 0.3);
-}
+  color: #eee;
+  font-family: inherit;
 
-.price-label {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+  .line {
+    display: flex;
+    justify-content: space-between;
+    padding: .35rem 0;
 
-.price-amount {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #ec3f3a;
-}
+    .label {
+      color: #bbb;
+    }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.text-input {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 2px solid #2a2a2a;
-  border-radius: 0.5rem;
-  transition: border-color 0.3s ease;
-  background: #0a0a0a;
-  color: #fff;
-
-  &::placeholder {
-    color: #666;
+    .value {
+      color: #fff;
+      font-weight: 600;
+    }
   }
 
-  &:focus {
-    outline: none;
-    border-color: #ec3f3a;
-    box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+  .line.total {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+
+    .label {
+      color: #fff;
+    }
+
+    .value {
+      color: #fff;
+    }
+  }
+
+  .line.small {
+    font-size: .95rem;
   }
 }

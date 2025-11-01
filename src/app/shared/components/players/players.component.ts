@@ -8,11 +8,13 @@ import {Game} from '../../../models/game.model';
 import {ButtonComponent} from '../button/button.component';
 import { ConfigService } from '../../../core/services/config.service';
 import {Tier} from "../../../models/config.model";
+import {BookingStore} from "../../stores/booking.store";
+import {PriceSummaryComponent} from "../price-summary/price-summary.component";
 
 @Component({
     standalone: true,
     selector: 'app-players',
-    imports: [CommonModule, FormsModule, ButtonComponent, TranslatePipe],
+    imports: [CommonModule, FormsModule, ButtonComponent, TranslatePipe, PriceSummaryComponent],
     templateUrl: './players.component.html',
     styleUrls: ['./players.component.scss']
 })
@@ -42,11 +44,8 @@ export class PlayersComponent implements OnInit {
 
     minPlayers = computed(() => this.game()?.minPlayers ?? 1);
     maxPlayers = computed(() => this.game()?.maxPlayers ?? 6);
-    tiers = signal<Tier[]>([]);
-    weekendMultiplier = signal<number>(1.0);
-    holidayMultiplier = signal<number>(1.0);
-    holidays = signal<string[]>([]); // ISO dates 'YYYY-MM-DD'
-    taxPercentage = signal<number>(0);
+
+    store = inject(BookingStore);
 
     ngOnInit(): void {
         const qp = this.route.snapshot.queryParamMap;
@@ -78,80 +77,21 @@ export class PlayersComponent implements OnInit {
             // if no gameId somehow, bounce back to calendar
             this.router.navigate(['/']);
         }
-
-        this.configService.loadConfig().subscribe({
-            next: (cfg) => {
-                const pc = cfg?.pricingConfig;
-
-                // multipliers
-                this.weekendMultiplier.set(Number(pc?.weekendMultiplier ?? 1.0));
-                this.holidayMultiplier.set(Number(pc?.holidayMultiplier ?? 1.0));
-
-                // tiers (guard for non-array)
-                const rawTiers = Array.isArray(pc?.tiers) ? pc!.tiers! : [];
-                this.tiers.set(rawTiers.map((t) => ({
-                    minPlayers: Number(t.minPlayers),
-                    maxPlayers: Number(t.maxPlayers),
-                    pricePerPlayer: Number(t.pricePerPlayer),
-                })));
-
-                // holidays
-                this.holidays.set((cfg?.holidays ?? []).map((h) => h.date));
-
-                // tax: support both names during transition
-                const tax =
-                    (cfg as any)?.taxPercentage ??
-                    0;
-                this.taxPercentage.set(Number(tax));
-            },
-            error: () => { /* noop */ }
-        });
     }
 
-    /** Price per person (VAT already included in tier price), after weekend/holiday multipliers */
-    pricePerPersonInclVat(n: number): number {
-        const t = this.tiers().find(t => n >= t.minPlayers && n <= t.maxPlayers);
-        if (!t) return 0;
-        const baseGross = Number(t.pricePerPlayer); // already VAT-included from backend
-        // apply multipliers client-side (preview). Backend will recompute authoritative price on booking.
-        let mult = 1.0;
-        if (this.date()) {
-            const d = new Date(this.date());
-            if (this.isWeekend(d)) mult *= this.weekendMultiplier();
-            if (this.isHolidayISO(this.isoDate(this.date()))) mult *= this.holidayMultiplier();
-        }
-        return Math.round(baseGross * mult);
-    }
-
-    /** Total (VAT included) for selected players */
     selectedTotalInclVat = computed(() => {
         const n = this.players();
         if (!n) return 0;
-        return n * this.pricePerPersonInclVat(n);
+        return n * this.store.pricePerPersonInclVat(n);
     });
-
-    /** VAT portion of a VAT-included total: total * v/(100+v) */
     selectedVatPortion = computed(() => {
         const total = this.selectedTotalInclVat();
-        const vat = this.taxPercentage() || 0;
+        const vat = this.store.taxPercentage();
         return Math.round(total * (vat / (100 + vat)));
     });
-
-    /** Net portion (excl. VAT), for the breakdown */
+    pricePerPersonInclVat = computed(() => this.store.pricePerPersonInclVat(this.players() ?? 0));
     selectedNetPortion = computed(() => this.selectedTotalInclVat() - this.selectedVatPortion());
-
-
-    private isWeekend(d: Date): boolean {
-        const day = d.getDay(); // 0 Sun .. 6 Sat
-        return day === 0 || day === 6;
-    }
-    private isHolidayISO(iso: string): boolean {
-        return this.holidays().includes(iso);
-    }
-    private isoDate(s: string): string {
-        // assume s is 'YYYY-MM-DD'
-        return s?.split('T')[0] ?? '';
-    }
+    taxPercentage = computed(() => this.store.taxPercentage());
 
     options(): number[] {
         const arr: number[] = [];

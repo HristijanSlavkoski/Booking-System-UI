@@ -1,3 +1,4 @@
+// shared/stores/booking.store.ts
 import {computed, Injectable, signal} from '@angular/core';
 import {Game} from '../../models/game.model';
 import {Tier} from '../../models/config.model';
@@ -8,59 +9,35 @@ export type RoomSelection = { game: Game | null; playerCount: number };
 @Injectable({providedIn: 'root'})
 export class BookingStore {
     // Core selection
-    selectedDate = signal<string>('');      // ISO string or your current format
-    selectedTime = signal<string>('');      // "HH:mm"
+    selectedDate = signal<string>('');
+    selectedTime = signal<string>('');
     selectedRooms = signal<number>(1);
-    selectedGames = signal<RoomSelection[]>([]); // one per room
+    selectedGames = signal<RoomSelection[]>([]);
 
-    // Games listing (optional cache)
+    // Games cache / system config
     games = signal<Game[]>([]);
     maxConcurrentBookings = signal<number>(2);
 
-    // Pricing config
+    // Pricing (no multipliers anymore)
     tiers = signal<Tier[]>([]);
-    weekendMultiplier = signal<number>(1.0);
-    holidayMultiplier = signal<number>(1.0);
-    holidays = signal<string[]>([]);        // ISO dates 'YYYY-MM-DD'
     taxPercentage = signal<number>(0);
 
     // Customer + payment
     paymentMethod = signal<PaymentMethod>('CASH');
-    customerInfo = signal({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: ''
-    });
+    customerInfo = signal({firstName: '', lastName: '', email: '', phone: ''});
 
-    // --- helpers ---
-    private isoOnly = (s: string): string => s?.split('T')?.[0] ?? s ?? '';
-
-    private isWeekend(d: Date): boolean {
-        const day = d.getDay(); // 0 Sun, 6 Sat
-        return day === 0 || day === 6;
+    // --- API from APP_INITIALIZER
+    setPricingConfig(tiers: Tier[], taxPct: number, maxConc: number) {
+        this.tiers.set(tiers ?? []);
+        this.taxPercentage.set(Number.isFinite(taxPct) ? taxPct : 0);
+        this.maxConcurrentBookings.set(Number.isFinite(maxConc) ? maxConc : 2);
     }
 
-    private isHolidayISO(iso: string): boolean {
-        return this.holidays().includes(iso);
-    }
-
-    /** price-per-person (VAT included in tier), with weekend/holiday multipliers */
+    /** price-per-person (VAT included). No weekend/holiday multipliers. */
     pricePerPersonInclVat = (nPlayers: number): number => {
         if (!nPlayers) return 0;
         const t = this.tiers().find(tt => nPlayers >= tt.minPlayers && nPlayers <= tt.maxPlayers);
-        if (!t) return 0;
-
-        let gross = Number(t.pricePerPlayer) || 0;
-        let mult = 1.0;
-
-        const ds = this.selectedDate();
-        if (ds) {
-            const d = new Date(ds);
-            if (this.isWeekend(d)) mult *= this.weekendMultiplier();
-            if (this.isHolidayISO(this.isoOnly(ds))) mult *= this.holidayMultiplier();
-        }
-        return Math.round(gross * mult);
+        return t ? Number(t.pricePerPlayer) || 0 : 0;
     };
 
     roomTotalInclVat = (roomIndex: number): number => {
@@ -85,36 +62,26 @@ export class BookingStore {
         this.selectedGames().length > 0 && this.selectedGames().every(r => !!r.game)
     );
 
-    totalPlayers = computed(() =>
-        this.selectedGames().reduce((sum, r) => sum + (r.playerCount || 0), 0)
-    );
-
     isCustomerValid = computed(() => {
         const c = this.customerInfo();
         return !!c.firstName && !!c.lastName && !!c.email && !!c.phone;
     });
 
-    // --- mutators used by components ---
+    // Mutators
     setRooms(n: number) {
         const prev = this.selectedGames();
         const next: RoomSelection[] = Array.from({length: n}, (_, i) => ({
             game: prev[i]?.game ?? prev[0]?.game ?? null,
-            playerCount: prev[i]?.playerCount ?? 0
+            playerCount: prev[i]?.playerCount ?? 0,
         }));
         this.selectedRooms.set(n);
         this.selectedGames.set(next);
     }
 
-    setGameForRoom(roomIndex: number, game: Game | null) {
+    setGameForRoom(i: number, game: Game | null) {
         const arr = this.selectedGames().slice();
-        const prev = arr[roomIndex] ?? {game: null, playerCount: 0};
-        arr[roomIndex] = {game, playerCount: prev.playerCount};
-        this.selectedGames.set(arr);
-    }
-
-    setPlayersForRoom(roomIndex: number, players: number) {
-        const arr = this.selectedGames().slice();
-        if (arr[roomIndex]) arr[roomIndex].playerCount = players;
+        const prev = arr[i] ?? {game: null, playerCount: 0};
+        arr[i] = {game, playerCount: prev.playerCount};
         this.selectedGames.set(arr);
     }
 

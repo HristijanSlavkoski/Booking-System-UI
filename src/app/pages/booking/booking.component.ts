@@ -11,12 +11,12 @@ import {ConfigService} from '../../core/services/config.service';
 
 import {Game} from '../../models/game.model';
 import {BookingRequest, PaymentMethod} from '../../models/booking.model';
-import {Tier} from '../../models/config.model';
 
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {LoadingComponent} from '../../shared/components/loading/loading.component';
 import {CalendarComponent} from '../../shared/components/calendar/calendar.component';
 import {GameSelectionComponent} from "../../shared/components/game-selection/game-selection.component";
+import {BookingStore} from "../../shared/stores/booking.store";
 
 type RoomSelection = { game: Game | null; playerCount: number };
 
@@ -55,12 +55,7 @@ export class BookingComponent implements OnInit {
     selectedRooms = signal<number>(1);
     selectedGames = signal<RoomSelection[]>([]); // [{ game: Game|null, playerCount }]
 
-    // pricing config (same logic as PlayersComponent)
-    tiers = signal<Tier[]>([]);
-    weekendMultiplier = signal<number>(1.0);
-    holidayMultiplier = signal<number>(1.0);
-    holidays = signal<string[]>([]); // ISO 'YYYY-MM-DD'
-    taxPercentage = signal<number>(0);
+    store = inject(BookingStore);
 
     // customer
     paymentMethod: PaymentMethod = PaymentMethod.CASH;
@@ -71,19 +66,8 @@ export class BookingComponent implements OnInit {
         phone: '',
     };
 
-    // ------- helpers (pricing/date) -------
-    private isWeekend(d: Date): boolean {
-        const day = d.getDay(); // 0 Sun, 6 Sat
-        return day === 0 || day === 6;
-    }
-    private isoOnly(s: string): string {
-        return s?.split('T')?.[0] ?? s ?? '';
-    }
-    private isHolidayISO(iso: string): boolean {
-        return this.holidays().includes(iso);
-    }
     private clearGameSelection(opts: { clearPlayers?: boolean } = {}) {
-        const { clearPlayers = true } = opts;
+        const {clearPlayers = true} = opts;
         const cleared = this.selectedGames().map(r => ({
             game: null,
             playerCount: clearPlayers ? 0 : r.playerCount
@@ -91,45 +75,13 @@ export class BookingComponent implements OnInit {
         this.selectedGames.set(cleared);
     }
 
-    /** price-per-person (VAT included in tier), with weekend/holiday multipliers */
-    pricePerPersonInclVat = (nPlayers: number): number => {
-        if (!nPlayers) return 0;
-        const t = this.tiers().find((tt) => nPlayers >= tt.minPlayers && nPlayers <= tt.maxPlayers);
-        if (!t) return 0;
-
-        let gross = Number(t.pricePerPlayer) || 0;
-        let mult = 1.0;
-
-        const ds = this.selectedDate();
-        if (ds) {
-            const d = new Date(ds);
-            if (this.isWeekend(d)) mult *= this.weekendMultiplier();
-            if (this.isHolidayISO(this.isoOnly(ds))) mult *= this.holidayMultiplier();
-        }
-        return Math.round(gross * mult);
-    };
-
-    /** per-room total (VAT-incl) */
-    roomTotalInclVat = (roomIndex: number): number => {
-        const r = this.selectedGames()[roomIndex];
-        if (!r || !r.game || r.playerCount <= 0) return 0;
-        return r.playerCount * this.pricePerPersonInclVat(r.playerCount);
-    };
-
-    /** booking total (VAT-incl) */
-    totalInclVat = computed(() =>
-        this.selectedGames().reduce((sum, _, i) => sum + this.roomTotalInclVat(i), 0)
-    );
-
-    /** VAT portion out of VAT-incl total */
-    vatPortion = computed(() => {
-        const total = this.totalInclVat();
-        const vat = this.taxPercentage() || 0;
-        return Math.round(total * (vat / (100 + vat)));
-    });
-
-    /** net portion (excl. VAT) */
-    netPortion = computed(() => this.totalInclVat() - this.vatPortion());
+    totalInclVat = computed(() => this.store.totalInclVat());
+    vatPortion = computed(() => this.store.vatPortion());
+    netPortion = computed(() => this.store.netPortion());
+    taxPercentage = computed(() => this.store.taxPercentage());
+    pricePerPersonFor(n: number): number {
+        return this.store.pricePerPersonInclVat(n);
+    }
 
     // ------- lifecycle -------
     ngOnInit(): void {
@@ -139,27 +91,6 @@ export class BookingComponent implements OnInit {
         // ✅ DO NOT return here in embedded mode
         // if embedded, we’ll just decide which step to show, but still load data.
         this.loading.set(true);
-
-        // 1) config (pricing etc.)
-        this.configService.loadConfig().subscribe({
-            next: (cfg) => {
-                const pc = cfg?.pricingConfig;
-                this.weekendMultiplier.set(Number(pc?.weekendMultiplier ?? 1.0));
-                this.holidayMultiplier.set(Number(pc?.holidayMultiplier ?? 1.0));
-
-                const rawTiers = Array.isArray(pc?.tiers) ? pc!.tiers! : [];
-                this.tiers.set(rawTiers.map(t => ({
-                    minPlayers: Number(t.minPlayers),
-                    maxPlayers: Number(t.maxPlayers),
-                    pricePerPlayer: Number(t.pricePerPlayer),
-                })));
-
-                this.holidays.set((cfg?.holidays ?? []).map((h: any) => h.date));
-                this.taxPercentage.set(Number((cfg as any)?.taxPercentage ?? 0));
-                this.maxConcurrentBookings.set(Number(cfg?.maxConcurrentBookings ?? 2));
-            },
-            error: () => {}
-        });
 
         // 2) read query params early
         const date = qp.get('date') || '';
@@ -173,7 +104,7 @@ export class BookingComponent implements OnInit {
         this.selectedRooms.set(rooms > 0 ? rooms : 1);
 
         // build rooms array (temporary, game resolved after games load)
-        const baseRooms: RoomSelection[] = Array.from({ length: this.selectedRooms() }, () => ({
+        const baseRooms: RoomSelection[] = Array.from({length: this.selectedRooms()}, () => ({
             game: null,
             playerCount: 0,
         }));
@@ -183,7 +114,7 @@ export class BookingComponent implements OnInit {
             const p = parseInt(playersQP, 10);
             if (!Number.isNaN(p) && p > 0) {
                 const updated = [...this.selectedGames()];
-                if (updated[0]) updated[0] = { game: updated[0].game, playerCount: p };
+                if (updated[0]) updated[0] = {game: updated[0].game, playerCount: p};
                 this.selectedGames.set(updated);
             }
         }
@@ -230,7 +161,7 @@ export class BookingComponent implements OnInit {
 
         const updated = [...this.selectedGames()];
         for (let i = 0; i < updated.length; i++) {
-            updated[i] = { game: g, playerCount: updated[i].playerCount };
+            updated[i] = {game: g, playerCount: updated[i].playerCount};
         }
         this.selectedGames.set(updated);
     }
@@ -250,18 +181,14 @@ export class BookingComponent implements OnInit {
     }
 
     getRoomIndexes(): number[] {
-        return Array.from({ length: this.selectedRooms() }, (_, i) => i);
+        return Array.from({length: this.selectedRooms()}, (_, i) => i);
     }
 
     selectGameForRoom(game: Game, roomIndex: number): void {
         const updated = [...this.selectedGames()];
-        const prev = updated[roomIndex] ?? { game: null, playerCount: 0 };
-        updated[roomIndex] = { game, playerCount: prev.playerCount };
+        const prev = updated[roomIndex] ?? {game: null, playerCount: 0};
+        updated[roomIndex] = {game, playerCount: prev.playerCount};
         this.selectedGames.set(updated);
-    }
-
-    isGameSelected(game: Game, roomIndex: number): boolean {
-        return this.selectedGames()[roomIndex]?.game?.code === game.code;
     }
 
     allRoomsHaveGames(): boolean {
@@ -319,11 +246,12 @@ export class BookingComponent implements OnInit {
         this.currentStep.set((Math.min(4, s + 1) as 1 | 2 | 3 | 4));
         window.scrollTo(0, 0);
     }
+
     previousStep(): void {
         const s = this.currentStep();
         const to = Math.max(1, s - 1) as 1 | 2 | 3 | 4;
         if (to === 1) {
-            this.clearGameSelection({ clearPlayers: true });
+            this.clearGameSelection({clearPlayers: true});
         }
         this.currentStep.set(to);
 
@@ -338,7 +266,7 @@ export class BookingComponent implements OnInit {
 
         // resize rooms and keep existing selections where possible
         const prev = this.selectedGames();
-        const next: RoomSelection[] = Array.from({ length: slot.rooms }, (_, i) => ({
+        const next: RoomSelection[] = Array.from({length: slot.rooms}, (_, i) => ({
             game: prev[i]?.game ?? prev[0]?.game ?? null,
             playerCount: 0,
         }));
@@ -353,7 +281,7 @@ export class BookingComponent implements OnInit {
         this.selectedDate.set(e.date);
         this.selectedTime.set(e.time);
         this.selectedRooms.set(1);
-        this.selectedGames.set([{ game: null, playerCount: 0 }]);
+        this.selectedGames.set([{game: null, playerCount: 0}]);
         this.currentStep.set(2);
         window.scrollTo(0, 0);
     }
@@ -382,19 +310,17 @@ export class BookingComponent implements OnInit {
     // ------- submit -------
     submitBooking(): void {
         const gamesPayload = this.selectedGames().map((r, idx) => ({
-            // if backend expects 'code', use code; if it expects UUID id, flip here:
             gameId: r.game?.id ?? '',
             roomNumber: idx + 1,
             playerCount: r.playerCount,
-            // optional preview price per room (backend is source of truth anyway)
-            price: this.roomTotalInclVat(idx),
+            price: this.store.roomTotalInclVat(idx),   // <- from store
         }));
 
         const request: BookingRequest = {
             bookingDate: this.selectedDate(),
             bookingTime: this.selectedTime(),
             numberOfRooms: this.selectedRooms(),
-            totalPrice: this.totalInclVat(), // preview; backend should recompute
+            totalPrice: this.store.totalInclVat(),     // <- from store
             paymentMethod: this.paymentMethod,
             customerFirstName: this.customerInfo.firstName,
             customerLastName: this.customerInfo.lastName,
@@ -410,10 +336,9 @@ export class BookingComponent implements OnInit {
                 if (res?.paymentUrl) {
                     window.location.href = res.paymentUrl;
                 } else {
-                    if (this.embedded){
+                    if (this.embedded) {
                         this.router.navigate(['/calendar']);
-                    }
-                    else {
+                    } else {
                         // TODO: if authenticated, go to my-booking, else home?
                         this.router.navigate(['/my-booking']);
                     }

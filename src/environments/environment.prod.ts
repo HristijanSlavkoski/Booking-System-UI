@@ -14,7 +14,7 @@ export const environment = {
     minBookingNotice: 60,
     maxBookingAdvance: 90,
     businessHours: {
-      start: '09:00',
+      start: '12:00',
       end: '22:00'
     }
   }

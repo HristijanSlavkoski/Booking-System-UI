@@ -22,6 +22,11 @@ function initPricingFactory(cfg: ConfigService, store: BookingStore) {
                 const tax = Number(config?.taxPercentage ?? 0);
                 const maxConc = Number(config?.maxConcurrentBookings ?? 2);
                 store.setPricingConfig(tiers, tax, maxConc);
+                store.setSystemHours(
+                    config?.openingTime ?? '12:00',
+                    config?.closingTime ?? '22:00',
+                    Number(config?.slotDurationMinutes ?? 60)
+                );
             })
             .catch(() => store.setPricingConfig([], 0, 2));
 }

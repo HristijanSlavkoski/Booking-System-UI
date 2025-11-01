@@ -85,6 +85,10 @@ export class BookingStore {
         this.selectedGames().length > 0 && this.selectedGames().every(r => !!r.game)
     );
 
+    openingTime = signal<string>('12:00');
+    closingTime = signal<string>('22:00');
+    slotDurationMinutes = signal<number>(60);
+
     isCustomerValid = computed(() => {
         const c = this.customerInfo();
         return !!c.firstName && !!c.lastName && !!c.email && !!c.phone;
@@ -143,4 +147,31 @@ export class BookingStore {
         this._paymentMethod.set(null);
         this.customerInfo.set({firstName: '', lastName: '', email: '', phone: ''});
     }
+
+    setSystemHours(openHHmm: string, closeHHmm: string, slotMin: number) {
+        this.openingTime.set(openHHmm || '12:00');
+        this.closingTime.set(closeHHmm || '22:00');
+        this.slotDurationMinutes.set(Number.isFinite(slotMin) && slotMin > 0 ? slotMin : 60);
+    }
+
+    /** Utility to build slots (inclusive of opening, exclusive of closing). */
+    buildTimeSlots = computed(() => {
+        const open = this.openingTime();
+        const close = this.closingTime();
+        const step = this.slotDurationMinutes();
+
+        const [oh, om] = open.split(':').map(Number);
+        const [ch, cm] = close.split(':').map(Number);
+
+        const start = new Date(0, 0, 1, oh || 0, om || 0, 0, 0);
+        const end = new Date(0, 0, 1, ch || 0, cm || 0, 0, 0);
+
+        const out: string[] = [];
+        for (let t = new Date(start); t < end; t = new Date(t.getTime() + step * 60_000)) {
+            const hh = String(t.getHours()).padStart(2, '0');
+            const mm = String(t.getMinutes()).padStart(2, '0');
+            out.push(`${hh}:${mm}`);
+        }
+        return out;
+    });
 }

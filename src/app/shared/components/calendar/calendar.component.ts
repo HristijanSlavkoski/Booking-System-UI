@@ -1,9 +1,10 @@
 // calendar.components.ts
-import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BookingService} from '../../../core/services/booking.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {Game} from '../../../models/game.model';
+import {BookingStore} from "../../stores/booking.store";
 
 export interface TimeSlotAvailability {
     time: string;
@@ -35,6 +36,8 @@ export interface SlotSelection {
 export class CalendarComponent implements OnInit {
     private bookingService = inject(BookingService);
     private i18n = inject(TranslateService);
+    private store = inject(BookingStore);
+    private autoAdvancedThisInit = false;
 
     @Input() gameId: string = '';
     @Input() gameData: Game | null = null;
@@ -47,7 +50,7 @@ export class CalendarComponent implements OnInit {
     @Output() clearGameRequested = new EventEmitter<void>();
 
     weekSchedule = signal<DaySchedule[]>([]);
-    timeSlots = signal<string[]>([]);
+    timeSlots = computed(() => this.store.buildTimeSlots());
     loading = signal(false);
     currentWeekStart = new Date();
 
@@ -58,14 +61,7 @@ export class CalendarComponent implements OnInit {
     ngOnInit(): void {
         this.i18n.use(this.lang);
         this.setToStartOfWeek(this.currentWeekStart);
-        this.generateTimeSlots();
         this.loadWeekSchedule();
-    }
-
-    generateTimeSlots(): void {
-        const slots: string[] = [];
-        for (let hour = 12; hour <= 22; hour++) slots.push(`${hour.toString().padStart(2, '0')}:00`);
-        this.timeSlots.set(slots);
     }
 
     onClearGameClick(ev: MouseEvent) {
@@ -78,20 +74,41 @@ export class CalendarComponent implements OnInit {
         return Math.max(0, Math.min(5, n)) * 20;
     }
 
-    loadWeekSchedule(): void {
-        const start = new Date(this.currentWeekStart);
-        const end = new Date(start);
-        end.setDate(start.getDate() + 6);
+    private formatLocalYMD(d: Date): string {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${dd}`;
+    }
 
-        const startDateStr = start.toISOString().split('T')[0];
-        const endDateStr = end.toISOString().split('T')[0];
+    loadWeekSchedule(): void {
+        const start = new Date(this.currentWeekStart);     // already snapped to Monday
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);                  // Monday → Sunday
+
+        const startDateStr = this.formatLocalYMD(start);
+        const endDateStr = this.formatLocalYMD(end);
 
         this.loading.set(true);
         this.bookingService.getAvailability(startDateStr, endDateStr).subscribe({
             next: (data) => {
-                const mapped: DaySchedule[] = data.map((d: any) => ({...d, date: new Date(d.date as string)}));
+                const mapped: DaySchedule[] = data
+                    .map((d: any) => ({...d, date: new Date(d.date as string)}))
+                    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
                 this.weekSchedule.set(mapped);
                 this.loading.set(false);
+
+                if (!this.autoAdvancedThisInit && this.isViewingThisWeek()) {
+                    const hasFutureAvailable = mapped.some(day =>
+                        day.slots.some(s => s.status === 'available' && !this.isPastSlot(day.date, s.time))
+                    );
+
+                    if (!hasFutureAvailable) {
+                        this.autoAdvancedThisInit = true;
+                        this.nextWeek();
+                    }
+                }
             },
             error: () => {
                 this.weekSchedule.set([]);
@@ -99,6 +116,7 @@ export class CalendarComponent implements OnInit {
             },
         });
     }
+
 
     /** Past check: day + time < now */
     isPastSlot(dayDate: Date, time: string): boolean {
@@ -160,5 +178,20 @@ export class CalendarComponent implements OnInit {
         const diff = date.getDate() - day + (day === 0 ? -6 : 1);
         date.setDate(diff);
         date.setHours(0, 0, 0, 0);
+    }
+
+    private startOfWeek(d: Date): Date {
+        const x = new Date(d);
+        const day = x.getDay(); // 0=Sun,1=Mon...
+        const diff = x.getDate() - day + (day === 0 ? -6 : 1); // snap to Monday
+        x.setDate(diff);
+        x.setHours(0, 0, 0, 0);
+        return x;
+    }
+
+    private isViewingThisWeek(): boolean {
+        const nowWeek = this.startOfWeek(new Date()).getTime();
+        const curWeek = this.startOfWeek(this.currentWeekStart).getTime();
+        return nowWeek === curWeek;
     }
 }

@@ -6,16 +6,5 @@ export const environment = {
   supportedLanguages: ['en', 'mk'],
   currency: 'MKD',
   dateFormat: 'DD/MM/YYYY',
-  timeFormat: 'HH:mm',
-  useBackendConfig: true,
-  localConfig: {
-    maxConcurrentBookings: 2,
-    bookingSlotDuration: 60,
-    minBookingNotice: 60,
-    maxBookingAdvance: 90,
-    businessHours: {
-      start: '12:00',
-      end: '22:00'
-    }
-  }
+  timeFormat: 'HH:mm'
 };

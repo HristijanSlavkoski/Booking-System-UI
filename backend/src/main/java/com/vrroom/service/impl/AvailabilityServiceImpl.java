@@ -120,7 +120,7 @@ public class AvailabilityServiceImpl implements AvailabilityService
     {
         List<String> slots = new ArrayList<>();
         LocalTime t = open;
-        while (!t.isAfter(close))
+        while (t.isBefore(close))
         {
             slots.add(t.truncatedTo(ChronoUnit.MINUTES).toString()); // "HH:mm"
             t = t.plusMinutes(mins);

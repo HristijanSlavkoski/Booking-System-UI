@@ -1,5 +1,5 @@
 import {APP_INITIALIZER, ApplicationConfig} from '@angular/core';
-import {provideRouter} from '@angular/router';
+import {provideRouter, UrlSerializer} from '@angular/router';
 import {provideHttpClient} from '@angular/common/http';
 import {provideTranslateService} from '@ngx-translate/core';
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
@@ -8,6 +8,7 @@ import {routes} from './app.routes';
 import {ConfigService} from './core/services/config.service';
 import {BookingStore} from './shared/stores/booking.store';
 import {firstValueFrom} from 'rxjs';
+import {CalendarSafeUrlSerializer} from "./calendar-safe-url-serializer";
 
 function initPricingFactory(cfg: ConfigService, store: BookingStore) {
     return () =>
@@ -28,6 +29,7 @@ function initPricingFactory(cfg: ConfigService, store: BookingStore) {
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(routes),
+        {provide: UrlSerializer, useClass: CalendarSafeUrlSerializer},
         provideHttpClient(),
         provideTranslateService({
             loader: provideTranslateHttpLoader({

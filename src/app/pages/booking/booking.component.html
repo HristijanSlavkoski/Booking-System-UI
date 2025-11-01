@@ -17,17 +17,15 @@
                     </div>
 
                     @if (currentStep() >= 2) {
-                        @if (!embedded) {
-                            <div class="summary-item-bar">
-                                <span class="summary-icon">🚪</span>
-                                <div class="summary-info">
-                                    <span class="summary-label">Rooms</span>
-                                    <span class="summary-value">
+                        <div class="summary-item-bar">
+                            <span class="summary-icon">🚪</span>
+                            <div class="summary-info">
+                                <span class="summary-label">Rooms</span>
+                                <span class="summary-value">
                                         {{ selectedRooms() }} {{ selectedRooms() === 1 ? 'Room' : 'Rooms' }}
                                       </span>
-                                </div>
                             </div>
-                        }
+                        </div>
                     }
 
                     @if (currentStep() >= 3) {
@@ -39,50 +37,46 @@
                             </div>
                         </div>
 
-                        @if (embedded) {
-                            <div class="summary-item-bar">
-                                <span class="summary-icon">👥</span>
-                                <div class="summary-info">
-                                    <span class="summary-label">Players</span>
-                                    <span class="summary-value">{{ getPlayersForRoom(0) }}</span>
-                                </div>
+                        <div class="summary-item-bar">
+                            <span class="summary-icon">👥</span>
+                            <div class="summary-info">
+                                <span class="summary-label">Players</span>
+                                <span class="summary-value">{{ getTotalPlayers() }}</span>
                             </div>
-                        }
+                        </div>
+
                     }
                 </div>
             }
 
             <div class="booking-steps">
-                <!-- Steps indicator (hidden in embedded) -->
-                @if (!embedded) {
-                    <div class="steps-indicator">
-                        <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
-                            <div class="step-number">1</div>
-                            <div class="step-label">Choose Date &amp; Time</div>
-                        </div>
-                        <div class="step-line" [class.completed]="currentStep() > 1"></div>
-
-                        <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
-                            <div class="step-number">2</div>
-                            <div class="step-label">Select Game</div>
-                        </div>
-                        <div class="step-line" [class.completed]="currentStep() > 2"></div>
-
-                        <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3">
-                            <div class="step-number">3</div>
-                            <div class="step-label">Players &amp; Details</div>
-                        </div>
-                        <div class="step-line" [class.completed]="currentStep() > 3"></div>
-
-                        <div class="step" [class.active]="currentStep() >= 4">
-                            <div class="step-number">4</div>
-                            <div class="step-label">Payment</div>
-                        </div>
+                <div class="steps-indicator">
+                    <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Choose Date &amp; Time</div>
                     </div>
-                }
+                    <div class="step-line" [class.completed]="currentStep() > 1"></div>
 
-                <!-- STEP 1 (hidden in embedded) -->
-                @if (!embedded && currentStep() === 1) {
+                    <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Select Game</div>
+                    </div>
+                    <div class="step-line" [class.completed]="currentStep() > 2"></div>
+
+                    <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Players &amp; Details</div>
+                    </div>
+                    <div class="step-line" [class.completed]="currentStep() > 3"></div>
+
+                    <div class="step" [class.active]="currentStep() >= 4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Payment</div>
+                    </div>
+                </div>
+
+                <!-- STEP 1 -->
+                @if (currentStep() === 1) {
                     <div class="step-content">
                         <h2>Select Available Date &amp; Time</h2>
                         <p class="step-description">
@@ -104,8 +98,8 @@
                     </div>
                 }
 
-                <!-- STEP 2 (hidden in embedded) -->
-                @if (!embedded && currentStep() === 2) {
+                <!-- STEP 2 -->
+                @if (currentStep() === 2) {
                     <section *ngIf="currentStep() === 2">
                         <app-game-selection
                                 [games]="games()"
@@ -126,51 +120,49 @@
                 <!-- STEP 3 -->
                 @if (currentStep() === 3) {
                     <div class="step-content">
-                        @if (!embedded) {
-                            <h2>Number of Players &amp; Customer Information</h2>
+                        <h2>Number of Players &amp; Customer Information</h2>
 
-                            @if (selectedRooms() === 1) {
-                                <div class="form-section">
-                                    <h3>How many players?</h3>
-                                    <div class="player-selection">
-                                        @for (num of playerOptionsForRoom(0); track num) {
-                                            <div
-                                                    class="player-option"
-                                                    [class.selected]="getPlayersForRoom(0) === num"
-                                                    (click)="selectPlayersForRoom(num, 0)">
-                                                <div class="player-count">{{ num }}</div>
-                                                <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                <div class="player-price">{{ pricePerPersonFor(num) * num }}MKD
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            } @else {
-                                <div class="multi-room-players">
-                                    @for (roomIndex of getRoomIndexes(); track roomIndex) {
-                                        <div class="room-player-section">
-                                            <h3 class="room-title-small">
-                                                Room {{ roomIndex + 1 }}: {{ getGameNameForRoom(roomIndex) }}
-                                            </h3>
-                                            <div class="player-selection-compact">
-                                                @for (num of playerOptionsForRoom(roomIndex); track num) {
-                                                    <div
-                                                            class="player-option-compact"
-                                                            [class.selected]="getPlayersForRoom(roomIndex) === num"
-                                                            (click)="selectPlayersForRoom(num, roomIndex)">
-                                                        <div class="player-count-compact">{{ num }}</div>
-                                                        <div class="player-label-compact">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                        <div class="player-price-compact">  {{ pricePerPersonFor(num) * num }}
-                                                            MKD
-                                                        </div>
-                                                    </div>
-                                                }
+                        @if (selectedRooms() === 1) {
+                            <div class="form-section">
+                                <h3>How many players?</h3>
+                                <div class="player-selection">
+                                    @for (num of playerOptionsForRoom(0); track num) {
+                                        <div
+                                                class="player-option"
+                                                [class.selected]="getPlayersForRoom(0) === num"
+                                                (click)="selectPlayersForRoom(num, 0)">
+                                            <div class="player-count">{{ num }}</div>
+                                            <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
+                                            <div class="player-price">{{ pricePerPersonFor(num) * num }}MKD
                                             </div>
                                         </div>
                                     }
                                 </div>
-                            }
+                            </div>
+                        } @else {
+                            <div class="multi-room-players">
+                                @for (roomIndex of getRoomIndexes(); track roomIndex) {
+                                    <div class="room-player-section">
+                                        <h3 class="room-title-small">
+                                            Room {{ roomIndex + 1 }}: {{ getGameNameForRoom(roomIndex) }}
+                                        </h3>
+                                        <div class="player-selection-compact">
+                                            @for (num of playerOptionsForRoom(roomIndex); track num) {
+                                                <div
+                                                        class="player-option-compact"
+                                                        [class.selected]="getPlayersForRoom(roomIndex) === num"
+                                                        (click)="selectPlayersForRoom(num, roomIndex)">
+                                                    <div class="player-count-compact">{{ num }}</div>
+                                                    <div class="player-label-compact">{{ num === 1 ? 'Player' : 'Players' }}</div>
+                                                    <div class="player-price-compact"> {{ pricePerPersonFor(num) * num }}
+                                                        MKD
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
                         }
 
                         @if (totalInclVat() > 0) {
@@ -199,11 +191,7 @@
                         </div>
 
                         <div class="step-actions">
-                            @if (!embedded) {
-                                <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
-                            } @else {
-                                <app-button variant="outline" (clicked)="onBackClick()">Back</app-button>
-                            }
+                            <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
                             <app-button (clicked)="nextStep()" [disabled]="!isStep3Valid()">Continue to Payment
                             </app-button>
                         </div>
@@ -212,89 +200,23 @@
 
                 <!-- STEP 4 -->
                 @if (currentStep() === 4) {
-                    <div class="step-content">
-                        <h2>Payment Method</h2>
-
-                        <div class="booking-summary">
-                            <h3>Booking Summary</h3>
-                            <div class="summary-item">
-                                <span class="label">Date:</span>
-                                <span class="value">{{ formatDate(selectedDate()) }}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="label">Time:</span>
-                                <span class="value">{{ selectedTime() }}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="label">Rooms:</span>
-                                <span class="value">{{ selectedRooms() }}</span>
-                            </div>
-
-                            @for (room of selectedGames(); track $index; let i = $index) {
-                                <div class="summary-item">
-                                    <span class="label">Room {{ i + 1 }}:</span>
-                                    <span class="value">
-                    {{ room.game?.name || 'No game' }}
-                                        — {{ room.playerCount }} {{ room.playerCount === 1 ? 'player' : 'players' }}
-                  </span>
-                                </div>
-                            }
-
-                            <div class="summary-item">
-                                <span class="label">Total Players:</span>
-                                <span class="value">{{ getTotalPlayers() }}</span>
-                            </div>
-
-                            <div class="summary-item">
-                                <span class="label">Net:</span>
-                                <span class="value">{{ netPortion() }} MKD</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="label">VAT ({{ taxPercentage() }}%):</span>
-                                <span class="value">{{ vatPortion() }} MKD</span>
-                            </div>
-                            <div class="summary-item total">
-                                <span class="label">Total:</span>
-                                <span class="value">{{ totalInclVat() }} MKD</span>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <h3>Choose Payment Method</h3>
-                            <div class="payment-methods">
-                                <label class="payment-method" [class.selected]="paymentMethod === 'ONLINE'">
-                                    <input type="radio" [(ngModel)]="paymentMethod" value="ONLINE"/>
-                                    <div class="payment-content">
-                                        <div class="payment-icon">💳</div>
-                                        <div class="payment-info">
-                                            <div class="payment-title">Pay Online</div>
-                                            <div class="payment-desc">Secure payment via credit/debit card</div>
-                                        </div>
-                                    </div>
-                                </label>
-
-                                <label class="payment-method" [class.selected]="paymentMethod === 'CASH'">
-                                    <input type="radio" [(ngModel)]="paymentMethod" value="CASH"/>
-                                    <div class="payment-content">
-                                        <div class="payment-icon">💵</div>
-                                        <div class="payment-info">
-                                            <div class="payment-title">Pay at Location</div>
-                                            <div class="payment-desc">Pay when you arrive at the venue (Cash or Card)
-                                            </div>
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="step-actions">
-                            <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
-                            <app-button (clicked)="submitBooking()" [disabled]="!paymentMethod"
-                                        [loading]="submitting()">
-                                {{ paymentMethod === 'ONLINE' ? 'Proceed to Payment' : 'Complete Booking' }}
-                            </app-button>
-                        </div>
-                    </div>
+                    <app-payment-step
+                            [date]="formatDate(selectedDate())"
+                            [time]="selectedTime()"
+                            [rooms]="selectedRooms()"
+                            [roomSummaries]="getRoomSummaries()"
+                            [totalPlayers]="getTotalPlayers()"
+                            [net]="netPortion()"
+                            [vat]="vatPortion()"
+                            [total]="totalInclVat()"
+                            [taxPercent]="taxPercentage()"
+                            currency="MKD"
+                            [paymentMethod]="store.paymentMethod()"
+                            (paymentMethodChange)="store.setPaymentMethod($event)"
+                            [submitting]="submitting()"
+                            (back)="previousStep()"
+                            (submit)="submitBooking()"
+                    />
                 }
             </div>
         }

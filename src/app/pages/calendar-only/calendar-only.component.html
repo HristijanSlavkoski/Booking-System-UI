@@ -31,7 +31,30 @@
                      (back)="backToGames()">
         </app-players>
     } @else {
-        <app-booking [embedded]="true"
-                     (back)="backToPlayers()"></app-booking>
+        <app-summary-bar
+                [date]="store.selectedDate() || null"
+                [time]="store.selectedTime()"
+                [rooms]="store.selectedRooms()"
+                [gamesText]="getGamesText()"
+                [totalPlayers]="getTotalPlayers()"
+        />
+
+        <app-payment-step
+                [date]="formatDate(store.selectedDate())"
+                [time]="store.selectedTime()"
+                [rooms]="store.selectedRooms()"
+                [roomSummaries]="getRoomSummaries()"
+                [totalPlayers]="getTotalPlayers()"
+                [net]="store.netPortion()"
+                [vat]="store.vatPortion()"
+                [total]="store.totalInclVat()"
+                [taxPercent]="store.taxPercentage()"
+                currency="MKD"
+                [paymentMethod]="store.paymentMethod()"
+                (paymentMethodChange)="store.setPaymentMethod($event)"
+                [submitting]="submitting()"
+                (back)="backToPlayers()"
+                (submit)="submitBookingFromInline()"
+        />
     }
 </div>

@@ -10,9 +10,9 @@ import {CommonModule} from '@angular/common';
     styleUrls: ['./summary-bar.component.scss']
 })
 export class SummaryBarComponent {
-    @Input() date!: Date | null;
+    @Input() date!: string | Date | null;
     @Input() time!: string | null;
     @Input() rooms!: number | null;
     @Input() gamesText = '';
-    @Input() playersText = ''; // optional (embedded case)
+    @Input() totalPlayers!: number | null;
 }

@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal, Input, Output, EventEmitter} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -6,8 +6,7 @@ import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {GameService} from '../../../core/services/game.service';
 import {Game} from '../../../models/game.model';
 import {ButtonComponent} from '../button/button.component';
-import { ConfigService } from '../../../core/services/config.service';
-import {Tier} from "../../../models/config.model";
+import {ConfigService} from '../../../core/services/config.service';
 import {BookingStore} from "../../stores/booking.store";
 import {PriceSummaryComponent} from "../price-summary/price-summary.component";
 
@@ -53,6 +52,7 @@ export class PlayersComponent implements OnInit {
         if (p && this.players() == null) {
             const n = parseInt(p, 10);
             if (!Number.isNaN(n)) this.players.set(n);
+            this.syncPlayersToStore(n);
         }
         this.date.set(qp.get('date') ?? '');
         this.time.set(qp.get('time') ?? '');
@@ -101,11 +101,22 @@ export class PlayersComponent implements OnInit {
 
     selectPlayers(n: number) {
         this.players.set(n);
+        this.syncPlayersToStore(n);
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: {players: n},
             queryParamsHandling: 'merge',
         });
+    }
+
+    private syncPlayersToStore(n: number | null) {
+        // assume inline flow is single-room for now
+        this.store.setRooms(1);
+        this.store.setPlayerCountForRoom(0, n ?? 0);
+
+        // if we have the game loaded, ensure store has it too
+        const g = this.game();
+        if (g) this.store.setGameForRoom(0, g);
     }
 
     backToCalendar(): void {
@@ -125,14 +136,17 @@ export class PlayersComponent implements OnInit {
     }
 
     continueToBooking(): void {
+        const n = this.players();
+        this.syncPlayersToStore(n);
+
         const q = {
             date: this.date(),
             time: this.time(),
             gameId: this.gameCode(),
-            players: this.players(),
+            players: n,
             rooms: 1,
             lang: this.lang(),
-            step: 'booking' // 👈 key change
+            step: 'booking'
         };
 
         if (this.inline) {
@@ -145,6 +159,6 @@ export class PlayersComponent implements OnInit {
             return;
         }
 
-        this.router.navigate(['/booking'], { queryParams: q });
+        this.router.navigate(['/booking'], {queryParams: q});
     }
 }

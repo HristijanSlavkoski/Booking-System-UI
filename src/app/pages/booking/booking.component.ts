@@ -1,4 +1,4 @@
-import {Component, computed, EventEmitter, inject, Input, OnInit, Output, signal,} from '@angular/core';
+import {Component, computed, EventEmitter, inject, OnInit, Output, signal,} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -17,18 +17,19 @@ import {LoadingComponent} from '../../shared/components/loading/loading.componen
 import {CalendarComponent} from '../../shared/components/calendar/calendar.component';
 import {GameSelectionComponent} from "../../shared/components/game-selection/game-selection.component";
 import {BookingStore} from "../../shared/stores/booking.store";
+import {PaymentStepComponent} from "../../shared/components/payment-step/payment-step.component";
+import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
 
 type RoomSelection = { game: Game | null; playerCount: number };
 
 @Component({
     selector: 'app-booking',
     standalone: true,
-    imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent, GameSelectionComponent],
+    imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent, GameSelectionComponent, PaymentStepComponent],
     templateUrl: './booking.component.html',
     styleUrls: ['./booking.component.scss'],
 })
 export class BookingComponent implements OnInit {
-    @Input() embedded = false;
     @Output() back = new EventEmitter<void>();
 
     // services
@@ -79,6 +80,7 @@ export class BookingComponent implements OnInit {
     vatPortion = computed(() => this.store.vatPortion());
     netPortion = computed(() => this.store.netPortion());
     taxPercentage = computed(() => this.store.taxPercentage());
+
     pricePerPersonFor(n: number): number {
         return this.store.pricePerPersonInclVat(n);
     }
@@ -88,8 +90,6 @@ export class BookingComponent implements OnInit {
         const qp = this.route.snapshot.queryParamMap;
         const stepQP = qp.get('step'); // "booking" | "payment" | null
 
-        // ✅ DO NOT return here in embedded mode
-        // if embedded, we’ll just decide which step to show, but still load data.
         this.loading.set(true);
 
         // 2) read query params early
@@ -119,6 +119,8 @@ export class BookingComponent implements OnInit {
             }
         }
 
+        this.syncAllToStore();
+
         // 3) load active games, then resolve gameId ONCE (no infinite loop)
         this.gameService.getActiveGames().subscribe({
             next: (list) => {
@@ -138,21 +140,14 @@ export class BookingComponent implements OnInit {
             this.customerInfo.phone = user.phone;
         }
 
-        // 5) decide step
-        if (this.embedded) {
-            // calendar-only iframe flow uses ?step=booking|payment
-            if (stepQP === 'payment') this.currentStep.set(4);
-            else this.currentStep.set(3); // default embedded landing
-        } else {
-            const hasDateTime = !!(this.selectedDate() && this.selectedTime());
-            const firstRoom = this.selectedGames()[0];
-            const hasGame = !!firstRoom?.game;
-            const hasPlayers = !!firstRoom?.playerCount;
+        const hasDateTime = !!(this.selectedDate() && this.selectedTime());
+        const firstRoom = this.selectedGames()[0];
+        const hasGame = !!firstRoom?.game;
+        const hasPlayers = !!firstRoom?.playerCount;
 
-            if (hasDateTime && hasGame && hasPlayers) this.currentStep.set(3);
-            else if (hasDateTime) this.currentStep.set(hasGame ? 3 : 2);
-            else this.currentStep.set(1);
-        }
+        if (hasDateTime && hasGame && hasPlayers) this.currentStep.set(3);
+        else if (hasDateTime) this.currentStep.set(hasGame ? 3 : 2);
+        else this.currentStep.set(1);
     }
 
     private resolveGameFromQP(code: string): void {
@@ -164,6 +159,30 @@ export class BookingComponent implements OnInit {
             updated[i] = {game: g, playerCount: updated[i].playerCount};
         }
         this.selectedGames.set(updated);
+
+        this.syncRoomsToStore();
+    }
+
+    /** Push local date/time/rooms into the store (games/playerCounts are separate). */
+    private syncHeaderToStore() {
+        this.store.setDateTime(this.selectedDate(), this.selectedTime());
+        this.store.setRooms(this.selectedRooms());
+    }
+
+    /** Push local room game+players into the store. */
+    private syncRoomsToStore() {
+        const arr = this.selectedGames();
+        // assumes store already setRooms(selectedRooms())
+        arr.forEach((r, i) => {
+            this.store.setGameForRoom(i, r?.game ?? null);
+            this.store.setPlayerCountForRoom(i, r?.playerCount ?? 0);
+        });
+    }
+
+    /** Call this whenever local selection changes. */
+    private syncAllToStore() {
+        this.syncHeaderToStore();
+        this.syncRoomsToStore();
     }
 
     // ------- ui helpers -------
@@ -189,6 +208,8 @@ export class BookingComponent implements OnInit {
         const prev = updated[roomIndex] ?? {game: null, playerCount: 0};
         updated[roomIndex] = {game, playerCount: prev.playerCount};
         this.selectedGames.set(updated);
+
+        this.store.setGameForRoom(roomIndex, game);
     }
 
     allRoomsHaveGames(): boolean {
@@ -229,7 +250,7 @@ export class BookingComponent implements OnInit {
     }
 
     getTotalPlayers(): number {
-        return this.selectedGames().reduce((sum, r) => sum + (r.playerCount || 0), 0);
+        return this.store.totalPlayers();
     }
 
     selectPlayersForRoom(n: number, roomIndex: number) {
@@ -238,6 +259,8 @@ export class BookingComponent implements OnInit {
             updated[roomIndex].playerCount = n;
             this.selectedGames.set(updated);
         }
+
+        this.store.setPlayerCountForRoom(roomIndex, n);
     }
 
     // steps
@@ -252,6 +275,9 @@ export class BookingComponent implements OnInit {
         const to = Math.max(1, s - 1) as 1 | 2 | 3 | 4;
         if (to === 1) {
             this.clearGameSelection({clearPlayers: true});
+
+            this.store.clearPlayers();
+            this.selectedGames().forEach((_, i) => this.store.setGameForRoom(i, null));
         }
         this.currentStep.set(to);
 
@@ -272,6 +298,8 @@ export class BookingComponent implements OnInit {
         }));
         this.selectedGames.set(next);
 
+        this.syncAllToStore();
+
         if (next[0]?.game) this.currentStep.set(3);
         else this.nextStep();
     }
@@ -282,6 +310,9 @@ export class BookingComponent implements OnInit {
         this.selectedTime.set(e.time);
         this.selectedRooms.set(1);
         this.selectedGames.set([{game: null, playerCount: 0}]);
+
+        this.syncAllToStore();
+
         this.currentStep.set(2);
         window.scrollTo(0, 0);
     }
@@ -302,11 +333,6 @@ export class BookingComponent implements OnInit {
         this.router.navigate(['/games']);
     }
 
-    onBackClick() {
-        // if you ever want to do local cleanup, do it here first
-        this.back.emit();
-    }
-
     // ------- submit -------
     submitBooking(): void {
         const gamesPayload = this.selectedGames().map((r, idx) => ({
@@ -321,7 +347,7 @@ export class BookingComponent implements OnInit {
             bookingTime: this.selectedTime(),
             numberOfRooms: this.selectedRooms(),
             totalPrice: this.store.totalInclVat(),     // <- from store
-            paymentMethod: this.paymentMethod,
+            paymentMethod: this.store.paymentMethod() ?? PaymentMethod.ONLINE,
             customerFirstName: this.customerInfo.firstName,
             customerLastName: this.customerInfo.lastName,
             customerEmail: this.customerInfo.email,
@@ -336,12 +362,8 @@ export class BookingComponent implements OnInit {
                 if (res?.paymentUrl) {
                     window.location.href = res.paymentUrl;
                 } else {
-                    if (this.embedded) {
-                        this.router.navigate(['/calendar']);
-                    } else {
-                        // TODO: if authenticated, go to my-booking, else home?
-                        this.router.navigate(['/my-booking']);
-                    }
+                    // TODO: if authenticated, go to my-booking, else home?
+                    this.router.navigate(['/my-booking']);
                 }
                 this.submitting.set(false);
             },
@@ -351,5 +373,13 @@ export class BookingComponent implements OnInit {
                 this.submitting.set(false);
             },
         });
+    }
+
+    getRoomSummaries(): RoomSummary[] {
+        const sel = this.store.selectedGames();
+        return sel.map(item => ({
+            name: item?.game?.name ?? null,
+            playerCount: item?.playerCount ?? 0,
+        }));
     }
 }

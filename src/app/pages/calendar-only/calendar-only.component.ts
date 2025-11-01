@@ -7,17 +7,19 @@ import {GameService} from '../../core/services/game.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {Game} from '../../models/game.model';
 import {PlayersComponent} from '../../shared/components/players/players.component';
-import {BookingComponent} from '../booking/booking.component';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {distinctUntilChanged, map} from "rxjs";
 import {BookingStore} from '../../shared/stores/booking.store';
 import {GameSelectionComponent} from "../../shared/components/game-selection/game-selection.component";
-import {ButtonComponent} from "../../shared/components/button/button.component"; // NEW
+import {ButtonComponent} from "../../shared/components/button/button.component";
+import {PaymentStepComponent} from "../../shared/components/payment-step/payment-step.component";
+import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
+import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component"; // NEW
 
 @Component({
     selector: 'app-calendar-only',
     standalone: true,
-    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent, BookingComponent, GameSelectionComponent, ButtonComponent],
+    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent, GameSelectionComponent, ButtonComponent, PaymentStepComponent, SummaryBarComponent],
     templateUrl: './calendar-only.component.html',
     styleUrls: ['./calendar-only.component.scss']
 })
@@ -44,6 +46,8 @@ export class CalendarOnlyComponent implements OnInit {
     pendingSlot = signal<{ date: string; time: string } | null>(null);
     step = signal<'calendar' | 'game' | 'players' | 'booking'>('calendar');
 
+    submitting = signal(false);
+
     private removeQueryParams(keys: string[]) {
         const qp: any = {};
         keys.forEach(k => qp[k] = null);
@@ -63,7 +67,7 @@ export class CalendarOnlyComponent implements OnInit {
         // Remove gameId from URL and go to calendar step
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { ...this.route.snapshot.queryParams, step: 'calendar', gameId: null },
+            queryParams: {...this.route.snapshot.queryParams, step: 'calendar', gameId: null},
             queryParamsHandling: 'merge',
         });
 
@@ -71,7 +75,7 @@ export class CalendarOnlyComponent implements OnInit {
     }
 
 
-    backToGames(){
+    backToGames() {
         this.ensureGamesLoaded();
         this.store.setRooms(Math.max(1, this.store.selectedRooms()));
         this.setStep('game');
@@ -92,7 +96,7 @@ export class CalendarOnlyComponent implements OnInit {
     private setStep(step: 'calendar' | 'game' | 'players' | 'booking', extras: Record<string, any> = {}) {
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { ...this.route.snapshot.queryParams, step, ...extras },
+            queryParams: {...this.route.snapshot.queryParams, step, ...extras},
             queryParamsHandling: 'merge',
         });
         this.step.set(step);
@@ -112,7 +116,7 @@ export class CalendarOnlyComponent implements OnInit {
                 ),
                 takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe(({ step, gameId, date, time }) => {
+            .subscribe(({step, gameId, date, time}) => {
                 this.step.set(step);
                 if (date || time) this.store.setDateTime(date, time);
 
@@ -175,13 +179,13 @@ export class CalendarOnlyComponent implements OnInit {
         } else {
             // NEW: move to GAME step (inline game selection)
             this.store.setRooms(1);
-            this.pendingSlot.set({ date: slot.date, time: slot.time });
+            this.pendingSlot.set({date: slot.date, time: slot.time});
 
             // ensure games are loaded and navigate with step=game
             this.ensureGamesLoaded();
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { ...this.route.snapshot.queryParams, date: slot.date, time: slot.time, step: 'game' },
+                queryParams: {...this.route.snapshot.queryParams, date: slot.date, time: slot.time, step: 'game'},
                 queryParamsHandling: 'merge'
             });
             this.step.set('game');
@@ -190,13 +194,13 @@ export class CalendarOnlyComponent implements OnInit {
 
     onGamePickRequested(e: { date: string; time: string }) {
         // TODO: Rooms to not be passed as 1
-        this.onSlotSelected({ date: e.date, time: e.time, rooms: 1 });
+        this.onSlotSelected({date: e.date, time: e.time, rooms: 1});
     }
 
     private goToPlayersInline(date: string, time: string, gameCode: string) {
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { ...this.route.snapshot.queryParams, date, time, gameId: gameCode, step: 'players' },
+            queryParams: {...this.route.snapshot.queryParams, date, time, gameId: gameCode, step: 'players'},
             queryParamsHandling: 'merge'
         });
         this.step.set('players');
@@ -227,9 +231,44 @@ export class CalendarOnlyComponent implements OnInit {
 
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { ...this.route.snapshot.queryParams, date, time, gameId: chosen, step: 'players' },
+            queryParams: {...this.route.snapshot.queryParams, date, time, gameId: chosen, step: 'players'},
             queryParamsHandling: 'merge'
         });
         this.step.set('players');
+    }
+
+    getTotalPlayers(): number {
+        return this.store.totalPlayers();
+    }
+
+    getRoomSummaries(): RoomSummary[] {
+        const sel = this.store.selectedGames();
+        return sel.map(item => ({
+            name: item?.game?.name ?? null,
+            playerCount: item?.playerCount ?? 0,
+        }));
+    }
+
+    getGamesText(): string {
+        const names = this.store
+            .selectedGames()
+            .map(r => r?.game?.name ?? null)
+            .filter((n): n is string => !!n); // 👈 narrows to string[]
+        return names.join(', ');
+    }
+
+    submitBookingFromInline() {
+        // TODO: replace with real API call
+        if (!this.store.paymentMethod()) return;
+
+        this.submitting.set(true);
+
+        // simulate async submit; replace with service call
+        // this.bookingService.createBooking(payload).subscribe({ ... })
+        setTimeout(() => {
+            this.submitting.set(false);
+            // after successful booking, you might want to reset or navigate:
+            this.setStep('calendar');
+        }, 500);
     }
 }

@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+
+.booking-summary {
+  background: #1a1a1a;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #2a2a2a;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #2a2a2a;
+  color: #aaa;
+
+  .value {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  &.total {
+    border-bottom: none;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid #ec3f3a;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+
+    .value {
+      color: #ec3f3a;
+    }
+  }
+}

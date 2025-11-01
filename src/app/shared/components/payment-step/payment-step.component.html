@@ -1,0 +1,35 @@
+<div class="step-content">
+    <h2>Payment Method</h2>
+
+    <app-booking-summary
+            [date]="date"
+            [time]="time"
+            [rooms]="rooms"
+            [roomSummaries]="roomSummaries"
+            [totalPlayers]="totalPlayers"
+            [net]="net"
+            [vat]="vat"
+            [total]="total"
+            [taxPercent]="taxPercent"
+            [currency]="currency"
+    />
+
+    <div class="form-section">
+        <h3>Choose Payment Method</h3>
+        <app-payment-method-selector
+                [paymentMethod]="paymentMethod"
+                (paymentMethodChange)="paymentMethodChange.emit($event)"
+        />
+    </div>
+
+    <div class="step-actions">
+        <app-button variant="outline" (clicked)="back.emit()">Back</app-button>
+        <app-button
+                (clicked)="submit.emit()"
+                [disabled]="!paymentMethod"
+                [loading]="submitting"
+        >
+            {{ paymentMethod === 'ONLINE' ? 'Proceed to Payment' : 'Complete Booking' }}
+        </app-button>
+    </div>
+</div>

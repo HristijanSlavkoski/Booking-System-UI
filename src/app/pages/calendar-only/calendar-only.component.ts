@@ -6,15 +6,18 @@ import {ConfigService} from '../../core/services/config.service';
 import {GameService} from '../../core/services/game.service';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {Game} from '../../models/game.model';
-import {PlayersComponent} from '../players/players.component';
+import {PlayersComponent} from '../../shared/components/players/players.component';
 import {BookingComponent} from '../booking/booking.component';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {distinctUntilChanged, map} from "rxjs";
+import {BookingStore} from '../../shared/stores/booking.store';
+import {GameSelectionComponent} from "../../shared/components/game-selection/game-selection.component";
+import {ButtonComponent} from "../../shared/components/button/button.component"; // NEW
 
 @Component({
     selector: 'app-calendar-only',
     standalone: true,
-    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent, BookingComponent],
+    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent, BookingComponent, GameSelectionComponent, ButtonComponent],
     templateUrl: './calendar-only.component.html',
     styleUrls: ['./calendar-only.component.scss']
 })
@@ -26,6 +29,9 @@ export class CalendarOnlyComponent implements OnInit {
     private i18n = inject(TranslateService);
     private destroyRef = inject(DestroyRef);
 
+    // NEW: use store to keep iframe and full app consistent
+    store = inject(BookingStore);
+
     maxConcurrentBookings = signal(2);
     gameId = signal<string>('');
     game = signal<Game | null>(null);
@@ -36,12 +42,11 @@ export class CalendarOnlyComponent implements OnInit {
     gamesLoading = signal(false);
 
     pendingSlot = signal<{ date: string; time: string } | null>(null);
-    step = signal<'calendar' | 'players' | 'booking'>('calendar');
+    step = signal<'calendar' | 'game' | 'players' | 'booking'>('calendar');
 
-    /** Utility: remove specific query params */
     private removeQueryParams(keys: string[]) {
         const qp: any = {};
-        keys.forEach(k => qp[k] = null); // null -> remove
+        keys.forEach(k => qp[k] = null);
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: qp,
@@ -49,128 +54,152 @@ export class CalendarOnlyComponent implements OnInit {
         });
     }
 
-    /** Back from PLAYERS to CALENDAR, clear date/time/players/step */
     backToCalendar() {
+        // Clear game everywhere
+        this.game.set(null);
+        this.gameId.set('');
+        this.store.setGameForRoom(0, null);
+
+        // Remove gameId from URL and go to calendar step
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { ...this.route.snapshot.queryParams, step: 'calendar', gameId: null },
+            queryParamsHandling: 'merge',
+        });
+
         this.step.set('calendar');
-        this.removeQueryParams(['date', 'time', 'players', 'step']);
-        // keep gameId if you want the chip to remain; otherwise also clear it
-        // this.removeQueryParams(['gameId']);
+    }
+
+
+    backToGames(){
+        this.ensureGamesLoaded();     // make sure list is available instantly
+        this.store.setRooms(Math.max(1, this.store.selectedRooms())); // keep rooms as chosen
+        this.setStep('game');
+    }
+
+    backToPlayers() {
+        this.setStep('players');
     }
 
     clearGameFromParent(): void {
         this.game.set(null);
         this.gameId.set('');
-        // also clear dependent params so the UI is consistent
+        this.store.setGameForRoom(0, null);
         this.removeQueryParams(['gameId', 'date', 'time', 'players', 'step']);
-        // ensure we’re back on the calendar step
         this.step.set('calendar');
     }
 
-    backToPlayers() {
-        this.step.set('players');
+    private setStep(step: 'calendar' | 'game' | 'players' | 'booking', extras: Record<string, any> = {}) {
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: {step: 'players'},
+            queryParams: { ...this.route.snapshot.queryParams, step, ...extras },
             queryParamsHandling: 'merge',
         });
-    }
-
-    /** Close modal safely (no navigation) */
-    closeGamePicker(): void {
-        this.showGamePicker.set(false);
-        this.pendingSlot.set(null);
-        // optional: also clear date/time if you had pre-filled them when opening the picker
-        // this.removeQueryParams(['date','time']);
-    }
-
-    private goToPlayersInline(date: string, time: string, gameCode: string) {
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {...this.route.snapshot.queryParams, date, time, gameId: gameCode, step: 'players'},
-            queryParamsHandling: 'merge',
-        });
-        this.pendingSlot.set({date, time});
-        this.step.set('players');
+        this.step.set(step);
     }
 
     ngOnInit(): void {
         this.route.queryParamMap
             .pipe(
                 map(pm => ({
-                    step: (pm.get('step') as 'calendar' | 'players' | 'booking') ?? 'calendar',
+                    step: (pm.get('step') as 'calendar' | 'game' | 'players' | 'booking') ?? 'calendar',
                     gameId: pm.get('gameId') ?? '',
                     date: pm.get('date') ?? '',
                     time: pm.get('time') ?? '',
                 })),
-                // avoid noisy repeats
                 distinctUntilChanged((a, b) =>
                     a.step === b.step && a.gameId === b.gameId && a.date === b.date && a.time === b.time
                 ),
-                takeUntilDestroyed(this.destroyRef) // ✅ pass the injected DestroyRef
+                takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe(({step, gameId}) => {
+            .subscribe(({ step, gameId, date, time }) => {
                 this.step.set(step);
-                this.gameId.set(gameId);
+                if (date || time) this.store.setDateTime(date, time);
 
+                // keep store in sync with query
                 if (gameId && this.game()?.code !== gameId) {
-                    this.gameService.getGameByCode(gameId).subscribe({
-                        next: g => this.game.set(g),
-                        error: () => this.game.set(null),
-                    });
+                    this.fetchGameByCode(gameId);
                 }
-                if (!gameId) this.game.set(null);
+                if (!gameId) {
+                    this.game.set(null);
+                    this.store.setGameForRoom(0, null);
+                }
+
+                // if we land on the game step, ensure games are loaded
+                if (step === 'game' && this.games().length === 0) {
+                    this.ensureGamesLoaded();
+                }
             });
+    }
+
+    private fetchGameByCode(code: string) {
+        this.gameService.getGameByCode(code).subscribe({
+            next: g => {
+                this.game.set(g);
+                this.gameId.set(g.code);
+                this.store.setRooms(1);
+                this.store.setGameForRoom(0, g);
+            },
+            error: () => {
+                this.game.set(null);
+                this.gameId.set('');
+                this.store.setGameForRoom(0, null);
+            }
+        });
+    }
+
+    private ensureGamesLoaded() {
+        if (this.gamesLoading()) return;
+        this.gamesLoading.set(true);
+        this.gameService.getActiveGames().subscribe({
+            next: list => {
+                this.games.set(list);
+                this.gamesLoading.set(false);
+            },
+            error: () => {
+                this.games.set([]);
+                this.gamesLoading.set(false);
+            }
+        });
     }
 
     onSlotSelected(slot: SlotSelection) {
         const gid = this.gameId();
+
+        // always reflect date/time in store
+        this.store.setDateTime(slot.date, slot.time);
+
         if (gid) {
+            // already have a preselected game => go straight to players
             this.goToPlayersInline(slot.date, slot.time, gid);
         } else {
-            this.pendingSlot.set({date: slot.date, time: slot.time});
-            this.openGamePicker();
-        }
-    }
+            // NEW: move to GAME step (inline game selection)
+            this.store.setRooms(1);
+            this.pendingSlot.set({ date: slot.date, time: slot.time });
 
-    selectGame(g: Game) {
-        this.gameId.set(g.code);
-        this.game.set(g);
-        this.showGamePicker.set(false);
-
-        const ps = this.pendingSlot();
-        const current = this.route.snapshot.queryParams;
-
-        if (ps) {
+            // ensure games are loaded and navigate with step=game
+            this.ensureGamesLoaded();
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: {...current, date: ps.date, time: ps.time, gameId: g.code},
-                queryParamsHandling: 'merge',
+                queryParams: { ...this.route.snapshot.queryParams, date: slot.date, time: slot.time, step: 'game' },
+                queryParamsHandling: 'merge'
             });
-            this.goToPlayersInline(ps.date, ps.time, g.code);
-            this.pendingSlot.set(null);
+            this.step.set('game');
         }
     }
 
-    onGamePickRequested(e: { date: string; time: string }): void {
-        this.pendingSlot.set({date: e.date, time: e.time});
-        this.openGamePicker();
+    onGamePickRequested(e: { date: string; time: string }) {
+        // TODO: Rooms to not be passed as 1
+        this.onSlotSelected({ date: e.date, time: e.time, rooms: 1 });
     }
 
-    private openGamePicker(): void {
-        this.showGamePicker.set(true);
-        if (this.games().length === 0) {
-            this.gamesLoading.set(true);
-            this.gameService.getActiveGames().subscribe({
-                next: (list) => {
-                    this.games.set(list);
-                    this.gamesLoading.set(false);
-                },
-                error: () => {
-                    this.games.set([]);
-                    this.gamesLoading.set(false);
-                }
-            });
-        }
+    private goToPlayersInline(date: string, time: string, gameCode: string) {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { ...this.route.snapshot.queryParams, date, time, gameId: gameCode, step: 'players' },
+            queryParamsHandling: 'merge'
+        });
+        this.step.set('players');
     }
 
     formatDate(dateString: string): string {
@@ -178,5 +207,29 @@ export class CalendarOnlyComponent implements OnInit {
         const d = new Date(dateString);
         const locale = this.lang() === 'mk' ? 'mk-MK' : 'en-GB';
         return d.toLocaleDateString(locale, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
+    }
+
+    // --- NEW: game-selection outputs
+    onInlineSelectGame(e: { roomIndex: number; game: Game }) {
+        // iframe flow is usually 1 room; but we support multiple anyway
+        if (e.roomIndex === 0) {
+            this.gameId.set(e.game.code);
+            this.game.set(e.game);
+        }
+        this.store.setGameForRoom(e.roomIndex, e.game);
+    }
+
+    goToPlayersAfterGame() {
+        const date = this.store.selectedDate();
+        const time = this.store.selectedTime();
+        const chosen = this.store.selectedGames()[0]?.game?.code;
+        if (!date || !time || !chosen) return;
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { ...this.route.snapshot.queryParams, date, time, gameId: chosen, step: 'players' },
+            queryParamsHandling: 'merge'
+        });
+        this.step.set('players');
     }
 }

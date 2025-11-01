@@ -1,0 +1,97 @@
+:host {
+  display: block;
+}
+
+.step-description {
+  color: #aaa;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.game-selection {
+  background: #1a1a1a;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a2a2a;
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.games-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.multi-room-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.room-game-section {
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: var(--panel-2);
+}
+
+.room-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 1rem;
+  padding: .5rem 1rem;
+  background: var(--brand);
+  border-radius: .5rem;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.games-selection-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Optional compact tweak for the card when used in multi-room lists */
+:host ::ng-deep app-game-card.compact .card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+:host ::ng-deep app-game-card.compact .image {
+  width: 80px;
+  height: 80px;
+  border-radius: .5rem;
+}
+
+:host ::ng-deep app-game-card.compact .title {
+  font-size: 1rem;
+  margin-bottom: .25rem;
+}
+
+:host ::ng-deep app-game-card.compact .badge {
+  top: .5rem;
+  right: .5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}

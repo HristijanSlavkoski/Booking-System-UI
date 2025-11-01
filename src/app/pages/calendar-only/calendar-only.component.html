@@ -11,49 +11,24 @@
                 (clearGameRequested)="clearGameFromParent()"
         ></app-calendar>
 
-        @if (showGamePicker()) {
-            <div class="game-picker-backdrop" (click)="closeGamePicker()"></div>
-            <div class="game-picker-modal" (click)="$event.stopPropagation()">
-                <div class="gpm-header">
-                    <button class="gpm-back" (click)="closeGamePicker()">← {{ 'common.back' | translate }}</button>
-                    <div class="gpm-title">{{ 'calendar.chooseGame' | translate }}</div>
-                    <button class="gpm-close" (click)="closeGamePicker()">✕</button>
-                </div>
+    } @else if (step() === 'game') {
+        <app-game-selection
+                [games]="games()"
+                [selectedRooms]="store.selectedRooms()"
+                [selected]="store.selectedGames()"
+                (selectGame)="onInlineSelectGame($event)">
+        </app-game-selection>
 
-                <div class="gpm-list">
-                    @if (gamesLoading()) {
-                        <div class="gpm-loading">{{ 'common.loading' | translate }}</div>
-                    }
-                    @for (g of games(); track g.id) {
-                        <div class="gpm-item" (click)="selectGame(g)">
-                            <img *ngIf="g.imageUrl" [src]="g.imageUrl" alt=""/>
-                            <div class="gpm-meta">
-                                <div class="gpm-name">{{ g.name }}</div>
-                                <div class="gpm-sub">
-                                    @if (g.duration) {
-                                        <span>{{ g.duration }} {{ 'calendar.minutes' | translate }}</span>
-                                    }
-                                    @if (g.minPlayers && g.maxPlayers) {
-                                        <span> · {{ g.minPlayers }}
-                                            –{{ g.maxPlayers }} {{ 'calendar.players' | translate }}</span>
-                                    }
-                                </div>
-                                @if (g.shortDescription) {
-                                    <div class="gpm-desc">{{ g.shortDescription }}</div>
-                                }
-                            </div>
-                        </div>
-                    }
-                    @if (!gamesLoading() && games().length === 0) {
-                        <div class="gpm-empty">{{ 'calendar.noGames' | translate }}</div>
-                    }
-                </div>
-            </div>
-        }
+        <div class="step-actions">
+            <app-button variant="outline" (clicked)="backToCalendar()">{{ 'common.back' | translate }}</app-button>
+            <app-button (clicked)="goToPlayersAfterGame()" [disabled]="!store.allRoomsHaveGames()">
+                {{ 'common.continue' | translate }}
+            </app-button>
+        </div>
     } @else if (step() === 'players') {
         <!-- INLINE PLAYERS -->
         <app-players [inline]="true"
-                     (back)="backToCalendar()">
+                     (back)="backToGames()">
         </app-players>
     } @else {
         <app-booking [embedded]="true"

@@ -1,0 +1,36 @@
+<!-- summary-bar.component.html -->
+<div class="selection-summary-bar" *ngIf="date || time || rooms || gamesText || playersText">
+    <div class="summary-item-bar" *ngIf="date || time">
+        <span class="summary-icon">📅</span>
+        <div class="summary-info">
+            <span class="summary-label">Date &amp; Time</span>
+            <span class="summary-value">
+        {{ date ? (date | date:'EEE, dd MMM') : '—' }} {{ time ? ('at ' + time) : '' }}
+      </span>
+        </div>
+    </div>
+
+    <div class="summary-item-bar" *ngIf="rooms != null">
+        <span class="summary-icon">🚪</span>
+        <div class="summary-info">
+            <span class="summary-label">Rooms</span>
+            <span class="summary-value">{{ rooms }} {{ rooms === 1 ? 'Room' : 'Rooms' }}</span>
+        </div>
+    </div>
+
+    <div class="summary-item-bar" *ngIf="gamesText">
+        <span class="summary-icon">🎮</span>
+        <div class="summary-info">
+            <span class="summary-label">Game</span>
+            <span class="summary-value">{{ gamesText }}</span>
+        </div>
+    </div>
+
+    <div class="summary-item-bar" *ngIf="playersText">
+        <span class="summary-icon">👥</span>
+        <div class="summary-info">
+            <span class="summary-label">Players</span>
+            <span class="summary-value">{{ playersText }}</span>
+        </div>
+    </div>
+</div>

@@ -206,6 +206,14 @@
   &:hover  { border-color: #ec3f3a; transform: translateY(-1px); }
   &:active { transform: translateY(0); }
 }
+.step-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #2a2a2a;
+}
 
 /* --- Small polish for consistency --- */
 .calendar-header { margin-bottom: 1.25rem; } /* a bit tighter for embeds */

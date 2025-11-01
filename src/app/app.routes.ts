@@ -93,7 +93,7 @@ export const routes: Routes = [
                     {
                         path: 'players',
                         loadComponent: () =>
-                            import('./pages/players/players.component').then(m => m.PlayersComponent),
+                            import('./shared/components/players/players.component').then(m => m.PlayersComponent),
                     },
                     {
                         path: 'booking',

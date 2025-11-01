@@ -3,11 +3,11 @@ import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {GameService} from '../../core/services/game.service';
-import {Game} from '../../models/game.model';
-import {ButtonComponent} from '../../shared/components/button/button.component';
-import { ConfigService } from '../../core/services/config.service';
-import {Tier} from "../../models/config.model";
+import {GameService} from '../../../core/services/game.service';
+import {Game} from '../../../models/game.model';
+import {ButtonComponent} from '../button/button.component';
+import { ConfigService } from '../../../core/services/config.service';
+import {Tier} from "../../../models/config.model";
 
 @Component({
     standalone: true,

@@ -1,35 +1,29 @@
-import {
-    Component,
-    Input,
-    OnInit,
-    inject,
-    signal,
-    computed, Output, EventEmitter,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, computed, EventEmitter, inject, Input, OnInit, Output, signal,} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 
-import { GameService } from '../../core/services/game.service';
-import { BookingService } from '../../core/services/booking.service';
-import { AuthService } from '../../core/services/auth.service';
-import { NotificationService } from '../../core/services/notification.service';
-import { ConfigService } from '../../core/services/config.service';
+import {GameService} from '../../core/services/game.service';
+import {BookingService} from '../../core/services/booking.service';
+import {AuthService} from '../../core/services/auth.service';
+import {NotificationService} from '../../core/services/notification.service';
+import {ConfigService} from '../../core/services/config.service';
 
-import { Game } from '../../models/game.model';
-import { BookingRequest, PaymentMethod } from '../../models/booking.model';
-import { Tier } from '../../models/config.model';
+import {Game} from '../../models/game.model';
+import {BookingRequest, PaymentMethod} from '../../models/booking.model';
+import {Tier} from '../../models/config.model';
 
-import { ButtonComponent } from '../../shared/components/button/button.component';
-import { LoadingComponent } from '../../shared/components/loading/loading.component';
-import { CalendarComponent } from '../../shared/components/calendar/calendar.component';
+import {ButtonComponent} from '../../shared/components/button/button.component';
+import {LoadingComponent} from '../../shared/components/loading/loading.component';
+import {CalendarComponent} from '../../shared/components/calendar/calendar.component';
+import {GameSelectionComponent} from "../../shared/components/game-selection/game-selection.component";
 
 type RoomSelection = { game: Game | null; playerCount: number };
 
 @Component({
     selector: 'app-booking',
     standalone: true,
-    imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent],
+    imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent, GameSelectionComponent],
     templateUrl: './booking.component.html',
     styleUrls: ['./booking.component.scss'],
 })
@@ -87,6 +81,14 @@ export class BookingComponent implements OnInit {
     }
     private isHolidayISO(iso: string): boolean {
         return this.holidays().includes(iso);
+    }
+    private clearGameSelection(opts: { clearPlayers?: boolean } = {}) {
+        const { clearPlayers = true } = opts;
+        const cleared = this.selectedGames().map(r => ({
+            game: null,
+            playerCount: clearPlayers ? 0 : r.playerCount
+        }));
+        this.selectedGames.set(cleared);
     }
 
     /** price-per-person (VAT included in tier), with weekend/holiday multipliers */
@@ -319,7 +321,12 @@ export class BookingComponent implements OnInit {
     }
     previousStep(): void {
         const s = this.currentStep();
-        this.currentStep.set((Math.max(1, s - 1) as 1 | 2 | 3 | 4));
+        const to = Math.max(1, s - 1) as 1 | 2 | 3 | 4;
+        if (to === 1) {
+            this.clearGameSelection({ clearPlayers: true });
+        }
+        this.currentStep.set(to);
+
         window.scrollTo(0, 0);
     }
 

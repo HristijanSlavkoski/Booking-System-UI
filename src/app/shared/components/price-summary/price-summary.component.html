@@ -1,0 +1,9 @@
+<!-- price-summary.component.html -->
+<div class="price-summary" *ngIf="total > 0">
+    <span class="price-label">Total:</span>
+    <span class="price-amount">{{ total }} MKD</span>
+</div>
+<div class="price-breakdown" *ngIf="total > 0">
+    <div class="line small">Net: {{ net }} MKD</div>
+    <div class="line small">VAT ({{ taxPercent }}%): {{ vat }} MKD</div>
+</div>

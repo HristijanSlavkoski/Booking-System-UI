@@ -1,0 +1,24 @@
+<!-- payment-methods.component.html -->
+<div class="payment-methods">
+    <label class="payment-method" [class.selected]="value === 'ONLINE'">
+        <input type="radio" [checked]="value === 'ONLINE'" (change)="set('ONLINE')"/>
+        <div class="payment-content">
+            <div class="payment-icon">💳</div>
+            <div class="payment-info">
+                <div class="payment-title">Pay Online</div>
+                <div class="payment-desc">Secure payment via credit/debit card</div>
+            </div>
+        </div>
+    </label>
+
+    <label class="payment-method" [class.selected]="value === 'CASH'">
+        <input type="radio" [checked]="value === 'CASH'" (change)="set('CASH')"/>
+        <div class="payment-content">
+            <div class="payment-icon">💵</div>
+            <div class="payment-info">
+                <div class="payment-title">Pay at Location</div>
+                <div class="payment-desc">Pay when you arrive (Cash or Card)</div>
+            </div>
+        </div>
+    </label>
+</div>

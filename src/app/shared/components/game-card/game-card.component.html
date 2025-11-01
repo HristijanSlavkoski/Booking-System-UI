@@ -1,0 +1,14 @@
+<!-- game-card.component.html -->
+<div class="game-select-card" [class.selected]="selected" (click)="choose.emit()">
+    <img [src]="game.imageUrl" [alt]="game.name" class="game-image"/>
+    <div class="game-info">
+        <h3>{{ game.name }}</h3>
+        <div class="game-meta">
+            <span *ngIf="game.duration">{{ game.duration }} min</span>
+            <span *ngIf="game.minPlayers && game.maxPlayers"> · {{ game.minPlayers }}–{{ game.maxPlayers }}
+                players</span>
+            <span *ngIf="game.difficulty"> · {{ game.difficulty }}</span>
+        </div>
+    </div>
+    <div class="selected-badge" *ngIf="selected">✓ Selected</div>
+</div>

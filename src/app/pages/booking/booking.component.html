@@ -86,7 +86,8 @@
                     <div class="step-content">
                         <h2>Select Available Date &amp; Time</h2>
                         <p class="step-description">
-                            Choose your preferred date and time. Green slots are available — click to select how many rooms you need.
+                            Choose your preferred date and time. Green slots are available — click to select how many
+                            rooms you need.
                         </p>
 
                         <app-calendar
@@ -105,65 +106,13 @@
 
                 <!-- STEP 2 (hidden in embedded) -->
                 @if (!embedded && currentStep() === 2) {
-                    <div class="step-content">
-                        <h2>Select Your Game{{ selectedRooms() > 1 ? 's' : '' }}</h2>
-
-                        @if (selectedRooms() > 1) {
-                            <p class="step-description">
-                                You're booking {{ selectedRooms() }} rooms. Select a game for each room (can be the same game multiple times).
-                            </p>
-                        }
-
-                        @if (selectedRooms() === 1) {
-                            <div class="games-selection">
-                                @for (game of games(); track game.code) {
-                                    <div
-                                            class="game-select-card"
-                                            [class.selected]="isGameSelected(game, 0)"
-                                            (click)="selectGameForRoom(game, 0)">
-                                        <img [src]="game.imageUrl" [alt]="game.name" class="game-image" />
-                                        <div class="game-info">
-                                            <h3>{{ game.name }}</h3>
-                                            <div class="game-meta">
-                                                <span>{{ game.duration }} min</span>
-                                                <span>{{ game.minPlayers }}-{{ game.maxPlayers }} players</span>
-                                                <span>{{ game.difficulty }}</span>
-                                            </div>
-                                        </div>
-                                        @if (isGameSelected(game, 0)) {
-                                            <div class="selected-badge">✓ Selected</div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        } @else {
-                            <div class="multi-room-selection">
-                                @for (roomIndex of getRoomIndexes(); track roomIndex) {
-                                    <div class="room-game-section">
-                                        <h3 class="room-title">Room {{ roomIndex + 1 }}</h3>
-                                        <div class="games-selection-compact">
-                                            @for (game of games(); track game.code) {
-                                                <div
-                                                        class="game-select-card-compact"
-                                                        [class.selected]="isGameSelected(game, roomIndex)"
-                                                        (click)="selectGameForRoom(game, roomIndex)">
-                                                    <img [src]="game.imageUrl" [alt]="game.name" class="game-image-small" />
-                                                    <div class="game-info-compact">
-                                                        <h4>{{ game.name }}</h4>
-                                                        <div class="game-meta-small">
-                                                            <span>{{ game.difficulty }}</span>
-                                                        </div>
-                                                    </div>
-                                                    @if (isGameSelected(game, roomIndex)) {
-                                                        <div class="selected-badge-small">✓</div>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        }
+                    <section *ngIf="currentStep() === 2">
+                        <app-game-selection
+                                [games]="games()"
+                                [selectedRooms]="selectedRooms()"
+                                [selected]="selectedGames()"
+                                (selectGame)="selectGameForRoom($event.game, $event.roomIndex)">
+                        </app-game-selection>
 
                         <div class="step-actions">
                             <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
@@ -171,7 +120,7 @@
                                 Continue to Players &amp; Details
                             </app-button>
                         </div>
-                    </div>
+                    </section>
                 }
 
                 <!-- STEP 3 -->
@@ -191,7 +140,8 @@
                                                     (click)="selectPlayersForRoom(num, 0)">
                                                 <div class="player-count">{{ num }}</div>
                                                 <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                <div class="player-price">{{ pricePerPersonInclVat(num) * num }} MKD</div>
+                                                <div class="player-price">{{ pricePerPersonInclVat(num) * num }}MKD
+                                                </div>
                                             </div>
                                         }
                                     </div>
@@ -211,7 +161,9 @@
                                                             (click)="selectPlayersForRoom(num, roomIndex)">
                                                         <div class="player-count-compact">{{ num }}</div>
                                                         <div class="player-label-compact">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                        <div class="player-price-compact">{{ pricePerPersonInclVat(num) * num }} MKD</div>
+                                                        <div class="player-price-compact">{{ pricePerPersonInclVat(num) * num }}
+                                                            MKD
+                                                        </div>
                                                     </div>
                                                 }
                                             </div>
@@ -235,10 +187,14 @@
                         <div class="form-section">
                             <h3>Your Information</h3>
                             <div class="form-grid">
-                                <input type="text" [(ngModel)]="customerInfo.firstName" placeholder="First Name" class="text-input" required />
-                                <input type="text" [(ngModel)]="customerInfo.lastName" placeholder="Last Name" class="text-input" required />
-                                <input type="email" [(ngModel)]="customerInfo.email" placeholder="Email" class="text-input" required />
-                                <input type="tel" [(ngModel)]="customerInfo.phone" placeholder="Phone" class="text-input" required />
+                                <input type="text" [(ngModel)]="customerInfo.firstName" placeholder="First Name"
+                                       class="text-input" required/>
+                                <input type="text" [(ngModel)]="customerInfo.lastName" placeholder="Last Name"
+                                       class="text-input" required/>
+                                <input type="email" [(ngModel)]="customerInfo.email" placeholder="Email"
+                                       class="text-input" required/>
+                                <input type="tel" [(ngModel)]="customerInfo.phone" placeholder="Phone"
+                                       class="text-input" required/>
                             </div>
                         </div>
 
@@ -248,7 +204,8 @@
                             } @else {
                                 <app-button variant="outline" (clicked)="onBackClick()">Back</app-button>
                             }
-                            <app-button (clicked)="nextStep()" [disabled]="!isStep3Valid()">Continue to Payment</app-button>
+                            <app-button (clicked)="nextStep()" [disabled]="!isStep3Valid()">Continue to Payment
+                            </app-button>
                         </div>
                     </div>
                 }
@@ -277,7 +234,8 @@
                                 <div class="summary-item">
                                     <span class="label">Room {{ i + 1 }}:</span>
                                     <span class="value">
-                    {{ room.game?.name || 'No game' }} — {{ room.playerCount }} {{ room.playerCount === 1 ? 'player' : 'players' }}
+                    {{ room.game?.name || 'No game' }}
+                                        — {{ room.playerCount }} {{ room.playerCount === 1 ? 'player' : 'players' }}
                   </span>
                                 </div>
                             }
@@ -305,7 +263,7 @@
                             <h3>Choose Payment Method</h3>
                             <div class="payment-methods">
                                 <label class="payment-method" [class.selected]="paymentMethod === 'ONLINE'">
-                                    <input type="radio" [(ngModel)]="paymentMethod" value="ONLINE" />
+                                    <input type="radio" [(ngModel)]="paymentMethod" value="ONLINE"/>
                                     <div class="payment-content">
                                         <div class="payment-icon">💳</div>
                                         <div class="payment-info">
@@ -316,12 +274,13 @@
                                 </label>
 
                                 <label class="payment-method" [class.selected]="paymentMethod === 'CASH'">
-                                    <input type="radio" [(ngModel)]="paymentMethod" value="CASH" />
+                                    <input type="radio" [(ngModel)]="paymentMethod" value="CASH"/>
                                     <div class="payment-content">
                                         <div class="payment-icon">💵</div>
                                         <div class="payment-info">
                                             <div class="payment-title">Pay at Location</div>
-                                            <div class="payment-desc">Pay when you arrive at the venue (Cash or Card)</div>
+                                            <div class="payment-desc">Pay when you arrive at the venue (Cash or Card)
+                                            </div>
                                         </div>
                                     </div>
                                 </label>
@@ -330,7 +289,8 @@
 
                         <div class="step-actions">
                             <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
-                            <app-button (clicked)="submitBooking()" [disabled]="!paymentMethod" [loading]="submitting()">
+                            <app-button (clicked)="submitBooking()" [disabled]="!paymentMethod"
+                                        [loading]="submitting()">
                                 {{ paymentMethod === 'ONLINE' ? 'Proceed to Payment' : 'Complete Booking' }}
                             </app-button>
                         </div>

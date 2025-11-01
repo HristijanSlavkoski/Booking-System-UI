@@ -1,0 +1,25 @@
+<div class="input-wrapper">
+    <label *ngIf="label" [for]="id" class="input-label">
+        {{ label }}
+        <span *ngIf="required" class="required">*</span>
+    </label>
+
+    <input
+        #el
+        class="input-field"
+        [id]="id"
+        [type]="type"
+        [placeholder]="placeholder"
+        [disabled]="disabled"
+        [required]="required"
+        [value]="value"
+        (input)="onValueChange(el.value)"
+        (blur)="onBlur()"
+        [class.error]="!!error"
+        [attr.aria-invalid]="!!error"
+        [attr.aria-describedby]="error ? id + '-error' : null"
+    />
+
+
+    <span *ngIf="error" class="error-message" [id]="id + '-error'">{{ error }}</span>
+</div>

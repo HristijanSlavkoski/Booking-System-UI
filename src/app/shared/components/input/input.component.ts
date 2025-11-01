@@ -1,112 +1,66 @@
-import { Component, Input, forwardRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import {Component, forwardRef, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
-  selector: 'app-input',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputComponent),
-      multi: true
-    }
-  ],
-  template: `
-    <div class="input-wrapper">
-      <label *ngIf="label" [for]="id" class="input-label">
-        {{ label }}
-        <span *ngIf="required" class="required">*</span>
-      </label>
-      <input
-        [id]="id"
-        [type]="type"
-        [placeholder]="placeholder"
-        [disabled]="disabled"
-        [required]="required"
-        [(ngModel)]="value"
-        (blur)="onTouched()"
-        class="input-field"
-        [class.error]="error"
-      />
-      <span *ngIf="error" class="error-message">{{ error }}</span>
-    </div>
-  `,
-  styles: [`
-    .input-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      width: 100%;
-    }
-
-    .input-label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #374151;
-    }
-
-    .required {
-      color: #dc3545;
-    }
-
-    .input-field {
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 2px solid #e5e7eb;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-      width: 100%;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .input-field.error {
-      border-color: #dc3545;
-    }
-
-    .input-field:disabled {
-      background: #f3f4f6;
-      cursor: not-allowed;
-    }
-
-    .error-message {
-      font-size: 0.875rem;
-      color: #dc3545;
-    }
-  `]
+    selector: 'app-input',
+    standalone: true,
+    imports: [CommonModule],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputComponent),
+            multi: true
+        }
+    ],
+    templateUrl: './input.component.html',
+    styleUrls: ['./input.component.scss']
 })
 export class InputComponent implements ControlValueAccessor {
-  @Input() id = `input-${Math.random().toString(36).substr(2, 9)}`;
-  @Input() label = '';
-  @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' | 'date' | 'time' = 'text';
-  @Input() placeholder = '';
-  @Input() required = false;
-  @Input() disabled = false;
-  @Input() error = '';
+    @Input() id = `input-${Math.random().toString(36).substr(2, 9)}`;
+    @Input() label = '';
+    @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' | 'date' | 'time' = 'text';
+    @Input() placeholder = '';
+    @Input() required = false;
+    @Input() disabled = false;
+    @Input() error = '';
 
-  value = '';
-  onChange: any = () => {};
-  onTouched: any = () => {};
+    value = '';
 
-  writeValue(value: any): void {
-    this.value = value || '';
-  }
+    // Functions provided by Angular Forms
+    private onChange: (val: any) => void = () => {
+    };
+    private onTouched: () => void = () => {
+    };
 
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
+    // Called by Angular to write a value to the view
+    writeValue(value: any): void {
+        this.value = value ?? '';
+    }
 
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
+    // Save the callbacks
+    registerOnChange(fn: (val: any) => void): void {
+        this.onChange = fn;
+    }
 
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
+    registerOnTouched(fn: () => void): void {
+        this.onTouched = fn;
+    }
+
+    // Disable/enable from form API
+    setDisabledState(isDisabled: boolean): void {
+        this.disabled = isDisabled;
+    }
+
+    // Local handlers
+    onValueChange(val: string): void {
+        this.value = val;
+        this.onChange(val); // <-- important: notify Angular forms
+    }
+
+    onBlur(): void {
+        this.onTouched();
+    }
+
+    protected readonly HTMLInputElement = HTMLInputElement;
 }

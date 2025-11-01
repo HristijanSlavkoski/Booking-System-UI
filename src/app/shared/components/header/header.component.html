@@ -1,0 +1,80 @@
+<header class="header">
+    <div class="header-container">
+        <div class="header-logo" (click)="navigateHome()">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+                <path d="M20 10L12 18H28L20 10Z" fill="white"/>
+                <rect x="14" y="18" width="12" height="12" fill="white" opacity="0.8"/>
+                <defs>
+                    <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                        <stop offset="0%" stop-color="#667eea"/>
+                        <stop offset="100%" stop-color="#764ba2"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <span class="logo-text">VR Escape</span>
+        </div>
+
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Menu">
+            <svg *ngIf="!mobileMenuOpen" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg *ngIf="mobileMenuOpen" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <nav class="nav-links" [class.mobile-open]="mobileMenuOpen" aria-label="Primary">
+            <a routerLink="/"
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{exact: true}"
+               (click)="closeMobileMenu()">
+                {{ 'nav.home' | translate }}
+            </a>
+
+            <a routerLink="/games"
+               routerLinkActive="active"
+               (click)="closeMobileMenu()">
+                {{ 'nav.games' | translate }}
+            </a>
+
+            <a routerLink="/booking"
+               routerLinkActive="active"
+               (click)="closeMobileMenu()">
+                {{ 'nav.booking' | translate }}
+            </a>
+
+            @if (authService.isAuthenticated()) {
+                @if (authService.isAdmin()) {
+                    <a routerLink="/admin"
+                       routerLinkActive="active"
+                       (click)="closeMobileMenu()">
+                        {{ 'nav.admin' | translate }}
+                    </a>
+                }
+                <a routerLink="/profile"
+                   routerLinkActive="active"
+                   (click)="closeMobileMenu()">
+                    {{ 'nav.profile' | translate }}
+                </a>
+                <button class="logout-btn" (click)="logout()">
+                    {{ 'nav.logout' | translate }}
+                </button>
+            } @else {
+                <a routerLink="/login"
+                   routerLinkActive="active"
+                   class="login-link"
+                   (click)="closeMobileMenu()">
+                    {{ 'nav.login' | translate }}
+                </a>
+            }
+
+            <app-language-switcher></app-language-switcher>
+        </nav>
+    </div>
+</header>

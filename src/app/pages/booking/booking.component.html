@@ -105,15 +105,11 @@
                                 [games]="games()"
                                 [selectedRooms]="selectedRooms()"
                                 [selected]="selectedGames()"
-                                (selectGame)="selectGameForRoom($event.game, $event.roomIndex)">
+                                [canContinue]="allRoomsHaveGames()"
+                                (selectGame)="selectGameForRoom($event.game, $event.roomIndex)"
+                                (back)="previousStep()"
+                                (continue)="nextStep()">
                         </app-game-selection>
-
-                        <div class="step-actions">
-                            <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
-                            <app-button (clicked)="nextStep()" [disabled]="!allRoomsHaveGames()">
-                                Continue to Players &amp; Details
-                            </app-button>
-                        </div>
                     </section>
                 }
 

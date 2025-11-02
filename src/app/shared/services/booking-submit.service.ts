@@ -32,12 +32,6 @@ export class BookingSubmitService {
         return this.bookingApi.createBooking(req).pipe(
             tap((res: any) => {
                 this.notify.success('Booking created successfully!');
-                if (res?.paymentUrl) {
-                    // Online flow
-                    window.location.href = res.paymentUrl;
-                    return;
-                }
-                // Cash or no external payment flow
                 if (opts?.embedded) {
                     this.router.navigate(['/calendar']);
                 } else {

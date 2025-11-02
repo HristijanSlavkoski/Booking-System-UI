@@ -328,7 +328,13 @@ export class BookingComponent implements OnInit {
 
     // ------- submit -------
     submitBooking(): void {
+        if (!this.store.paymentMethod()) return; // guard
+
         this.submitting.set(true);
+
+        if (PaymentMethod.ONLINE === this.store.paymentMethod()) {
+            // TODO: Redirect URL
+        }
         this.submitter.submitFromStore(this.store)
             .subscribe({
                 complete: () => {

@@ -3,14 +3,12 @@ import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CalendarComponent, SlotSelection} from '../../shared/components/calendar/calendar.component';
 import {GameService} from '../../core/services/game.service';
-import {TranslatePipe} from '@ngx-translate/core';
 import {Game} from '../../models/game.model';
 import {PlayersComponent} from '../../shared/components/players/players.component';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {distinctUntilChanged, map} from "rxjs";
 import {BookingStore} from '../../shared/stores/booking.store';
 import {GameSelectionComponent} from "../../shared/components/game-selection/game-selection.component";
-import {ButtonComponent} from "../../shared/components/button/button.component";
 import {PaymentStepComponent} from "../../shared/components/payment-step/payment-step.component";
 import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
 import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component";
@@ -19,7 +17,7 @@ import {BookingSubmitService} from "../../shared/services/booking-submit.service
 @Component({
     selector: 'app-calendar-only',
     standalone: true,
-    imports: [CommonModule, CalendarComponent, TranslatePipe, PlayersComponent, GameSelectionComponent, ButtonComponent, PaymentStepComponent, SummaryBarComponent],
+    imports: [CommonModule, CalendarComponent, PlayersComponent, GameSelectionComponent, PaymentStepComponent, SummaryBarComponent],
     templateUrl: './calendar-only.component.html',
     styleUrls: ['./calendar-only.component.scss']
 })
@@ -76,7 +74,8 @@ export class CalendarOnlyComponent implements OnInit {
     backToGames() {
         this.ensureGamesLoaded();
         this.store.setRooms(Math.max(1, this.store.selectedRooms()));
-        this.setStep('game');
+        this.store.resetPlayers();
+        this.setStep('game', {players: null});
     }
 
     backToPlayers() {

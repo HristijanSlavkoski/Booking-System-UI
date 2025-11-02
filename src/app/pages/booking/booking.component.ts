@@ -280,6 +280,7 @@ export class BookingComponent implements OnInit {
         }
         this.currentStep.set(to);
 
+        this.store.clearPlayers();
         window.scrollTo(0, 0);
     }
 

@@ -103,6 +103,13 @@ export class BookingStore {
         return sel.reduce((sum, r) => sum + (r?.playerCount ?? 0), 0);
     }
 
+    resetPlayers(clearPayment = true) {
+        const current = this.selectedGames();
+        const cleared = current.map(r => ({ ...r, playerCount: 0 }));
+        this.selectedGames.set(cleared);
+        if (clearPayment) this.setPaymentMethod(null as any);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────────
     // Mutators
     // ─────────────────────────────────────────────────────────────────────────────

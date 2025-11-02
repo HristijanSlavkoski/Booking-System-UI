@@ -151,7 +151,9 @@ export class BookingStore {
         this.selectedDate.set('');
         this.selectedTime.set('');
         this.selectedRooms.set(1);
+        this.clearPlayers()
         this.selectedGames.set([]);
+        this.resetCustomerInfo();
         this._paymentMethod.set(null);
         this.customerInfo.set({firstName: '', lastName: '', email: '', phone: ''});
     }

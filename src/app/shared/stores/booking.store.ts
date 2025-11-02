@@ -154,7 +154,7 @@ export class BookingStore {
         this.clearPlayers()
         this.selectedGames.set([]);
         this.resetCustomerInfo();
-        this._paymentMethod.set(null);
+        this._paymentMethod.set(PaymentMethod.ONLINE); // Set back to default
         this.customerInfo.set({firstName: '', lastName: '', email: '', phone: ''});
     }
 

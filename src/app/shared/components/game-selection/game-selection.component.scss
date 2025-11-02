@@ -8,6 +8,15 @@
   font-size: 1rem;
 }
 
+.step-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #2a2a2a;
+}
+
 .game-selection {
   background: #1a1a1a;
   border-radius: 1rem;

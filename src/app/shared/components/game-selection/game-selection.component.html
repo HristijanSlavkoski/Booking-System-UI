@@ -10,7 +10,6 @@
     @if (selectedRooms === 1) {
         <div class="games-selection">
             @for (g of games; track trackByCode($index, g)) {
-
                 <app-game-card
                         [game]="g"
                         [selected]="isSelected(g, 0)"
@@ -25,7 +24,6 @@
                     <h3 class="room-title">Room {{ roomIndex + 1 }}</h3>
                     <div class="games-selection-compact">
                         @for (g of games; track trackByCode($index, g)) {
-                            <!-- compact rendering using the same card but with a compact class -->
                             <app-game-card
                                     class="compact"
                                     [game]="g"
@@ -38,4 +36,14 @@
             }
         </div>
     }
+
+    <!-- ✅ Buttons moved inside -->
+    <div class="step-actions">
+        <app-button variant="outline" (clicked)="back.emit()">
+            {{ 'common.back' | translate }}
+        </app-button>
+        <app-button (clicked)="continue.emit()" [disabled]="!canContinue">
+            {{ 'common.continue' | translate }}
+        </app-button>
+    </div>
 </div>

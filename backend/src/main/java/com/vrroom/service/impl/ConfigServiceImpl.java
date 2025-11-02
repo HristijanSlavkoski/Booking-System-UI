@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ConfigServiceImpl implements ConfigService
 {
-
     private final SystemConfigRepository systemConfigRepository;
     private final PricingConfigRepository pricingConfigRepository;
     private final HolidayRepository holidayRepository;

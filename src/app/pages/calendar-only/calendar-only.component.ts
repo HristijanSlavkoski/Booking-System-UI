@@ -211,7 +211,6 @@ export class CalendarOnlyComponent implements OnInit {
         return d.toLocaleDateString(locale, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
     }
 
-    // --- NEW: game-selection outputs
     onInlineSelectGame(e: { roomIndex: number; game: Game }) {
         // iframe flow is usually 1 room; but we support multiple anyway
         if (e.roomIndex === 0) {
@@ -251,7 +250,7 @@ export class CalendarOnlyComponent implements OnInit {
         const names = this.store
             .selectedGames()
             .map(r => r?.game?.name ?? null)
-            .filter((n): n is string => !!n); // 👈 narrows to string[]
+            .filter((n): n is string => !!n);
         return names.join(', ');
     }
 

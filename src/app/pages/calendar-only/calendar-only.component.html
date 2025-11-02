@@ -16,15 +16,11 @@
                 [games]="games()"
                 [selectedRooms]="store.selectedRooms()"
                 [selected]="store.selectedGames()"
-                (selectGame)="onInlineSelectGame($event)">
+                [canContinue]="store.allRoomsHaveGames()"
+                (selectGame)="onInlineSelectGame($event)"
+                (back)="backToCalendar()"
+                (continue)="goToPlayersAfterGame()">
         </app-game-selection>
-
-        <div class="step-actions">
-            <app-button variant="outline" (clicked)="backToCalendar()">{{ 'common.back' | translate }}</app-button>
-            <app-button (clicked)="goToPlayersAfterGame()" [disabled]="!store.allRoomsHaveGames()">
-                {{ 'common.continue' | translate }}
-            </app-button>
-        </div>
     } @else if (step() === 'players') {
         <!-- INLINE PLAYERS -->
         <app-players [inline]="true"

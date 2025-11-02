@@ -26,20 +26,7 @@ public class AvailabilityServiceImpl implements AvailabilityService
 
     private final BookingRepository bookingRepository;
 
-    // how many rooms you can run in parallel
-    @Value("${vrroom.max-concurrent-bookings:2}")
-    private int maxConcurrentBookings;
-
     private static final Duration HOLD_WINDOW = Duration.ofMinutes(15);
-
-    // Example: 09:00–21:00 inclusive, step 60 minutes
-    private static final int START_HOUR = 12;
-    private static final int END_HOUR = 22;
-    private static final int STEP_MINUTES = 60;
-
-    // Inject your repositories here
-    // private final BookingRepository bookingRepository;
-    // private final ReservationRepository reservationRepository;
 
     public List<DayScheduleDto> getAvailabilityForRange(LocalDate start, LocalDate end, @Nullable String maybeGameId)
     {
@@ -53,7 +40,7 @@ public class AvailabilityServiceImpl implements AvailabilityService
             return null;
         }
         final int maxConcurrent = cfg.get().getMaxConcurrentBookings(); // e.g. 2
-        final LocalTime open = cfg.get().getOpeningTime(); // e.g. 09:00
+        final LocalTime open = cfg.get().getOpeningTime(); // e.g. 12:00
         final LocalTime close = cfg.get().getClosingTime(); // e.g. 21:00
         final int slotMins = cfg.get().getSlotDurationMinutes(); // e.g. 60
 

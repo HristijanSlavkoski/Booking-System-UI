@@ -259,7 +259,10 @@ export class CalendarOnlyComponent implements OnInit {
         this.submitting.set(true);
         this.submitter.submitFromStore(this.store, {embedded: true})
             .subscribe({
-                complete: () => this.submitting.set(false),
+                complete: () => {
+                    this.store.clearAll();
+                    this.submitting.set(false)
+                },
                 error: () => this.submitting.set(false),
             });
     }

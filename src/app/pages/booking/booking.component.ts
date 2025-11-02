@@ -331,7 +331,10 @@ export class BookingComponent implements OnInit {
         this.submitting.set(true);
         this.submitter.submitFromStore(this.store)
             .subscribe({
-                complete: () => this.submitting.set(false),
+                complete: () => {
+                    this.store.clearAll();
+                    this.submitting.set(false)
+                },
                 error: () => this.submitting.set(false),
             });
     }

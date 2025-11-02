@@ -10,7 +10,6 @@
                 (gamePickRequested)="onGamePickRequested($event)"
                 (clearGameRequested)="clearGameFromParent()"
         ></app-calendar>
-
     } @else if (step() === 'game') {
         <app-game-selection
                 [games]="games()"
@@ -22,7 +21,6 @@
                 (continue)="goToPlayersAfterGame()">
         </app-game-selection>
     } @else if (step() === 'players') {
-        <!-- INLINE PLAYERS -->
         <app-players [inline]="true"
                      (back)="backToGames()">
         </app-players>

@@ -15,6 +15,7 @@
 
             function sendMessage() {
                 var h = document.getElementsByClassName('calendar-container')[0];
+                if (!h) h = document.getElementsByClassName('game-selection-container')[0];
                 if (!h) h = document.getElementsByClassName('players-container')[0];
                 if (!h) h = document.getElementsByClassName('booking-container')[0];
                 if (!h) return;

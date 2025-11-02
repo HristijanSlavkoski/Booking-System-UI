@@ -28,9 +28,17 @@
   border-top: 1px solid #2a2a2a;
 }
 
-.form-section h3 {
-  margin: 1rem 0 .5rem 0;
-  color: #fff;
+.form-section {
+  margin-bottom: 2rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
 }
 
 .step-actions {

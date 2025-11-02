@@ -1,5 +1,5 @@
 <div class="payment-methods">
-    <label class="payment-method" [class.selected]="paymentMethod === 'ONLINE'">
+    <label class="payment-method" [class.selected]="paymentMethod === PaymentMethod.ONLINE">
         <input type="radio" [ngModel]="paymentMethod" (ngModelChange)="select($event)" value="ONLINE"/>
         <div class="payment-content" (click)="select(PaymentMethod.ONLINE)">
             <div class="payment-icon">💳</div>
@@ -10,9 +10,9 @@
         </div>
     </label>
 
-    <label class="payment-method" [class.selected]="paymentMethod === 'CASH'">
-        <input type="radio" [ngModel]="paymentMethod" (ngModelChange)="select($event)" value="CASH"/>
-        <div class="payment-content" (click)="select(PaymentMethod.CASH)">
+    <label class="payment-method" [class.selected]="paymentMethod === PaymentMethod.IN_PERSON">
+        <input type="radio" [ngModel]="paymentMethod" (ngModelChange)="select($event)" value="IN_PERSON"/>
+        <div class="payment-content" (click)="select(PaymentMethod.IN_PERSON)">
             <div class="payment-icon">💵</div>
             <div class="payment-info">
                 <div class="payment-title">Pay at Location</div>

@@ -99,22 +99,57 @@ export class CalendarComponent implements OnInit {
                 this.weekSchedule.set(mapped);
                 this.loading.set(false);
 
-                if (!this.autoAdvancedThisInit && this.isViewingThisWeek()) {
-                    const hasFutureAvailable = mapped.some(day =>
-                        day.slots.some(s => s.status === 'available' && !this.isPastSlot(day.date, s.time))
-                    );
-
-                    if (!hasFutureAvailable) {
-                        this.autoAdvancedThisInit = true;
-                        this.nextWeek();
-                    }
-                }
+                this.maybeAutoAdvanceIfWeekExpired();
             },
             error: () => {
                 this.weekSchedule.set([]);
                 this.loading.set(false);
             },
         });
+    }
+
+    /** Returns true if now is strictly after the end of the last slot in the visible week */
+    private isPastAllSlotsInView(): boolean {
+        const days = this.weekSchedule();
+        if (!days || days.length === 0) return false;
+
+        // Find the latest slot (by date + time) across the whole visible week
+        let latestEnd: Date | null = null;
+
+        for (const day of days) {
+            if (!day.slots || day.slots.length === 0) continue;
+
+            // assume slots are sorted by time; if not, get max by time
+            const last = day.slots.reduce((a, b) => (a.time > b.time ? a : b));
+            const [hh, mm] = last.time.split(':').map(Number);
+
+            // start = day date at last slot time
+            const start = new Date(day.date);
+            start.setHours(hh || 0, mm || 0, 0, 0);
+
+            // end = start + slotDuration
+            const duration =
+                typeof this.store.slotDurationMinutes === 'function'
+                    ? this.store.slotDurationMinutes()
+                    : (this.store.slotDurationMinutes ?? 60);
+
+            const end = new Date(start.getTime() + duration * 60_000);
+            if (!latestEnd || end > latestEnd) latestEnd = end;
+        }
+
+        if (!latestEnd) return false;
+        return Date.now() > latestEnd.getTime();
+    }
+
+// call this right after you set weekSchedule (i.e., in loadWeekSchedule() success)
+    private maybeAutoAdvanceIfWeekExpired(): void {
+        if (this.autoAdvancedThisInit) return;
+        if (!this.isViewingThisWeek()) return;
+
+        if (this.isPastAllSlotsInView()) {
+            this.autoAdvancedThisInit = true;
+            this.nextWeek();
+        }
     }
 
 

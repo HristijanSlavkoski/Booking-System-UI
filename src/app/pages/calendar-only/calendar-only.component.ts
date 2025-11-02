@@ -2,9 +2,8 @@ import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CalendarComponent, SlotSelection} from '../../shared/components/calendar/calendar.component';
-import {ConfigService} from '../../core/services/config.service';
 import {GameService} from '../../core/services/game.service';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {Game} from '../../models/game.model';
 import {PlayersComponent} from '../../shared/components/players/players.component';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
@@ -14,7 +13,8 @@ import {GameSelectionComponent} from "../../shared/components/game-selection/gam
 import {ButtonComponent} from "../../shared/components/button/button.component";
 import {PaymentStepComponent} from "../../shared/components/payment-step/payment-step.component";
 import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
-import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component"; // NEW
+import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component";
+import {BookingSubmitService} from "../../shared/services/booking-submit.service";
 
 @Component({
     selector: 'app-calendar-only',
@@ -26,13 +26,11 @@ import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-b
 export class CalendarOnlyComponent implements OnInit {
     private router = inject(Router);
     public route = inject(ActivatedRoute);
-    private configService = inject(ConfigService);
     private gameService = inject(GameService);
-    private i18n = inject(TranslateService);
     private destroyRef = inject(DestroyRef);
-
-    // NEW: use store to keep iframe and full app consistent
+    // TODO: Make store private
     store = inject(BookingStore);
+    private submitter = inject(BookingSubmitService);
 
     maxConcurrentBookings = signal(2);
     gameId = signal<string>('');
@@ -258,17 +256,13 @@ export class CalendarOnlyComponent implements OnInit {
     }
 
     submitBookingFromInline() {
-        // TODO: replace with real API call
-        if (!this.store.paymentMethod()) return;
+        if (!this.store.paymentMethod()) return; // guard
 
         this.submitting.set(true);
-
-        // simulate async submit; replace with service call
-        // this.bookingService.createBooking(payload).subscribe({ ... })
-        setTimeout(() => {
-            this.submitting.set(false);
-            // after successful booking, you might want to reset or navigate:
-            this.setStep('calendar');
-        }, 500);
+        this.submitter.submitFromStore(this.store, {embedded: true})
+            .subscribe({
+                complete: () => this.submitting.set(false),
+                error: () => this.submitting.set(false),
+            });
     }
 }

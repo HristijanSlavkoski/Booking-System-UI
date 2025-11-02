@@ -2,7 +2,7 @@
 import {computed, Injectable, signal} from '@angular/core';
 import {Game} from '../../models/game.model';
 import {RoomSelection, Tier} from '../../models/config.model';
-import {PaymentMethod} from '../../models/booking.model';
+import {Customer, PaymentMethod} from '../../models/booking.model';
 
 @Injectable({providedIn: 'root'})
 export class BookingStore {
@@ -36,6 +36,7 @@ export class BookingStore {
     // ─────────────────────────────────────────────────────────────────────────────
     // Customer + payment
     // ─────────────────────────────────────────────────────────────────────────────
+    // TODO: Extract customer as object in models
     customerInfo = signal({firstName: '', lastName: '', email: '', phone: ''});
 
     // Keep a single source of truth for payment method (nullable until chosen)
@@ -146,6 +147,18 @@ export class BookingStore {
         this.selectedGames.set([]);
         this._paymentMethod.set(null);
         this.customerInfo.set({firstName: '', lastName: '', email: '', phone: ''});
+    }
+
+    setCustomerInfo(info: Partial<{firstName:string; lastName:string; email:string; phone:string}>) {
+        this.customerInfo.set({ ...this.customerInfo(), ...info });
+    }
+
+    setCustomerField<K extends keyof Customer>(key: K, value: Customer[K]) {
+        this.customerInfo.set({ ...this.customerInfo(), [key]: value });
+    }
+
+    resetCustomerInfo() {
+        this.customerInfo.set({ firstName: '', lastName: '', email: '', phone: '' });
     }
 
     setSystemHours(openHHmm: string, closeHHmm: string, slotMin: number) {

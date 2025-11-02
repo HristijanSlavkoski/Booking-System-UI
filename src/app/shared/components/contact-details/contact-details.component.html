@@ -1,0 +1,47 @@
+<div class="step-content">
+    <div class="form-section">
+        <h3>Your Information</h3>
+        <div class="form-grid">
+            <label>
+                First name
+                <input
+                        [ngModel]="customer.firstName"
+                        (ngModelChange)="onField('firstName', $event)"
+                        placeholder="First Name"
+                        class="text-input"
+                        required/>
+            </label>
+
+            <label>
+                Last name
+                <input
+                        [ngModel]="customer.lastName"
+                        (ngModelChange)="onField('lastName', $event)"
+                        placeholder="Last Name"
+                        class="text-input"
+                        required/>
+            </label>
+
+            <label>
+                Email
+                <input
+                        type="email"
+                        [ngModel]="customer.email"
+                        (ngModelChange)="onField('email', $event)"
+                        placeholder="Email"
+                        class="text-input"
+                        required/>
+            </label>
+
+            <label>
+                Phone
+                <input
+                        [ngModel]="customer.phone"
+                        (ngModelChange)="onField('phone', $event)"
+                        placeholder="Phone"
+                        class="text-input"
+                        required/>
+            </label>
+        </div>
+    </div>
+</div>

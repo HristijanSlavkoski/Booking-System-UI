@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-
-type PaymentMethod = 'ONLINE' | 'CASH';
+import {PaymentMethod} from "../../../models/booking.model";
 
 @Component({
     selector: 'app-payment-methods',
@@ -17,4 +16,6 @@ export class PaymentMethodsComponent {
     set(method: PaymentMethod) {
         this.valueChange.emit(method);
     }
+
+    protected readonly PaymentMethod = PaymentMethod;
 }

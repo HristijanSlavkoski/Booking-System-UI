@@ -11,8 +11,8 @@
         </div>
     </label>
 
-    <label class="payment-method" [class.selected]="value === 'CASH'">
-        <input type="radio" [checked]="value === 'CASH'" (change)="set('CASH')"/>
+    <label class="payment-method" [class.selected]="value === PaymentMethod.IN_PERSON">
+        <input type="radio" [checked]="value === PaymentMethod.IN_PERSON" (change)="set(PaymentMethod.IN_PERSON)"/>
         <div class="payment-content">
             <div class="payment-icon">💵</div>
             <div class="payment-info">

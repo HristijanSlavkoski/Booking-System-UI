@@ -176,20 +176,6 @@
                             </div>
                         }
 
-                        <div class="form-section">
-                            <h3>Your Information</h3>
-                            <div class="form-grid">
-                                <input type="text" [(ngModel)]="customerInfo.firstName" placeholder="First Name"
-                                       class="text-input" required/>
-                                <input type="text" [(ngModel)]="customerInfo.lastName" placeholder="Last Name"
-                                       class="text-input" required/>
-                                <input type="email" [(ngModel)]="customerInfo.email" placeholder="Email"
-                                       class="text-input" required/>
-                                <input type="tel" [(ngModel)]="customerInfo.phone" placeholder="Phone"
-                                       class="text-input" required/>
-                            </div>
-                        </div>
-
                         <div class="step-actions">
                             <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
                             <app-button (clicked)="nextStep()" [disabled]="!isStep3Valid()">Continue to Payment
@@ -201,18 +187,23 @@
                 <!-- STEP 4 -->
                 @if (currentStep() === 4) {
                     <app-payment-step
-                            [date]="formatDate(selectedDate())"
-                            [time]="selectedTime()"
-                            [rooms]="selectedRooms()"
+                            [date]="formatDate(store.selectedDate())"
+                            [time]="store.selectedTime()"
+                            [rooms]="store.selectedRooms()"
                             [roomSummaries]="getRoomSummaries()"
-                            [totalPlayers]="getTotalPlayers()"
-                            [net]="netPortion()"
-                            [vat]="vatPortion()"
-                            [total]="totalInclVat()"
-                            [taxPercent]="taxPercentage()"
+                            [totalPlayers]="store.totalPlayers()"
+                            [net]="store.netPortion()"
+                            [vat]="store.vatPortion()"
+                            [total]="store.totalInclVat()"
+                            [taxPercent]="store.taxPercentage()"
                             currency="MKD"
+
                             [paymentMethod]="store.paymentMethod()"
                             (paymentMethodChange)="store.setPaymentMethod($event)"
+
+                            [customer]="store.customerInfo()"
+                            (customerChange)="store.setCustomerInfo($event)"
+
                             [submitting]="submitting()"
                             (back)="previousStep()"
                             (submit)="submitBooking()"

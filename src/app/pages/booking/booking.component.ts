@@ -10,7 +10,7 @@ import {NotificationService} from '../../core/services/notification.service';
 import {ConfigService} from '../../core/services/config.service';
 
 import {Game} from '../../models/game.model';
-import {BookingRequest, PaymentMethod} from '../../models/booking.model';
+import {PaymentMethod} from '../../models/booking.model';
 
 import {ButtonComponent} from '../../shared/components/button/button.component';
 import {LoadingComponent} from '../../shared/components/loading/loading.component';
@@ -19,6 +19,7 @@ import {GameSelectionComponent} from "../../shared/components/game-selection/gam
 import {BookingStore} from "../../shared/stores/booking.store";
 import {PaymentStepComponent} from "../../shared/components/payment-step/payment-step.component";
 import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
+import {BookingSubmitService} from "../../shared/services/booking-submit.service";
 
 type RoomSelection = { game: Game | null; playerCount: number };
 
@@ -40,6 +41,10 @@ export class BookingComponent implements OnInit {
     private configService = inject(ConfigService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private submitter = inject(BookingSubmitService);
+    // TODO: Make store private
+    store = inject(BookingStore);
+
 
     // ui state
     loading = signal(false);
@@ -56,16 +61,8 @@ export class BookingComponent implements OnInit {
     selectedRooms = signal<number>(1);
     selectedGames = signal<RoomSelection[]>([]); // [{ game: Game|null, playerCount }]
 
-    store = inject(BookingStore);
-
     // customer
-    paymentMethod: PaymentMethod = PaymentMethod.CASH;
-    customerInfo = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-    };
+    paymentMethod: PaymentMethod = PaymentMethod.IN_PERSON;
 
     private clearGameSelection(opts: { clearPlayers?: boolean } = {}) {
         const {clearPlayers = true} = opts;
@@ -134,10 +131,12 @@ export class BookingComponent implements OnInit {
         // 4) user info (prefill)
         const user = this.authService.getCurrentUser?.();
         if (user) {
-            this.customerInfo.firstName = user.firstName;
-            this.customerInfo.lastName = user.lastName;
-            this.customerInfo.email = user.email;
-            this.customerInfo.phone = user.phone;
+            this.store.setCustomerInfo({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone,
+            });
         }
 
         const hasDateTime = !!(this.selectedDate() && this.selectedTime());
@@ -320,13 +319,7 @@ export class BookingComponent implements OnInit {
     // validation for step 3 → step 4
     isStep3Valid(): boolean {
         const arr = this.selectedGames();
-        const roomsValid = arr.length > 0 && arr.every((r) => !!r.game && r.playerCount > 0);
-        const userValid =
-            !!this.customerInfo.firstName &&
-            !!this.customerInfo.lastName &&
-            !!this.customerInfo.email &&
-            !!this.customerInfo.phone;
-        return roomsValid && userValid;
+        return arr.length > 0 && arr.every(r => !!r.game && r.playerCount > 0);
     }
 
     cancel(): void {
@@ -335,44 +328,12 @@ export class BookingComponent implements OnInit {
 
     // ------- submit -------
     submitBooking(): void {
-        const gamesPayload = this.selectedGames().map((r, idx) => ({
-            gameId: r.game?.id ?? '',
-            roomNumber: idx + 1,
-            playerCount: r.playerCount,
-            price: this.store.roomTotalInclVat(idx),   // <- from store
-        }));
-
-        const request: BookingRequest = {
-            bookingDate: this.selectedDate(),
-            bookingTime: this.selectedTime(),
-            numberOfRooms: this.selectedRooms(),
-            totalPrice: this.store.totalInclVat(),     // <- from store
-            paymentMethod: this.store.paymentMethod() ?? PaymentMethod.ONLINE,
-            customerFirstName: this.customerInfo.firstName,
-            customerLastName: this.customerInfo.lastName,
-            customerEmail: this.customerInfo.email,
-            customerPhone: this.customerInfo.phone,
-            games: gamesPayload,
-        };
-
         this.submitting.set(true);
-        this.bookingService.createBooking(request).subscribe({
-            next: (res: any) => {
-                this.notify.success('Booking created successfully!');
-                if (res?.paymentUrl) {
-                    window.location.href = res.paymentUrl;
-                } else {
-                    // TODO: if authenticated, go to my-booking, else home?
-                    this.router.navigate(['/my-booking']);
-                }
-                this.submitting.set(false);
-            },
-            error: (err) => {
-                console.error('Booking error:', err);
-                this.notify.error('Failed to create booking: ' + (err?.error?.error || 'Unknown error'));
-                this.submitting.set(false);
-            },
-        });
+        this.submitter.submitFromStore(this.store)
+            .subscribe({
+                complete: () => this.submitting.set(false),
+                error: () => this.submitting.set(false),
+            });
     }
 
     getRoomSummaries(): RoomSummary[] {

@@ -48,8 +48,38 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
-  color: var(--gray-900);
-  background: #ffffff;
+  color: white;
+  background: #1a1a1a;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: var(--gray-100);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 64px;
+  height: 64px;
+  border: 6px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {

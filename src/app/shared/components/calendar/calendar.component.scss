@@ -104,11 +104,42 @@
   gap: 0;
   background: var(--bg-outer);
   border-radius: 0.5rem;
-  overflow: hidden;
+  position: relative;
+  overflow: auto;
   margin-bottom: 1.25rem;
 }
 
 /* Columns */
+.time-column {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--bg-outer);
+}
+
+.time-column .header-cell,
+.time-column .time-cell {
+  background: #1f1f1f;
+}
+
+.time-column::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: var(--line);
+}
+
+.day-column .header-cell,
+.time-column .header-cell {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #2a2a2a;
+}
+
 .time-column,
 .day-column {
   display: flex;
@@ -482,6 +513,7 @@
   }
   .schedule-grid {
     grid-template-columns: 80px repeat(7, 120px);
+    overflow: auto;
   }
 }
 

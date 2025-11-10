@@ -38,18 +38,6 @@
         <div class="promo-text">
             {{ promoName || 'Special promotion' }}
         </div>
-
-        <!-- small X icon (only if removable) -->
-        <button
-                *ngIf="onRemovePromo"
-                class="remove-promo-btn"
-                type="button"
-                (click)="onRemovePromo.emit()"
-                title="Remove promotion"
-        >
-            ✕
-        </button>
-
         <div class="promo-prices">
             <!-- Old: base (no promo) -->
             <span class="old-price">

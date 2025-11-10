@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PriceSummaryComponent} from "../price-summary/price-summary.component";
 
@@ -36,6 +36,4 @@ export class BookingSummaryComponent {
     // gift card
     @Input() giftCardAmount: number | null = null;
     @Input() giftCardCode: string | null = null;
-
-    @Output() onRemovePromo = new EventEmitter<void>();
 }

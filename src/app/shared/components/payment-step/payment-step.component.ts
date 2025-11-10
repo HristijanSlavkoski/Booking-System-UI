@@ -109,8 +109,4 @@ export class PaymentStepComponent {
             }
         });
     }
-
-    removeGiftCardCode() {
-        this.store.clearPromotion();
-    }
 }

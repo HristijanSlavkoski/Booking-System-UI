@@ -95,6 +95,25 @@
   }
 }
 
+.remove-gift-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  margin-left: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    color: #e53935;
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
 /* Mobile: stack gift code + button */
 @media (max-width: 768px) {
   .gift-grid {

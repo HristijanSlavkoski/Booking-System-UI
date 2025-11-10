@@ -109,4 +109,10 @@ export class PaymentStepComponent {
             }
         });
     }
+
+    removeGiftCard() {
+        this.giftCode = '';
+        this.giftError = null;
+        this.store.clearGiftCard();
+    }
 }

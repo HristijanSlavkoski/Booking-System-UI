@@ -53,6 +53,15 @@
                 >
                     Gift card applied:
                     -{{ store.giftCardAmount() | number: '1.0-0' }} {{ currency }}
+
+                    <button
+                            type="button"
+                            class="remove-gift-btn"
+                            (click)="removeGiftCard()"
+                            title="Remove gift card"
+                    >
+                        ✕
+                    </button>
                 </div>
             </div>
         </div>

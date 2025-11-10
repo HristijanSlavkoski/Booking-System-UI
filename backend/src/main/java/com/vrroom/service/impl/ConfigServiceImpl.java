@@ -3,6 +3,7 @@ package com.vrroom.service.impl;
 import com.vrroom.domain.entity.Holiday;
 import com.vrroom.domain.entity.PricingConfig;
 import com.vrroom.domain.entity.PricingTier;
+import com.vrroom.domain.entity.Promotion; // NEW
 import com.vrroom.domain.entity.SystemConfig;
 import com.vrroom.dto.HolidayDTO;
 import com.vrroom.dto.PricingConfigDTO;
@@ -11,6 +12,7 @@ import com.vrroom.dto.SystemConfigDTO;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.HolidayRepository;
 import com.vrroom.repository.PricingConfigRepository;
+import com.vrroom.repository.PromotionRepository; // NEW
 import com.vrroom.repository.SystemConfigRepository;
 import com.vrroom.service.ConfigService;
 import jakarta.annotation.PostConstruct;
@@ -33,6 +35,7 @@ public class ConfigServiceImpl implements ConfigService
     private final SystemConfigRepository systemConfigRepository;
     private final PricingConfigRepository pricingConfigRepository;
     private final HolidayRepository holidayRepository;
+    private final PromotionRepository promotionRepository; // NEW
 
     @PostConstruct
     @Transactional
@@ -55,10 +58,6 @@ public class ConfigServiceImpl implements ConfigService
         if (pricingConfigCount == 0)
         {
             PricingConfig pricingConfig = PricingConfig.builder()
-                    .weekendMultiplier(BigDecimal.valueOf(1.2))
-                    .holidayMultiplier(BigDecimal.valueOf(1.5))
-                    .groupDiscount(BigDecimal.valueOf(0.1))
-                    .groupDiscountThreshold(5)
                     .active(true)
                     .build();
 
@@ -87,6 +86,23 @@ public class ConfigServiceImpl implements ConfigService
                     Holiday.builder().name("Independence Day").date(LocalDate.of(2025, 9, 8)).active(true).build());
             holidayRepository.saveAll(defaultHolidays);
             log.info("Default holidays created");
+        }
+
+        // NEW: create default promotion if none exists
+        long promoCount = promotionRepository.count();
+        if (promoCount == 0)
+        {
+            log.info("Creating default promotion: 50% off all games 20–30 November 2025");
+            Promotion novPromo = Promotion.builder()
+                    .name("November 50% Off")
+                    .description("50% discount on all games from 20th to 30th November 2025")
+                    .discount(BigDecimal.valueOf(0.50)) // 50% off
+                    .validFrom(LocalDate.of(2025, 11, 20))
+                    .validTo(LocalDate.of(2025, 11, 30))
+                    .game(null) // null => applies to ALL games
+                    .active(true)
+                    .build();
+            promotionRepository.save(novPromo);
         }
     }
 
@@ -126,10 +142,6 @@ public class ConfigServiceImpl implements ConfigService
     {
         log.info("Creating new pricing configuration");
         PricingConfig pricingConfig = PricingConfig.builder()
-                .weekendMultiplier(pricingConfigDTO.getWeekendMultiplier())
-                .holidayMultiplier(pricingConfigDTO.getHolidayMultiplier())
-                .groupDiscount(pricingConfigDTO.getGroupDiscount())
-                .groupDiscountThreshold(pricingConfigDTO.getGroupDiscountThreshold())
                 .active(true)
                 .build();
 
@@ -146,10 +158,6 @@ public class ConfigServiceImpl implements ConfigService
         PricingConfig pricingConfig = pricingConfigRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pricing configuration not found with id: " + id));
 
-        pricingConfig.setWeekendMultiplier(pricingConfigDTO.getWeekendMultiplier());
-        pricingConfig.setHolidayMultiplier(pricingConfigDTO.getHolidayMultiplier());
-        pricingConfig.setGroupDiscount(pricingConfigDTO.getGroupDiscount());
-        pricingConfig.setGroupDiscountThreshold(pricingConfigDTO.getGroupDiscountThreshold());
         pricingConfig.setActive(pricingConfigDTO.getActive());
 
         PricingConfig updated = pricingConfigRepository.save(pricingConfig);
@@ -229,10 +237,6 @@ public class ConfigServiceImpl implements ConfigService
     {
         return PricingConfigDTO.builder()
                 .id(pc.getId())
-                .weekendMultiplier(pc.getWeekendMultiplier())
-                .holidayMultiplier(pc.getHolidayMultiplier())
-                .groupDiscount(pc.getGroupDiscount())
-                .groupDiscountThreshold(pc.getGroupDiscountThreshold())
                 .active(pc.getActive())
                 .tiers(pc.getTiers().stream().map(t -> PricingTierDTO.builder()
                         .id(t.getId())

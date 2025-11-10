@@ -328,20 +328,30 @@ export class BookingComponent implements OnInit {
 
     // ------- submit -------
     submitBooking(): void {
-        if (!this.store.paymentMethod()) return; // guard
+        if (!this.store.paymentMethod()) return;
 
         this.submitting.set(true);
 
-        if (PaymentMethod.ONLINE === this.store.paymentMethod()) {
-            // TODO: Redirect URL
-        }
         this.submitter.submitFromStore(this.store)
             .subscribe({
-                complete: () => {
+                next: (res) => {
+                    // res is BookingDTO
+                    if (res?.paymentUrl) {
+                        // If inside an iframe, consider window.top?.location
+                        window.location.assign(res.paymentUrl);
+                        return;
+                    }
+                    // success without payment
                     this.store.clearAll();
-                    this.submitting.set(false)
                 },
-                error: () => this.submitting.set(false),
+                error: (err) => {
+                    this.submitting.set(false);
+                    // show toast/log err
+                    console.error('Booking error:', err);
+                },
+                complete: () => {
+                    this.submitting.set(false);
+                }
             });
     }
 

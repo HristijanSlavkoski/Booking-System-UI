@@ -13,7 +13,6 @@ import {PaymentStepComponent} from "../../shared/components/payment-step/payment
 import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
 import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component";
 import {BookingSubmitService} from "../../shared/services/booking-submit.service";
-import {PaymentMethod} from "../../models/booking.model";
 
 @Component({
     selector: 'app-calendar-only',
@@ -255,20 +254,26 @@ export class CalendarOnlyComponent implements OnInit {
     }
 
     submitBookingFromInline() {
-        if (!this.store.paymentMethod()) return; // guard
+        if (!this.store.paymentMethod()) return;
 
         this.submitting.set(true);
 
-        if (PaymentMethod.ONLINE === this.store.paymentMethod()) {
-            // TODO: Redirect URL
-        }
         this.submitter.submitFromStore(this.store, {embedded: true})
             .subscribe({
-                complete: () => {
+                next: (res) => {
+                    if (res?.paymentUrl) {
+                        (window.top ?? window).location.assign(res.paymentUrl);
+                        return;
+                    }
                     this.store.clearAll();
-                    this.submitting.set(false)
                 },
-                error: () => this.submitting.set(false),
+                error: (err) => {
+                    this.submitting.set(false);
+                    console.error('Booking error:', err);
+                },
+                complete: () => {
+                    this.submitting.set(false);
+                }
             });
     }
 }

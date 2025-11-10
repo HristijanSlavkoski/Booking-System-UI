@@ -2,8 +2,8 @@ package com.vrroom.service;
 
 import com.vrroom.dto.BookingDTO;
 
-public interface EmailService {
-
+public interface EmailService
+{
     void sendBookingConfirmation(BookingDTO booking);
 
     void sendBookingCancellation(BookingDTO booking);

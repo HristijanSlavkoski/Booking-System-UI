@@ -11,7 +11,14 @@ import {BookingStore} from "../../stores/booking.store";
 @Component({
     selector: 'app-payment-step',
     standalone: true,
-    imports: [CommonModule, ButtonComponent, BookingSummaryComponent, PaymentMethodSelectorComponent, FormsModule, ContactDetailsComponent],
+    imports: [
+        CommonModule,
+        ButtonComponent,
+        BookingSummaryComponent,
+        PaymentMethodSelectorComponent,
+        FormsModule,
+        ContactDetailsComponent
+    ],
     templateUrl: './payment-step.component.html',
     styleUrls: ['./payment-step.component.scss']
 })
@@ -24,9 +31,13 @@ export class PaymentStepComponent {
     @Input() roomSummaries: RoomSummary[] = [];
     @Input() net = 0;
     @Input() vat = 0;
-    @Input() total = 0;
+    @Input() total = 0;          // final total
     @Input() taxPercent = 0;
     @Input() currency = 'MKD';
+
+    @Input() baseTotal: number | null = null;
+    @Input() promoPercent: number | null = null;
+    @Input() promoName: string | null = null;
 
     @Input() customer!: Customer;
     @Output() customerChange = new EventEmitter<Customer>();

@@ -5,19 +5,25 @@ import com.vrroom.domain.entity.BookingGame;
 import com.vrroom.domain.entity.Game;
 import com.vrroom.domain.entity.User;
 import com.vrroom.domain.enums.BookingStatus;
+import com.vrroom.domain.enums.GiftCardStatus;
+import com.vrroom.domain.enums.PaymentMethod;
 import com.vrroom.dto.BookingDTO;
 import com.vrroom.dto.BookingGameDTO;
 import com.vrroom.dto.CreateBookingRequest;
 import com.vrroom.exception.InsufficientCapacityException;
 import com.vrroom.exception.ResourceNotFoundException;
+import com.vrroom.repository.BookingGameRepository;
 import com.vrroom.repository.BookingRepository;
 import com.vrroom.repository.GameRepository;
-import com.vrroom.repository.SystemConfigRepository;
+import com.vrroom.repository.GiftCardRepository;
 import com.vrroom.repository.UserRepository;
+import com.vrroom.service.AvailabilityService;
 import com.vrroom.service.BookingService;
 import com.vrroom.service.EmailService;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.vrroom.service.GiftCardService;
+import com.vrroom.service.PaymentService;
+import com.vrroom.service.PricingService;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +37,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService
 {
-
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-    private final SystemConfigRepository systemConfigRepository;
     private final EmailService emailService;
+    private final GiftCardService giftCardService;
+    private final PricingService pricingService;
+    private final GiftCardRepository giftCardRepository;
+    private final BookingGameRepository bookingGameRepository;
+    private final PaymentService paymentService;
+    private final AvailabilityService availabilityService;
 
     @Override
     public List<BookingDTO> getAllBookings()
@@ -76,35 +86,31 @@ public class BookingServiceImpl implements BookingService
 
     @Override
     @Transactional
-    public BookingDTO createBooking(CreateBookingRequest request, String userId)
+    public BookingDTO createBooking(CreateBookingRequest request, String userId) throws Exception
     {
-        log.info("Creating booking for user: {}", userId);
+        log.info("Creating booking for user: {}", request.getCustomerEmail());
 
-        // --- 1) Basic validation ---
-        if (request == null)
+        BigDecimal subtotal = pricingService.calculateTotalPriceForBooking(request);
+        BigDecimal discount = BigDecimal.ZERO;
+        if (request.getDiscountCode() != null && !request.getDiscountCode().isBlank())
         {
-            throw new IllegalArgumentException("Request must not be null");
+            discount = giftCardService.peekDiscount(request.getDiscountCode());
         }
-        if (request.getBookingDate() == null || request.getBookingTime() == null)
+        BigDecimal total = subtotal.subtract(discount);
+        if (total.signum() < 0)
         {
-            throw new IllegalArgumentException("bookingDate and bookingTime are required");
-        }
-        if (request.getNumberOfRooms() == null || request.getNumberOfRooms() <= 0)
-        {
-            throw new IllegalArgumentException("numberOfRooms must be > 0");
-        }
-        if (request.getGames() == null || request.getGames().isEmpty())
-        {
-            throw new IllegalArgumentException("At least one game must be provided");
+            total = BigDecimal.ZERO;
         }
 
-        // --- 2) Capacity check (keep your existing logic) ---
-        if (!isSlotAvailable(request.getBookingDate(), request.getBookingTime(), request.getNumberOfRooms()))
+        if (!availabilityService.isSlotAvailable(request.getBookingDate(), request.getBookingTime(), request.getNumberOfRooms()))
         {
             throw new InsufficientCapacityException("Not enough rooms available for the selected time slot");
         }
 
-        // --- 3) Load user if authenticated; otherwise validate guest contact info ---
+        var lockStatuses = List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED);
+        // TODO: Check this, its suspicious
+        bookingGameRepository.lockGamesForSlot(request.getBookingDate(), request.getBookingTime(), lockStatuses);
+
         User user = null;
         boolean authenticated = userId != null && !userId.isBlank();
         if (authenticated)
@@ -112,89 +118,107 @@ public class BookingServiceImpl implements BookingService
             user = userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         }
-        else
-        {
-            // guest path: we need at least an email or phone to contact the customer
-            boolean hasEmail = request.getCustomerEmail() != null && !request.getCustomerEmail().isBlank();
-            boolean hasPhone = request.getCustomerPhone() != null && !request.getCustomerPhone().isBlank();
-            if (!hasEmail && !hasPhone)
-            {
-                throw new IllegalArgumentException("For guest bookings, customerEmail or customerPhone is required.");
-            }
-        }
+        // TODO: Add email to subscription
 
-        // --- 4) Build the booking entity ---
+        // 5) Build Booking (status HOLD/PENDING_PAYMENT)
         Booking booking = Booking.builder()
-                .user(user) // null means guest booking
+                .user(user)
                 .bookingDate(request.getBookingDate())
                 .bookingTime(request.getBookingTime())
-                .numberOfRooms(request.getNumberOfRooms())
-                .totalPrice(request.getTotalPrice()) // keep if you precompute; otherwise consider summing games below
                 .status(BookingStatus.PENDING)
                 .paymentMethod(request.getPaymentMethod())
                 .customerFirstName(request.getCustomerFirstName())
                 .customerLastName(request.getCustomerLastName())
                 .customerEmail(request.getCustomerEmail())
                 .customerPhone(request.getCustomerPhone())
+                .totalPrice(total)
                 .build();
 
-        // (Optional) If user is logged in and no customer email was supplied, default to user's email (if you have it)
-        if (user != null && (booking.getCustomerEmail() == null || booking.getCustomerEmail().isBlank()))
+        // Attach games (validate existence, players range is enforced in PricingService; still OK to double-check)
+        var gameIds = request.getGames().stream().map(CreateBookingRequest.BookingGameRequest::getGameId).toList();
+        var gamesById = gameRepository.findAllById(gameIds).stream()
+                .collect(Collectors.toMap(Game::getId, g -> g));
+        if (gamesById.size() != gameIds.size())
         {
-            try
-            {
-                // adjust if your User entity has a different getter
-                var emailFromUser = user.getEmail();
-                if (emailFromUser != null && !emailFromUser.isBlank())
-                {
-                    booking.setCustomerEmail(emailFromUser);
-                }
-            }
-            catch (Exception ignore)
-            {
-            }
+            throw new ResourceNotFoundException("One or more games not found.");
         }
 
-        // --- 5) Attach games (validate each) ---
-        for (CreateBookingRequest.BookingGameRequest gameRequest : request.getGames())
+        for (var line : request.getGames())
         {
-            if (gameRequest == null || gameRequest.getGameId() == null || gameRequest.getGameId().isBlank())
-            {
-                throw new IllegalArgumentException("Each game must have a valid gameId");
-            }
-
-            Game game = gameRepository.findById(gameRequest.getGameId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Game not found with id: " + gameRequest.getGameId()));
-
-            BookingGame bookingGame = BookingGame.builder()
+            Game game = gamesById.get(line.getGameId());
+            var bg = BookingGame.builder()
                     .game(game)
-                    .roomNumber(gameRequest.getRoomNumber())
-                    .playerCount(gameRequest.getPlayerCount())
-                    .price(gameRequest.getPrice())
+                    .roomNumber(line.getRoomNumber())
+                    .playerCount(line.getPlayerCount())
                     .build();
-
-            booking.addBookingGame(bookingGame);
+            booking.addBookingGame(bg);
         }
 
-        // (Optional) If totalPrice is null, compute from game prices:
-        // if (booking.getTotalPrice() == null) {
-        // BigDecimal sum = booking.getBookingGames().stream()
-        // .map(bg -> bg.getPrice() == null ? BigDecimal.ZERO : bg.getPrice())
-        // .reduce(BigDecimal.ZERO, BigDecimal::add);
-        // booking.setTotalPrice(sum);
-        // }
+        // 6) Hold the gift card (no redeem yet)
+        if (request.getDiscountCode() != null && !request.getDiscountCode().isBlank())
+        {
+            giftCardService.holdGiftCard(request.getDiscountCode());
+            booking.setGiftCard(giftCardRepository.findByCode(request.getDiscountCode())
+                    .orElseThrow(() -> new ResourceNotFoundException("Gift card not found")));
+        }
 
-        // --- 6) Persist & notify ---
-        Booking savedBooking = bookingRepository.save(booking);
-        log.info("Booking created successfully with id: {}", savedBooking.getId());
+        // 7) Persist
+        Booking saved = bookingRepository.save(booking);
+        log.info("Booking created with id {}", saved.getId());
 
-        BookingDTO bookingDTO = mapToDTO(savedBooking);
+        BookingDTO bookingDTO = mapToDTO(saved);
+        // 8) Fire domain event; email after commit\
+        String paymentUrl = null;
+        if (request.getPaymentMethod() == PaymentMethod.ONLINE)
+        {
+            // TODO: booking instead of bookingDTO
+//            paymentUrl = paymentService.createCheckoutSession(bookingDTO);
+            bookingDTO.setPaymentUrl("https://www.youtube.com");
+            // TODO: Schedule timeout job to release hold if unpaid (e.g., 15 min)
+        }
 
-        // Ensure your email service works for both flows.
-        // If it uses bookingDTO.customerEmail, make sure it's set above.
-        emailService.sendBookingConfirmation(bookingDTO);
+//        emailService.sendBookingConfirmation(bookingDTO);
 
         return bookingDTO;
+    }
+
+    @Transactional
+    public BookingDTO confirmBooking(String bookingId)
+    {
+        Booking b = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (b.getStatus() != BookingStatus.PENDING)
+        {
+            throw new IllegalStateException("Only PENDING_PAYMENT bookings can be confirmed");
+        }
+
+        if (b.getGiftCard() != null)
+        {
+            giftCardService.redeemGiftCard(b.getGiftCard().getCode(), b.getId());
+        }
+
+        b.setStatus(BookingStatus.CONFIRMED);
+        return mapToDTO(bookingRepository.save(b));
+    }
+
+    @Transactional
+    public void cancelBooking(String id)
+    {
+        Booking b = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        if (b.getStatus() == BookingStatus.CANCELLED)
+        {
+            return;
+        }
+
+        if (b.getGiftCard() != null && b.getGiftCard().getStatus().equals(GiftCardStatus.HELD))
+        {
+            giftCardService.releaseGiftCard(b.getGiftCard().getCode());
+            b.setGiftCard(null);
+        }
+        b.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(b);
     }
 
     @Override
@@ -211,42 +235,6 @@ public class BookingServiceImpl implements BookingService
         return mapToDTO(updatedBooking);
     }
 
-    @Override
-    @Transactional
-    public void cancelBooking(String id)
-    {
-        log.info("Cancelling booking with id: {}", id);
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + id));
-
-        booking.setStatus(BookingStatus.CANCELLED);
-        bookingRepository.save(booking);
-        log.info("Booking cancelled successfully");
-    }
-
-    @Override
-    public Integer getAvailableSlots(LocalDate date, LocalTime time)
-    {
-        Integer maxRooms = systemConfigRepository.findLatestConfig()
-                .map(config -> config.getMaxConcurrentBookings())
-                .orElse(2);
-
-        Integer bookedRooms = bookingRepository.countBookedRoomsByDateAndTime(date, time);
-        if (bookedRooms == null)
-        {
-            bookedRooms = 0;
-        }
-
-        return maxRooms - bookedRooms;
-    }
-
-    @Override
-    public boolean isSlotAvailable(LocalDate date, LocalTime time, Integer requestedRooms)
-    {
-        Integer availableSlots = getAvailableSlots(date, time);
-        return availableSlots >= requestedRooms;
-    }
-
     private BookingDTO mapToDTO(Booking booking)
     {
         List<BookingGameDTO> bookingGameDTOs = booking.getBookingGames().stream()
@@ -256,7 +244,6 @@ public class BookingServiceImpl implements BookingService
                         .gameName(bg.getGame().getName())
                         .roomNumber(bg.getRoomNumber())
                         .playerCount(bg.getPlayerCount())
-                        .price(bg.getPrice())
                         .build())
                 .collect(Collectors.toList());
 
@@ -267,7 +254,6 @@ public class BookingServiceImpl implements BookingService
                 .userId(userId)
                 .bookingDate(booking.getBookingDate())
                 .bookingTime(booking.getBookingTime())
-                .numberOfRooms(booking.getNumberOfRooms())
                 .totalPrice(booking.getTotalPrice())
                 .status(booking.getStatus())
                 .paymentMethod(booking.getPaymentMethod())

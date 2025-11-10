@@ -18,7 +18,8 @@
         <div class="summary-item">
             <span class="label">Room {{ i + 1 }}:</span>
             <span class="value">
-        {{ r.name || 'No game' }} — {{ r.playerCount }} {{ r.playerCount === 1 ? 'player' : 'players' }}
+        {{ r.name || 'No game' }} — {{ r.playerCount }}
+                {{ r.playerCount === 1 ? 'player' : 'players' }}
       </span>
         </div>
     </ng-container>
@@ -28,12 +29,31 @@
         <span class="value">{{ totalPlayers }}</span>
     </div>
 
-    <!-- Text-only totals, old style -->
+    <!-- PROMO BANNER (if parent passes promo info) -->
+    <div
+            *ngIf="promoPercent && promoPercent > 0 && baseTotal !== null"
+            class="promo-banner"
+    >
+        <div class="promo-badge">-{{ promoPercent }}%</div>
+        <div class="promo-text">
+            {{ promoName || 'Special promotion' }}
+        </div>
+        <div class="promo-prices">
+      <span class="old-price">
+        {{ baseTotal | number:'1.0-0' }} {{ currency }}
+      </span>
+            <span class="new-price">
+        {{ total | number:'1.0-0' }} {{ currency }}
+      </span>
+        </div>
+    </div>
+
+    <!-- Text-only totals, simple usage -->
     <app-price-summary
             [net]="net"
             [vat]="vat"
             [total]="total"
             [taxPercent]="taxPercent"
             [currency]="currency"
-    />
+    ></app-price-summary>
 </div>

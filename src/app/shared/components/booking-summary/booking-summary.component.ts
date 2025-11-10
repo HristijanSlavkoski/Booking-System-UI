@@ -26,4 +26,7 @@ export class BookingSummaryComponent {
     @Input() currency = 'MKD';
 
     @Input() roomSummaries: RoomSummary[] = [];
+    @Input() baseTotal: number | null = null;
+    @Input() promoPercent: number | null = null;
+    @Input() promoName: string | null = null;
 }

@@ -4,6 +4,7 @@ import com.vrroom.domain.entity.SystemConfig;
 import com.vrroom.domain.enums.BookingStatus;
 import com.vrroom.dto.Availability.DayScheduleDto;
 import com.vrroom.dto.Availability.TimeSlotAvailabilityDto;
+import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.BookingRepository;
 import com.vrroom.repository.SystemConfigRepository;
 import com.vrroom.service.AvailabilityService;
@@ -12,26 +13,35 @@ import java.time.*;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-// TODO: Make it interface
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AvailabilityServiceImpl implements AvailabilityService
 {
-
     private final SystemConfigRepository systemConfigRepository;
 
     private final BookingRepository bookingRepository;
 
     private static final Duration HOLD_WINDOW = Duration.ofMinutes(15);
 
+    @Transactional
+    @Override
+    public boolean isSlotAvailable(LocalDate date, LocalTime time, Integer requestedRooms)
+    {
+        Integer availableSlots = getNumberOfFreeRoomsForDate(date, time);
+        return availableSlots >= requestedRooms;
+    }
+
+    @Override
     public List<DayScheduleDto> getAvailabilityForRange(LocalDate start, LocalDate end, @Nullable String maybeGameId)
     {
         if (end.isBefore(start))
+        {
             throw new IllegalArgumentException("endDate must be >= startDate");
+        }
 
         final Optional<SystemConfig> cfg = systemConfigRepository.findLatestConfig();
         if (cfg.isEmpty())
@@ -66,6 +76,21 @@ public class AvailabilityServiceImpl implements AvailabilityService
         }
 
         return days;
+    }
+
+    private Integer getNumberOfFreeRoomsForDate(LocalDate date, LocalTime time)
+    {
+        Integer maxRooms = systemConfigRepository.findLatestConfig()
+                .map(SystemConfig::getMaxConcurrentBookings).orElseThrow(
+                        () -> new ResourceNotFoundException("Max number of bookings is required"));
+
+        Integer bookedRooms = bookingRepository.countBookedRoomsByDateAndTime(date, time);
+        if (bookedRooms == null)
+        {
+            bookedRooms = 0;
+        }
+
+        return maxRooms - bookedRooms;
     }
 
     /** One pass over bookings → map key "YYYY-MM-DD|HH:mm" -> rooms taken */

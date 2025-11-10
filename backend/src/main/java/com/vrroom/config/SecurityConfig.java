@@ -50,6 +50,7 @@ public class SecurityConfig
                         .requestMatchers("/auth/**", "/games/**", "/config/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/bookings/availability").permitAll()
                         .requestMatchers(HttpMethod.POST, "/bookings").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/kiko/**").permitAll()
                         .anyRequest().permitAll() // temporarily open while Keycloak is off
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

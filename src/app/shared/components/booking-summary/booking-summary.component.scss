@@ -46,3 +46,50 @@
     }
   }
 }
+
+.promo-banner {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(236, 63, 58, 0.1);
+  border: 1px solid #ec3f3a;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #fff;
+}
+
+.promo-badge {
+  background: #ec3f3a;
+  color: #fff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.promo-text {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.promo-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.new-price {
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 1.1rem;
+}

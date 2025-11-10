@@ -40,11 +40,17 @@
                     [rooms]="store.selectedRooms()"
                     [roomSummaries]="getRoomSummaries()"
                     [totalPlayers]="getTotalPlayers()"
+
                     [net]="store.netPortion()"
                     [vat]="store.vatPortion()"
                     [total]="store.totalInclVat()"
                     [taxPercent]="store.taxPercentage()"
                     currency="MKD"
+
+                    [baseTotal]="store.baseTotalInclVat()"
+                    [promoPercent]="store.promoPercent()"
+                    [promoName]="store.promotionName()"
+
                     [paymentMethod]="store.paymentMethod()"
                     (paymentMethodChange)="store.setPaymentMethod($event)"
                     [submitting]="submitting()"

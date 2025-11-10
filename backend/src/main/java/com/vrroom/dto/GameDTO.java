@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameDTO {
+public class GameDTO
+{
     private String id;
     private String name;
     private String code;

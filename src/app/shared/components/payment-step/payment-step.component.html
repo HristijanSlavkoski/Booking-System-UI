@@ -1,4 +1,3 @@
-<!-- payment-step.component.html -->
 <div class="step-content">
     <h2>Payment Method</h2>
 
@@ -13,19 +12,23 @@
             [total]="total"
             [taxPercent]="taxPercent"
             [currency]="currency"
-    />
+
+            [baseTotal]="baseTotal"
+            [promoPercent]="promoPercent"
+            [promoName]="promoName"
+    ></app-booking-summary>
 
     <app-contact-details
             [customer]="store.customerInfo()"
             (customerChange)="store.setCustomerInfo($event)"
-    />
+    ></app-contact-details>
 
     <div class="form-section">
         <h3>Choose Payment Method</h3>
         <app-payment-method-selector
                 [paymentMethod]="paymentMethod"
                 (paymentMethodChange)="paymentMethodChange.emit($event)"
-        />
+        ></app-payment-method-selector>
     </div>
 
     <div class="step-actions">

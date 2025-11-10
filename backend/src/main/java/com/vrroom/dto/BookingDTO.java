@@ -32,4 +32,5 @@ public class BookingDTO {
     private String customerPhone;
     private List<BookingGameDTO> bookingGames;
     private LocalDateTime createdAt;
+    private String paymentUrl;
 }

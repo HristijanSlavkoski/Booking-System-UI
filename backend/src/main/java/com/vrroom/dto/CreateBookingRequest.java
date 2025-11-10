@@ -2,21 +2,21 @@ package com.vrroom.dto;
 
 import com.vrroom.domain.enums.PaymentMethod;
 import jakarta.validation.constraints.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateBookingRequest {
+public class CreateBookingRequest
+{
 
     @NotNull(message = "Booking date is required")
     @FutureOrPresent(message = "Booking date must be today or in the future")
@@ -47,17 +47,19 @@ public class CreateBookingRequest {
     @Email(message = "Invalid email format")
     private String customerEmail;
 
-    @NotBlank(message = "Customer phone is required")
     private String customerPhone;
 
     @NotEmpty(message = "At least one game must be selected")
     private List<BookingGameRequest> games;
 
+    private String discountCode;
+
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class BookingGameRequest {
+    public static class BookingGameRequest
+    {
         @NotBlank(message = "Game ID is required")
         private String gameId;
 

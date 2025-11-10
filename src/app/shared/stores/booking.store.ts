@@ -34,9 +34,33 @@ export class BookingStore {
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
+    // Promotion (global for current flow)
+    // ─────────────────────────────────────────────────────────────────────────────
+    private _promotionDiscount = signal<number>(0);          // 0..1 (e.g. 0.5 = 50%)
+    private _promotionName = signal<string | null>(null);
+
+    // read-only computed accessors
+    promotionDiscount = computed(() => this._promotionDiscount());
+    promotionName = computed(() => this._promotionName());
+
+    promoPercent = computed(() => {
+        const d = this._promotionDiscount();
+        return d > 0 ? Math.round(d * 100) : 0;
+    });
+
+    setPromotion(discount: number, name: string | null) {
+        this._promotionDiscount.set(discount || 0);
+        this._promotionName.set(name ?? null);
+    }
+
+    clearPromotion() {
+        this._promotionDiscount.set(0);
+        this._promotionName.set(null);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
     // Customer + payment
     // ─────────────────────────────────────────────────────────────────────────────
-    // TODO: Extract customer as object in models
     customerInfo = signal({firstName: '', lastName: '', email: '', phone: ''});
 
     // Keep a single source of truth for payment method (nullable until chosen)
@@ -56,11 +80,13 @@ export class BookingStore {
     /** Price per person (VAT included) based on tier brackets */
     pricePerPersonInclVat = (nPlayers: number): number => {
         if (!nPlayers) return 0;
-        const t = this.tiers().find(tt => nPlayers >= tt.minPlayers && nPlayers <= tt.maxPlayers);
+        const t = this.tiers().find(
+            (tt) => nPlayers >= tt.minPlayers && nPlayers <= tt.maxPlayers
+        );
         return t ? Number(t.pricePerPlayer) || 0 : 0;
     };
 
-    /** Total price of a single room (players * per-person, VAT included) */
+    /** Total price of a single room (players * per-person, VAT included), without promotion */
     roomTotalInclVat = (roomIndex: number): number => {
         const r = this.selectedGames()[roomIndex];
         if (!r || !r.game || r.playerCount <= 0) return 0;
@@ -70,9 +96,19 @@ export class BookingStore {
     // ─────────────────────────────────────────────────────────────────────────────
     // Derived totals (signals)
     // ─────────────────────────────────────────────────────────────────────────────
-    totalInclVat = computed(() =>
+
+    /** Base total (VAT included), before promotion */
+    baseTotalInclVat = computed(() =>
         this.selectedGames().reduce((sum, _, i) => sum + this.roomTotalInclVat(i), 0)
     );
+
+    /** Final total (VAT included), after promotion */
+    totalInclVat = computed(() => {
+        const base = this.baseTotalInclVat();
+        const disc = this._promotionDiscount();
+        if (!base) return 0;
+        return Math.round(base * (1 - disc));
+    });
 
     vatPortion = computed(() => {
         const total = this.totalInclVat();
@@ -82,8 +118,10 @@ export class BookingStore {
 
     netPortion = computed(() => this.totalInclVat() - this.vatPortion());
 
-    allRoomsHaveGames = computed(() =>
-        this.selectedGames().length > 0 && this.selectedGames().every(r => !!r.game)
+    allRoomsHaveGames = computed(
+        () =>
+            this.selectedGames().length > 0 &&
+            this.selectedGames().every((r) => !!r.game)
     );
 
     openingTime = signal<string>('12:00');
@@ -105,7 +143,7 @@ export class BookingStore {
 
     resetPlayers(clearPayment = true) {
         const current = this.selectedGames();
-        const cleared = current.map(r => ({ ...r, playerCount: 0 }));
+        const cleared = current.map((r) => ({...r, playerCount: 0}));
         this.selectedGames.set(cleared);
         if (clearPayment) this.setPaymentMethod(null as any);
     }
@@ -117,7 +155,7 @@ export class BookingStore {
         const prev = this.selectedGames();
         const next: RoomSelection[] = Array.from({length: n}, (_, i) => ({
             game: prev[i]?.game ?? prev[0]?.game ?? null,
-            playerCount: prev[i]?.playerCount ?? 0,
+            playerCount: prev[i]?.playerCount ?? 0
         }));
         this.selectedRooms.set(n);
         this.selectedGames.set(next);
@@ -138,7 +176,7 @@ export class BookingStore {
     }
 
     clearPlayers() {
-        const arr = this.selectedGames().map(r => ({...r, playerCount: 0}));
+        const arr = this.selectedGames().map((r) => ({...r, playerCount: 0}));
         this.selectedGames.set(arr);
     }
 
@@ -151,29 +189,37 @@ export class BookingStore {
         this.selectedDate.set('');
         this.selectedTime.set('');
         this.selectedRooms.set(1);
-        this.clearPlayers()
+        this.clearPlayers();
         this.selectedGames.set([]);
         this.resetCustomerInfo();
         this._paymentMethod.set(PaymentMethod.ONLINE); // Set back to default
-        this.customerInfo.set({firstName: '', lastName: '', email: '', phone: ''});
+        this.customerInfo.set({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: ''
+        });
+        this.clearPromotion();
     }
 
-    setCustomerInfo(info: Partial<{firstName:string; lastName:string; email:string; phone:string}>) {
-        this.customerInfo.set({ ...this.customerInfo(), ...info });
+    setCustomerInfo(info: Partial<{ firstName: string; lastName: string; email: string; phone: string }>) {
+        this.customerInfo.set({...this.customerInfo(), ...info});
     }
 
     setCustomerField<K extends keyof Customer>(key: K, value: Customer[K]) {
-        this.customerInfo.set({ ...this.customerInfo(), [key]: value });
+        this.customerInfo.set({...this.customerInfo(), [key]: value});
     }
 
     resetCustomerInfo() {
-        this.customerInfo.set({ firstName: '', lastName: '', email: '', phone: '' });
+        this.customerInfo.set({firstName: '', lastName: '', email: '', phone: ''});
     }
 
     setSystemHours(openHHmm: string, closeHHmm: string, slotMin: number) {
         this.openingTime.set(openHHmm || '12:00');
         this.closingTime.set(closeHHmm || '22:00');
-        this.slotDurationMinutes.set(Number.isFinite(slotMin) && slotMin > 0 ? slotMin : 60);
+        this.slotDurationMinutes.set(
+            Number.isFinite(slotMin) && slotMin > 0 ? slotMin : 60
+        );
     }
 
     /** Utility to build slots (inclusive of opening, exclusive of closing). */
@@ -189,7 +235,11 @@ export class BookingStore {
         const end = new Date(0, 0, 1, ch || 0, cm || 0, 0, 0);
 
         const out: string[] = [];
-        for (let t = new Date(start); t < end; t = new Date(t.getTime() + step * 60_000)) {
+        for (
+            let t = new Date(start);
+            t < end;
+            t = new Date(t.getTime() + step * 60_000)
+        ) {
             const hh = String(t.getHours()).padStart(2, '0');
             const mm = String(t.getMinutes()).padStart(2, '0');
             out.push(`${hh}:${mm}`);

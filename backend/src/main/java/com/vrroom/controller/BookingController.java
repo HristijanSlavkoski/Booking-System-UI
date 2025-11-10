@@ -69,11 +69,12 @@ public class BookingController
     @PostMapping
     public ResponseEntity<BookingDTO> createBooking(
             @Valid @RequestBody CreateBookingRequest request,
-            @AuthenticationPrincipal Jwt jwt // may be null for guests
-    )
+            @AuthenticationPrincipal Jwt jwt) throws Exception
     {
+
         String userId = (jwt != null) ? jwt.getSubject() : null;
         BookingDTO created = bookingService.createBooking(request, userId);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 

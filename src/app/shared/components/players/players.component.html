@@ -42,31 +42,50 @@
                             }
                         </div>
 
-                        <!-- per-person price (VAT included) once a choice is made -->
-                        @if (players()) {
+                        <!-- per-person price (VAT included) once a choice is made AND promotion meta is loaded -->
+                        @if (players() && !promotionLoading()) {
                             <div class="per-person-line">
-                                <span class="label">
-                                  {{ 'players.pricePerPerson' | translate:{default: 'Price per person'} }}
-                                    ({{ 'players.vatIncluded' | translate:{default: 'incl. VAT'} }})
-                                </span>
-                                <span class="value">{{ pricePerPersonInclVat() }} MKD</span>
+                <span class="label">
+                  {{ 'players.pricePerPerson' | translate:{default: 'Price per person'} }}
+                    ({{ 'players.vatIncluded' | translate:{default: 'incl. VAT'} }})
+                </span>
+                                <span class="value">{{ pricePerPersonInclVat() | number:'1.0-0' }} MKD</span>
                             </div>
                         }
 
-                        <!-- tax note stays as-is -->
                         <div class="tax-note">
                             {{ 'players.taxNoteIncluded' | translate:{percent: (taxPercentage() || 0)} }}
                         </div>
 
                         @if (players()) {
-                            <app-price-summary
-                                    [net]="selectedNetPortion()"
-                                    [vat]="selectedVatPortion()"
-                                    [total]="selectedTotalInclVat()"
-                                    [taxPercent]="taxPercentage()"
-                                    currency="MKD"
-                                    [compact]="false"
-                            />
+                            <!-- promo banner only when discount > 0 and promotion meta loaded -->
+                            <div *ngIf="promoPercent() > 0 && !promotionLoading()" class="promo-banner">
+                                <div class="promo-badge">-{{ promoPercent() }}%</div>
+                                <div class="promo-text">
+                                    {{ promotionName() || 'Special promotion' }}
+                                </div>
+                                <div class="promo-prices">
+                                    <span class="old-price">{{ baseTotalForPlayers() | number:'1.0-0' }} MKD</span>
+                                    <span class="new-price">{{ selectedTotalInclVat() | number:'1.0-0' }} MKD</span>
+                                </div>
+                            </div>
+
+                            <!-- summary: only when promotion meta is loaded -->
+                            <ng-container *ngIf="!promotionLoading(); else priceLoading">
+                                <app-price-summary
+                                        [net]="selectedNetPortion()"
+                                        [vat]="selectedVatPortion()"
+                                        [total]="selectedTotalInclVat()"
+                                        [taxPercent]="taxPercentage()"
+                                        [currency]="'MKD'">
+                                </app-price-summary>
+                            </ng-container>
+
+                            <ng-template #priceLoading>
+                                <div class="price-loading">
+                                    Calculating price…
+                                </div>
+                            </ng-template>
                         }
 
                         <div class="actions">

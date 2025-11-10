@@ -1,6 +1,7 @@
+// core/services/pricing.service.ts
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {ApiService} from './api.service';
 
 export interface PricingPreview {
     basePrice: number;
@@ -12,17 +13,15 @@ export interface PricingPreview {
 
 @Injectable({providedIn: 'root'})
 export class PricingService {
-    private http = inject(HttpClient);
-    // Adjust baseUrl if you have a global API prefix (e.g. environment.apiUrl)
-    // TODO: fix this, it should not hardcode /api
-    private readonly baseUrl = '/api/pricing';
+    private api = inject(ApiService);
 
     previewPrice(gameId: string, date: string, players: number): Observable<PricingPreview> {
-        const params = new HttpParams()
-            .set('gameId', gameId)
-            .set('date', date)        // yyyy-MM-dd (PlayersComponent already has this format)
-            .set('players', players.toString());
+        const encodedGameId = encodeURIComponent(gameId);
+        const encodedDate = encodeURIComponent(date);
+        const encodedPlayers = encodeURIComponent(players.toString());
 
-        return this.http.get<PricingPreview>(`${this.baseUrl}/preview`, {params});
+        return this.api.get<PricingPreview>(
+            `/pricing/preview?gameId=${encodedGameId}&date=${encodedDate}&players=${encodedPlayers}`
+        );
     }
 }

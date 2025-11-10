@@ -39,7 +39,6 @@ export class BookingStore {
     private _promotionDiscount = signal<number>(0);          // 0..1 (e.g. 0.5 = 50%)
     private _promotionName = signal<string | null>(null);
 
-    // read-only computed accessors
     promotionDiscount = computed(() => this._promotionDiscount());
     promotionName = computed(() => this._promotionName());
 
@@ -59,11 +58,29 @@ export class BookingStore {
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
+    // Gift card (for current booking)
+    // ─────────────────────────────────────────────────────────────────────────────
+    private _giftCardCode = signal<string | null>(null);
+    private _giftCardAmount = signal<number>(0); // MKD
+
+    giftCardCode = computed(() => this._giftCardCode());
+    giftCardAmount = computed(() => this._giftCardAmount());
+
+    setGiftCard(code: string, amount: number) {
+        this._giftCardCode.set(code || null);
+        this._giftCardAmount.set(Number.isFinite(amount) ? amount : 0);
+    }
+
+    clearGiftCard() {
+        this._giftCardCode.set(null);
+        this._giftCardAmount.set(0);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
     // Customer + payment
     // ─────────────────────────────────────────────────────────────────────────────
     customerInfo = signal({firstName: '', lastName: '', email: '', phone: ''});
 
-    // Keep a single source of truth for payment method (nullable until chosen)
     private _paymentMethod = signal<PaymentMethod | null>(PaymentMethod.ONLINE);
 
     paymentMethod() {
@@ -86,7 +103,7 @@ export class BookingStore {
         return t ? Number(t.pricePerPlayer) || 0 : 0;
     };
 
-    /** Total price of a single room (players * per-person, VAT included), without promotion */
+    /** Total price of a single room (players * per-person, VAT included), before promo & giftcard */
     roomTotalInclVat = (roomIndex: number): number => {
         const r = this.selectedGames()[roomIndex];
         if (!r || !r.game || r.playerCount <= 0) return 0;
@@ -97,26 +114,34 @@ export class BookingStore {
     // Derived totals (signals)
     // ─────────────────────────────────────────────────────────────────────────────
 
-    /** Base total (VAT included), before promotion */
+    /** Base total (VAT included), BEFORE promotion */
     baseTotalInclVat = computed(() =>
         this.selectedGames().reduce((sum, _, i) => sum + this.roomTotalInclVat(i), 0)
     );
 
-    /** Final total (VAT included), after promotion */
-    totalInclVat = computed(() => {
+    /** Total after promotion, BEFORE gift card */
+    promoTotalInclVat = computed(() => {
         const base = this.baseTotalInclVat();
         const disc = this._promotionDiscount();
         if (!base) return 0;
         return Math.round(base * (1 - disc));
     });
 
+    /** Final total after promotion AND gift card */
+    finalTotalInclVat = computed(() => {
+        const promo = this.promoTotalInclVat();
+        const gc = this._giftCardAmount();
+        const total = promo - gc;
+        return total > 0 ? total : 0;
+    });
+
     vatPortion = computed(() => {
-        const total = this.totalInclVat();
+        const total = this.finalTotalInclVat();
         const vat = this.taxPercentage() || 0;
         return Math.round(total * (vat / (100 + vat)));
     });
 
-    netPortion = computed(() => this.totalInclVat() - this.vatPortion());
+    netPortion = computed(() => this.finalTotalInclVat() - this.vatPortion());
 
     allRoomsHaveGames = computed(
         () =>
@@ -192,7 +217,7 @@ export class BookingStore {
         this.clearPlayers();
         this.selectedGames.set([]);
         this.resetCustomerInfo();
-        this._paymentMethod.set(PaymentMethod.ONLINE); // Set back to default
+        this._paymentMethod.set(PaymentMethod.ONLINE);
         this.customerInfo.set({
             firstName: '',
             lastName: '',
@@ -200,6 +225,7 @@ export class BookingStore {
             phone: ''
         });
         this.clearPromotion();
+        this.clearGiftCard();
     }
 
     setCustomerInfo(info: Partial<{ firstName: string; lastName: string; email: string; phone: string }>) {

@@ -43,13 +43,16 @@
 
                     [net]="store.netPortion()"
                     [vat]="store.vatPortion()"
-                    [total]="store.totalInclVat()"
+                    [total]="store.finalTotalInclVat()"
                     [taxPercent]="store.taxPercentage()"
                     currency="MKD"
 
-                    [baseTotal]="store.baseTotalInclVat()"
+                    [baseTotal]="store.promoTotalInclVat()"
                     [promoPercent]="store.promoPercent()"
                     [promoName]="store.promotionName()"
+
+                    [giftCardAmount]="store.giftCardAmount()"
+                    [giftCardCode]="store.giftCardCode()"
 
                     [paymentMethod]="store.paymentMethod()"
                     (paymentMethodChange)="store.setPaymentMethod($event)"

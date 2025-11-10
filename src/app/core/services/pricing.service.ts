@@ -14,6 +14,7 @@ export interface PricingPreview {
 export class PricingService {
     private http = inject(HttpClient);
     // Adjust baseUrl if you have a global API prefix (e.g. environment.apiUrl)
+    // TODO: fix this, it should not hardcode /api
     private readonly baseUrl = '/api/pricing';
 
     previewPrice(gameId: string, date: string, players: number): Observable<PricingPreview> {

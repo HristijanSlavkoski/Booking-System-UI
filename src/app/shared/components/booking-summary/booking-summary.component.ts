@@ -15,7 +15,7 @@ export interface RoomSummary {
     styleUrls: ['./booking-summary.component.scss']
 })
 export class BookingSummaryComponent {
-    @Input() date = '';           // already formatted or raw; parent decides
+    @Input() date = '';
     @Input() time = '';
     @Input() rooms = 1;
     @Input() totalPlayers = 0;
@@ -26,7 +26,13 @@ export class BookingSummaryComponent {
     @Input() currency = 'MKD';
 
     @Input() roomSummaries: RoomSummary[] = [];
+
+    // after promotion, before gift card
     @Input() baseTotal: number | null = null;
     @Input() promoPercent: number | null = null;
     @Input() promoName: string | null = null;
+
+    // gift card
+    @Input() giftCardAmount: number | null = null;
+    @Input() giftCardCode: string | null = null;
 }

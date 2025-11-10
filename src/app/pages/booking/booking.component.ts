@@ -73,7 +73,7 @@ export class BookingComponent implements OnInit {
         this.selectedGames.set(cleared);
     }
 
-    totalInclVat = computed(() => this.store.totalInclVat());
+    totalInclVat = computed(() => this.store.finalTotalInclVat());
     vatPortion = computed(() => this.store.vatPortion());
     netPortion = computed(() => this.store.netPortion());
     taxPercentage = computed(() => this.store.taxPercentage());

@@ -12,17 +12,56 @@
             [total]="total"
             [taxPercent]="taxPercent"
             [currency]="currency"
-
             [baseTotal]="baseTotal"
             [promoPercent]="promoPercent"
             [promoName]="promoName"
+            [giftCardAmount]="store.giftCardAmount()"
+            [giftCardCode]="store.giftCardCode()"
     ></app-booking-summary>
 
+    <!-- 💳 Gift card BEFORE contact details -->
+    <div class="form-section">
+        <h3>Gift Card</h3>
+        <div class="gift-grid">
+            <label>
+                Gift card code
+                <input
+                        type="text"
+                        placeholder="Enter gift card code"
+                        [(ngModel)]="giftCode"
+                        [disabled]="giftLoading || submitting"
+                />
+            </label>
+
+            <div class="gift-actions">
+                <app-button
+                        (clicked)="applyGiftCard()"
+                        [disabled]="giftLoading || submitting || !giftCode.trim()"
+                >
+                    {{ giftLoading ? 'Checking...' : 'Apply' }}
+                </app-button>
+
+                <div class="gift-status" *ngIf="giftError">
+                    {{ giftError }}
+                </div>
+                <div
+                        class="gift-status success"
+                        *ngIf="!giftError && store.giftCardAmount() > 0"
+                >
+                    Gift card applied:
+                    -{{ store.giftCardAmount() | number: '1.0-0' }} {{ currency }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🧍‍♀️ Contact details (unchanged) -->
     <app-contact-details
             [customer]="store.customerInfo()"
             (customerChange)="store.setCustomerInfo($event)"
     ></app-contact-details>
 
+    <!-- 💳 Payment method -->
     <div class="form-section">
         <h3>Choose Payment Method</h3>
         <app-payment-method-selector

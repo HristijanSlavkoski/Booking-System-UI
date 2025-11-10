@@ -19,15 +19,7 @@
   }
 }
 
-.step-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #2a2a2a;
-}
-
+/* Sections (Gift card + Payment method) */
 .form-section {
   margin-bottom: 2rem;
 
@@ -46,4 +38,74 @@
   gap: .75rem;
   justify-content: flex-end;
   margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid #2a2a2a;
+}
+
+/* 💳 Gift card layout – same visual weight as contact form */
+.gift-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+/* Label + input style matching contact-details form */
+.gift-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #fff;
+}
+
+.gift-grid input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 2px solid #2a2a2a;
+  border-radius: 8px;
+  background: #0a0a0a;
+  color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+
+  &::placeholder {
+    color: #666;
+  }
+
+  &:focus {
+    border-color: #ec3f3a;
+    box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+  }
+}
+
+.gift-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.gift-status {
+  font-size: 0.85rem;
+  color: #f97373;
+
+  &.success {
+    color: #4ade80;
+  }
+}
+
+/* Mobile: stack gift code + button */
+@media (max-width: 768px) {
+  .gift-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gift-actions {
+    align-items: stretch;
+
+    app-button {
+      width: 100%;
+    }
+  }
 }

@@ -24,13 +24,14 @@ export function buildBookingRequestFromStore(store: BookingStore): BookingReques
         bookingDate: date,
         bookingTime: time,
         numberOfRooms: rooms,
-        totalPrice: store.totalInclVat(),
+        totalPrice: store.finalTotalInclVat(),
         paymentMethod: pay ?? PaymentMethod.ONLINE,
         customerFirstName: customer.firstName,
         customerLastName: customer.lastName,
         customerEmail: customer.email,
         customerPhone: customer.phone,
         games: gamesPayload,
+        discountCode: store.giftCardCode() || null
     };
 
     return request;

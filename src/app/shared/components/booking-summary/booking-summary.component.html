@@ -29,7 +29,7 @@
         <span class="value">{{ totalPlayers }}</span>
     </div>
 
-    <!-- PROMO BANNER (if parent passes promo info) -->
+    <!-- PROMO BANNER (after promo, before gift card) -->
     <div
             *ngIf="promoPercent && promoPercent > 0 && baseTotal !== null"
             class="promo-banner"
@@ -43,12 +43,23 @@
         {{ baseTotal | number:'1.0-0' }} {{ currency }}
       </span>
             <span class="new-price">
-        {{ total | number:'1.0-0' }} {{ currency }}
+        {{ baseTotal | number:'1.0-0' }} {{ currency }}
       </span>
         </div>
     </div>
 
-    <!-- Text-only totals, simple usage -->
+    <!-- Gift card line (only if applied) -->
+    <div class="summary-item" *ngIf="giftCardAmount && giftCardAmount > 0">
+    <span class="label">
+      Gift card
+      <ng-container *ngIf="giftCardCode">
+        ({{ giftCardCode }})
+      </ng-container>:
+    </span>
+        <span class="value">-{{ giftCardAmount | number:'1.0-0' }} {{ currency }}</span>
+    </div>
+
+    <!-- Text-only totals (final total with promo + gift card) -->
     <app-price-summary
             [net]="net"
             [vat]="vat"

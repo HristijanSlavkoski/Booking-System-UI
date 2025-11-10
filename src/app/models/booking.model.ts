@@ -63,6 +63,7 @@ export interface BookingRequest {
     customerEmail: string;
     customerPhone: string;
     games: BookingGameRequest[];
+    discountCode?: string | null;
 }
 
 export interface BookingResponse {

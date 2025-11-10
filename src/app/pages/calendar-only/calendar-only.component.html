@@ -47,7 +47,8 @@
                     [taxPercent]="store.taxPercentage()"
                     currency="MKD"
 
-                    [baseTotal]="store.promoTotalInclVat()"
+                    [baseTotal]="store.baseTotalInclVat()"
+                    [promoTotal]="store.promoTotalInclVat()"
                     [promoPercent]="store.promoPercent()"
                     [promoName]="store.promotionName()"
 
@@ -60,6 +61,7 @@
                     (back)="backToPlayers()"
                     (submit)="submitBookingFromInline()"
             />
+
         </div>
     }
 </div>

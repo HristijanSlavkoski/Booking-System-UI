@@ -39,12 +39,15 @@
             {{ promoName || 'Special promotion' }}
         </div>
         <div class="promo-prices">
-      <span class="old-price">
-        {{ baseTotal | number:'1.0-0' }} {{ currency }}
-      </span>
+            <!-- Old: base (no promo) -->
+            <span class="old-price">
+              {{ baseTotal | number:'1.0-0' }} {{ currency }}
+            </span>
+
+            <!-- New: after promo, before gift; fall back to total if promoTotal missing -->
             <span class="new-price">
-        {{ baseTotal | number:'1.0-0' }} {{ currency }}
-      </span>
+              {{ (promoTotal ?? total) | number:'1.0-0' }} {{ currency }}
+            </span>
         </div>
     </div>
 

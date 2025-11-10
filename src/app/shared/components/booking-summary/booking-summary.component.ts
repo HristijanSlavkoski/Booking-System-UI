@@ -29,6 +29,7 @@ export class BookingSummaryComponent {
 
     // after promotion, before gift card
     @Input() baseTotal: number | null = null;
+    @Input() promoTotal: number | null = null;
     @Input() promoPercent: number | null = null;
     @Input() promoName: string | null = null;
 

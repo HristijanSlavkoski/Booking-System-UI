@@ -36,8 +36,8 @@ export class PaymentStepComponent {
     @Input() taxPercent = 0;
     @Input() currency = 'MKD';
 
-    // promo / gift card
     @Input() baseTotal: number | null = null;
+    @Input() promoTotal: number | null = null;
     @Input() promoPercent: number | null = null;
     @Input() promoName: string | null = null;
 

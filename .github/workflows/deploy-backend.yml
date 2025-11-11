@@ -36,10 +36,11 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
           source: "backend/target/*.war"
           target: "/home/${{ secrets.SSH_USER }}/"
           overwrite: true
-          strip_components: 0
 
       # Run remote deploy script (copies to Tomcat webapps & restarts service)
       - name: Run remote deploy script
@@ -48,6 +49,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22
           script: |
             # pick newest .war we just uploaded
             WAR_FILE="$(ls -1t /home/${{ secrets.SSH_USER }}/*.war | head -n1)"

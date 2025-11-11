@@ -124,42 +124,42 @@
     <profiles>
         <profile>
             <id>war</id>
-            <build>
-                <finalName>vr-escape-room-api</finalName>
-                <plugins>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>
-                                    <groupId>org.projectlombok</groupId>
-                                    <artifactId>lombok</artifactId>
-                                </exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <version>3.3.2</version>
-                        <configuration>
-                            <failOnMissingWebXml>false</failOnMissingWebXml>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-            <properties>
-                <!-- Override packaging -->
-                <packaging>war</packaging>
-            </properties>
+
             <dependencies>
-                <!-- External Tomcat should provide the container -->
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.3.2</version>
+                        <executions>
+                            <execution>
+                                <id>build-war-even-if-packaging-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>war</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnMissingWebXml>false</failOnMissingWebXml>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

@@ -40,6 +40,7 @@ jobs:
           port: 22
           source: "backend/target/*.war"
           target: "/home/${{ secrets.SSH_USER }}/"
+          strip_components: 2
           overwrite: true
 
       # Run remote deploy script (copies to Tomcat webapps & restarts service)

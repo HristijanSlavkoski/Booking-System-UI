@@ -262,10 +262,14 @@ export class CalendarOnlyComponent implements OnInit {
             .subscribe({
                 next: (res) => {
                     if (res?.paymentUrl) {
-                        (window.top ?? window).location.assign(res.paymentUrl);
-                        return;
+                        if (window.self !== window.top) {
+                            window.BookingIframeAPI?.redirect(res.paymentUrl);
+                        } else {
+                            window.location.assign(res.paymentUrl);
+                        }
                     }
                     this.store.clearAll();
+                    return;
                 },
                 error: (err) => {
                     this.submitting.set(false);

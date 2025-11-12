@@ -11,28 +11,41 @@
         (function () {
             // TODO:
             const PARENT_ORIGIN = 'https://intetic.com';
-            var previousHeight = 0;
+            let previousHeight = 0;
 
-            function sendMessage() {
-                var h = document.getElementsByClassName('calendar-container')[0];
-                if (!h) h = document.getElementsByClassName('game-selection-container')[0];
-                if (!h) h = document.getElementsByClassName('players-container')[0];
-                if (!h) h = document.getElementsByClassName('booking-container')[0];
+            function sendHeight() {
+                let h = document.querySelector('.calendar-container')
+                    || document.querySelector('.game-selection-container')
+                    || document.querySelector('.players-container')
+                    || document.querySelector('.booking-container');
                 if (!h) return;
-                h = h.offsetHeight;
-                if (Math.abs(h - previousHeight) <= 10) return;
-                previousHeight = h;
+
+                let height = h.offsetHeight;
+                if (Math.abs(height - previousHeight) <= 20) return;
+                previousHeight = height;
+
                 window.parent.postMessage({
                     type: 'booking-system:resize',
-                    height: h
+                    height
                 }, PARENT_ORIGIN);
             }
 
-            function start() {
-                setInterval(() => sendMessage(), 800);
+            function sendRedirect(url) {
+                if (!url) return;
+                window.parent.postMessage({
+                    type: 'booking-system:redirect',
+                    url
+                }, PARENT_ORIGIN);
             }
 
-            start();
+            // --- Public API for app code (so Angular can call these easily) ---
+            window.BookingIframeAPI = {
+                resize: sendHeight,
+                redirect: sendRedirect
+            };
+
+            // Start periodic resize updates
+            setInterval(sendHeight, 800);
         })();
     </script>
 </head>

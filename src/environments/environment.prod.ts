@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://unable-vin-feeit-85900930.koyeb.app/api',
+  apiUrl: 'API_URL_PLACEHOLDER',
   apiTimeout: 30000,
   defaultLanguage: 'en',
   supportedLanguages: ['en', 'mk'],

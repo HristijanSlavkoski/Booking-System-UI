@@ -31,7 +31,13 @@ jobs:
 
       - run: npm ci
 
-      # ⬅️ Replace <repo> with your EXACT repo name (case-sensitive)
+      - name: Inject API URL from secret
+        env:
+          FRONTEND_API_URL: ${{ secrets.FRONTEND_API_URL }}
+        run: |
+          test -n "$FRONTEND_API_URL" || { echo "FRONTEND_API_URL not set"; exit 1; }
+          sed -i "s|API_URL_PLACEHOLDER|$FRONTEND_API_URL|g" src/environments/environment.prod.ts
+
       - name: Build Angular
         run: npm run build -- --configuration=production --base-href="/Booking-System-UI/"
 

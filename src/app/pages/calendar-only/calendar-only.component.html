@@ -35,7 +35,7 @@
             />
 
             <app-payment-step
-                    [date]="formatDate(store.selectedDate())"
+                    [date]="store.selectedDate()"
                     [time]="store.selectedTime()"
                     [rooms]="store.selectedRooms()"
                     [roomSummaries]="getRoomSummaries()"

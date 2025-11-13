@@ -1,11 +1,12 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PaymentMethod} from "../../../models/booking.model";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: 'app-payment-methods',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, TranslatePipe],
     templateUrl: './payment-methods.component.html',
     styleUrls: ['./payment-methods.component.scss']
 })

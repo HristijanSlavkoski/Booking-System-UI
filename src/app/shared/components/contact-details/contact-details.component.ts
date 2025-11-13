@@ -2,11 +2,12 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Customer} from '../../../models/booking.model';
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: 'app-contact-details',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TranslatePipe],
     templateUrl: './contact-details.component.html',
     styleUrls: ['./contact-details.component.scss']
 })

@@ -3,7 +3,7 @@
 
     <div class="summary-item">
         <span class="label">{{ 'booking.date' | translate : {default: 'Date'} }}:</span>
-        <span class="value">{{ date }}</span>
+        <span class="value">{{ formatDateLocale(date) }}</span>
     </div>
     <div class="summary-item">
         <span class="label">{{ 'booking.time' | translate : {default: 'Time'} }}:</span>

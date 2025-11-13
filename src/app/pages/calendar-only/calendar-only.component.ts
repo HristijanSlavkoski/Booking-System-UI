@@ -13,6 +13,7 @@ import {PaymentStepComponent} from "../../shared/components/payment-step/payment
 import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
 import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component";
 import {BookingSubmitService} from "../../shared/services/booking-submit.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
     selector: 'app-calendar-only',
@@ -29,6 +30,7 @@ export class CalendarOnlyComponent implements OnInit {
     // TODO: Make store private
     store = inject(BookingStore);
     private submitter = inject(BookingSubmitService);
+    private i18n = inject(TranslateService);
 
     maxConcurrentBookings = signal(2);
     gameId = signal<string>('');
@@ -102,19 +104,31 @@ export class CalendarOnlyComponent implements OnInit {
     ngOnInit(): void {
         this.route.queryParamMap
             .pipe(
-                map(pm => ({
-                    step: (pm.get('step') as 'calendar' | 'game' | 'players' | 'booking') ?? 'calendar',
-                    gameId: pm.get('gameId') ?? '',
-                    date: pm.get('date') ?? '',
-                    time: pm.get('time') ?? '',
-                })),
+                map(pm => {
+                    const qpLang = pm.get('lang');
+                    const lang: 'en' | 'mk' = qpLang === 'mk' ? 'mk' : 'en';
+
+                    return {
+                        step:
+                            (pm.get('step') as 'calendar' | 'game' | 'players' | 'booking') ??
+                            'calendar',
+                        gameId: pm.get('gameId') ?? '',
+                        date: pm.get('date') ?? '',
+                        time: pm.get('time') ?? '',
+                        lang,
+                    };
+                }),
                 distinctUntilChanged((a, b) =>
-                    a.step === b.step && a.gameId === b.gameId && a.date === b.date && a.time === b.time
+                    a.step === b.step && a.gameId === b.gameId && a.date === b.date && a.time === b.time && a.lang === b.lang
                 ),
                 takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe(({step, gameId, date, time}) => {
+            .subscribe(({step, gameId, date, time, lang}) => {
                 this.step.set(step);
+                this.lang.set(lang);
+                this.i18n.use(this.lang());
+                this.store.lang.set(lang);
+
                 if (date || time) this.store.setDateTime(date, time);
 
                 // keep store in sync with query
@@ -201,13 +215,6 @@ export class CalendarOnlyComponent implements OnInit {
             queryParamsHandling: 'merge'
         });
         this.step.set('players');
-    }
-
-    formatDate(dateString: string): string {
-        if (!dateString) return '';
-        const d = new Date(dateString);
-        const locale = this.lang() === 'mk' ? 'mk-MK' : 'en-GB';
-        return d.toLocaleDateString(locale, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
     }
 
     onInlineSelectGame(e: { roomIndex: number; game: Game }) {

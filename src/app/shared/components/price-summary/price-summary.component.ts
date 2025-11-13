@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: 'app-price-summary',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, TranslatePipe],
     templateUrl: './price-summary.component.html',
     styleUrls: ['./price-summary.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush

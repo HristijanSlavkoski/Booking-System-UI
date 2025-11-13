@@ -1,6 +1,8 @@
-import {Component, Input} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {Component, inject, Input} from '@angular/core';
+import {CommonModule, formatDate} from '@angular/common';
 import {PriceSummaryComponent} from "../price-summary/price-summary.component";
+import {TranslatePipe} from "@ngx-translate/core";
+import {BookingStore} from "../../stores/booking.store";
 
 export interface RoomSummary {
     name: string | null;
@@ -10,7 +12,7 @@ export interface RoomSummary {
 @Component({
     selector: 'app-booking-summary',
     standalone: true,
-    imports: [CommonModule, PriceSummaryComponent],
+    imports: [CommonModule, PriceSummaryComponent, TranslatePipe],
     templateUrl: './booking-summary.component.html',
     styleUrls: ['./booking-summary.component.scss']
 })
@@ -36,4 +38,14 @@ export class BookingSummaryComponent {
     // gift card
     @Input() giftCardAmount: number | null = null;
     @Input() giftCardCode: string | null = null;
+
+    store = inject(BookingStore);
+
+    formatDateLocale(dateString: string): string {
+        if (!dateString) return '';
+
+        const locale = this.store.lang() === 'mk' ? 'mk' : 'en-GB';
+
+        return formatDate(dateString, 'EEEE, d MMMM y', locale);
+    }
 }

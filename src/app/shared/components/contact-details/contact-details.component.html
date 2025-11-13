@@ -7,7 +7,7 @@
                 <input
                         [ngModel]="customer.firstName"
                         (ngModelChange)="onField('firstName', $event)"
-                        placeholder="'booking.yourInformation.firstNamePlaceholder' | translate : {default: 'First name'}"
+                        placeholder="{{ 'booking.yourInformation.firstNamePlaceholder' | translate : {default: 'First name'} }}"
                         class="text-input"
                         required/>
             </label>
@@ -17,7 +17,7 @@
                 <input
                         [ngModel]="customer.lastName"
                         (ngModelChange)="onField('lastName', $event)"
-                        placeholder="'booking.yourInformation.lastNamePlaceholder' | translate : {default: 'Last name'}"
+                        placeholder="{{ 'booking.yourInformation.lastNamePlaceholder' | translate : {default: 'Last name'} }}"
                         class="text-input"
                         required/>
             </label>
@@ -28,7 +28,7 @@
                         type="email"
                         [ngModel]="customer.email"
                         (ngModelChange)="onField('email', $event)"
-                        placeholder="'booking.yourInformation.emailPlaceholder' | translate : {default: 'Email'}"
+                        placeholder="{{ 'booking.yourInformation.emailPlaceholder' | translate : {default: 'Email'} }}"
                         class="text-input"
                         required/>
             </label>
@@ -38,7 +38,7 @@
                 <input
                         [ngModel]="customer.phone"
                         (ngModelChange)="onField('phone', $event)"
-                        placeholder="'booking.yourInformation.phonePlaceholder' | translate : {default: 'Phone'}"
+                        placeholder="{{ 'booking.yourInformation.phonePlaceholder' | translate : {default: 'Phone'} }}"
                         class="text-input"
                         required/>
             </label>

@@ -24,13 +24,15 @@
 
     <!-- 💳 Gift card BEFORE contact details -->
     <div class="form-section">
-        <h3>Gift Card</h3>
+        <h3>
+            {{ 'booking.giftCard.title' | translate : {default: 'Gift card'} }}
+        </h3>
         <div class="gift-grid">
             <label>
                 {{ 'booking.giftCard.code' | translate : {default: 'Gift card code'} }}
                 <input
                         type="text"
-                        placeholder="'booking.giftCard.placeholder' | translate : { default: 'Enter gift card code' }"
+                        placeholder="{{ 'booking.giftCard.placeholder' | translate : { default: 'Enter gift card code' } }}"
                         [(ngModel)]="giftCode"
                         [disabled]="giftLoading || submitting"
                 />

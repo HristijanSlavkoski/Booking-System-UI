@@ -78,6 +78,7 @@
     "date": "Date",
     "time": "Time",
     "room": "Room",
+    "totalPlayers": "Total Players",
     "rooms": "Rooms",
     "giftCard": {
       "title": "Gift card",

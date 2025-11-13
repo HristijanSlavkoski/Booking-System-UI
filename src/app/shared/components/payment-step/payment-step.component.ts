@@ -8,6 +8,7 @@ import {FormsModule} from "@angular/forms";
 import {ContactDetailsComponent} from "../contact-details/contact-details.component";
 import {BookingStore} from "../../stores/booking.store";
 import {GiftCardUiService} from '../../../core/services/gift-card.service';
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: 'app-payment-step',
@@ -18,7 +19,8 @@ import {GiftCardUiService} from '../../../core/services/gift-card.service';
         BookingSummaryComponent,
         PaymentMethodSelectorComponent,
         FormsModule,
-        ContactDetailsComponent
+        ContactDetailsComponent,
+        TranslatePipe
     ],
     templateUrl: './payment-step.component.html',
     styleUrls: ['./payment-step.component.scss']

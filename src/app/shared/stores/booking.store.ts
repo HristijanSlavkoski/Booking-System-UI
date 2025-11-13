@@ -13,6 +13,7 @@ export class BookingStore {
     selectedTime = signal<string>('');
     selectedRooms = signal<number>(1);
     selectedGames = signal<RoomSelection[]>([]); // [{ game, playerCount }, ...]
+    lang = signal<string>('en');
 
     // ─────────────────────────────────────────────────────────────────────────────
     // Catalog / config cache
@@ -208,6 +209,10 @@ export class BookingStore {
     setDateTime(date: string, time: string) {
         this.selectedDate.set(date);
         this.selectedTime.set(time);
+    }
+
+    setLang(lang: string) {
+        this.lang.set(lang);
     }
 
     clearAll() {

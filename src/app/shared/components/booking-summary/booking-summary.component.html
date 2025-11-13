@@ -1,22 +1,22 @@
 <div class="booking-summary">
-    <h3>Booking Summary</h3>
+    <h3>{{ 'booking.bookingSummary' | translate : {default: 'Booking Summary'} }}</h3>
 
     <div class="summary-item">
-        <span class="label">Date:</span>
+        <span class="label">{{ 'booking.date' | translate : {default: 'Date'} }}:</span>
         <span class="value">{{ date }}</span>
     </div>
     <div class="summary-item">
-        <span class="label">Time:</span>
+        <span class="label">{{ 'booking.time' | translate : {default: 'Time'} }}:</span>
         <span class="value">{{ time }}</span>
     </div>
     <div class="summary-item">
-        <span class="label">Rooms:</span>
+        <span class="label">{{ 'booking.rooms' | translate : {default: 'Rooms'} }}:</span>
         <span class="value">{{ rooms }}</span>
     </div>
 
     <ng-container *ngFor="let r of roomSummaries; let i = index">
         <div class="summary-item">
-            <span class="label">Room {{ i + 1 }}:</span>
+            <span class="label">{{ 'booking.room' | translate : {default: 'Room'} }} {{ i + 1 }}:</span>
             <span class="value">
         {{ r.name || 'No game' }} — {{ r.playerCount }}
                 {{ r.playerCount === 1 ? 'player' : 'players' }}
@@ -25,7 +25,7 @@
     </ng-container>
 
     <div class="summary-item">
-        <span class="label">Total Players:</span>
+        <span class="label">{{ 'booking.totalPlayers' | translate : {default: 'Total Players'} }}:</span>
         <span class="value">{{ totalPlayers }}</span>
     </div>
 
@@ -54,7 +54,7 @@
     <!-- Gift card line (only if applied) -->
     <div class="summary-item" *ngIf="giftCardAmount && giftCardAmount > 0">
     <span class="label">
-      Gift card
+      {{ 'booking.giftCard.title' | translate : {default: 'Gift card'} }}
       <ng-container *ngIf="giftCardCode">
         ({{ giftCardCode }})
       </ng-container>:

@@ -1,44 +1,44 @@
 <div class="step-content">
     <div class="form-section">
-        <h3>Your Information</h3>
+        <h3>{{ 'booking.yourInformation.title' | translate : {default: 'Your Information'} }}</h3>
         <div class="form-grid">
             <label>
-                First name
+                {{ 'booking.yourInformation.firstName' | translate : {default: 'First name'} }}
                 <input
                         [ngModel]="customer.firstName"
                         (ngModelChange)="onField('firstName', $event)"
-                        placeholder="First Name"
+                        placeholder="'booking.yourInformation.firstNamePlaceholder' | translate : {default: 'First name'}"
                         class="text-input"
                         required/>
             </label>
 
             <label>
-                Last name
+                {{ 'booking.yourInformation.lastName' | translate : {default: 'Last name'} }}
                 <input
                         [ngModel]="customer.lastName"
                         (ngModelChange)="onField('lastName', $event)"
-                        placeholder="Last Name"
+                        placeholder="'booking.yourInformation.lastNamePlaceholder' | translate : {default: 'Last name'}"
                         class="text-input"
                         required/>
             </label>
 
             <label>
-                Email
+                {{ 'booking.yourInformation.email' | translate : {default: 'Email'} }}
                 <input
                         type="email"
                         [ngModel]="customer.email"
                         (ngModelChange)="onField('email', $event)"
-                        placeholder="Email"
+                        placeholder="'booking.yourInformation.emailPlaceholder' | translate : {default: 'Email'}"
                         class="text-input"
                         required/>
             </label>
 
             <label>
-                Phone
+                {{ 'booking.yourInformation.phone' | translate : {default: 'Phone'} }}
                 <input
                         [ngModel]="customer.phone"
                         (ngModelChange)="onField('phone', $event)"
-                        placeholder="Phone"
+                        placeholder="'booking.yourInformation.phonePlaceholder' | translate : {default: 'Phone'}"
                         class="text-input"
                         required/>
             </label>

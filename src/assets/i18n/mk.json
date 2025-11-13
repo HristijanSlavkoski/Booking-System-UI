@@ -63,14 +63,38 @@
     "email": "Е-пошта",
     "phone": "Телефон",
     "paymentMethod": "Начин на Плаќање",
+    "selectPaymentMethod": "Одберете Начин за Плаќање",
     "payOnline": "Плати Онлајн",
+    "payOnlineDescription": "Сигурен начин на плаќање преку кредитна/дебитна картичка",
     "payAtVenue": "Плати на Место",
+    "payAtVenueDescription": "Плати кога ќе пристигнете на нашата локација (кеш или платежна картичка)",
     "totalPrice": "Вкупна Цена",
     "proceedToPayment": "Продолжи кон Плаќање",
     "createBooking": "Креирај Резервација",
     "bookingConfirmed": "Резервацијата е Потврдена!",
     "bookingPending": "Резервацијата е Во Очекување",
-    "thankYou": "Ви благодариме за вашата резервација!"
+    "thankYou": "Ви благодариме за вашата резервација!",
+    "bookingSummary": "Детали за Резервацијата",
+    "date": "Датум",
+    "time": "Време",
+    "room": "Соба",
+    "rooms": "Соби",
+    "giftCard": {
+      "title": "Подарок ваучер",
+      "code": "Код на ваучер",
+      "placeholder": "Внесете го кодот на ваучерот"
+    },
+    "yourInformation": {
+      "title": "Вашите Информации",
+      "firstName": "Име",
+      "firstNamePlaceholder": "Име",
+      "lastName": "Презиме",
+      "lastNamePlaceholder": "Презиме",
+      "email": "Е-пошта",
+      "emailPlaceholder": "Е-пошта",
+      "phone": "Телефон",
+      "phonePlaceholder": "Телефон"
+    }
   },
   "calendar": {
     "time": "Време",

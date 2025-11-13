@@ -4,8 +4,8 @@
         <div class="payment-content" (click)="select(PaymentMethod.ONLINE)">
             <div class="payment-icon">💳</div>
             <div class="payment-info">
-                <div class="payment-title">Pay Online</div>
-                <div class="payment-desc">Secure payment via credit/debit card</div>
+                <div class="payment-title">{{ 'booking.payOnline' | translate : {default: 'Pay Online'} }}</div>
+                <div class="payment-desc">{{ 'booking.payOnlineDescription' | translate : {default: 'Secure payment via credit/debit card'} }}</div>
             </div>
         </div>
     </label>
@@ -15,8 +15,8 @@
         <div class="payment-content" (click)="select(PaymentMethod.IN_PERSON)">
             <div class="payment-icon">💵</div>
             <div class="payment-info">
-                <div class="payment-title">Pay at Location</div>
-                <div class="payment-desc">Pay when you arrive at the venue (Cash or Card)</div>
+                <div class="payment-title">{{ 'booking.payAtVenue' | translate : {default: 'Pay at Venue'} }}</div>
+                <div class="payment-desc">{{ 'booking.payAtVenueDescription' | translate : {default: 'Pay when you arrive at the venue (Cash or Card)'} }}</div>
             </div>
         </div>
     </label>

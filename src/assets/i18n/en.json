@@ -63,14 +63,38 @@
     "email": "Email",
     "phone": "Phone",
     "paymentMethod": "Payment Method",
+    "selectPaymentMethod": "Choose Payment Method",
     "payOnline": "Pay Online",
+    "payOnlineDescription": "Secure payment via credit/debit card",
     "payAtVenue": "Pay at Venue",
+    "payAtVenueDescription": "Pay when you arrive at the venue (Cash or Card)",
     "totalPrice": "Total Price",
     "proceedToPayment": "Proceed to Payment",
     "createBooking": "Create Booking",
     "bookingConfirmed": "Booking Confirmed!",
     "bookingPending": "Booking Pending",
-    "thankYou": "Thank you for your booking!"
+    "thankYou": "Thank you for your booking!",
+    "bookingSummary": "Booking Summary",
+    "date": "Date",
+    "time": "Time",
+    "room": "Room",
+    "rooms": "Rooms",
+    "giftCard": {
+      "title": "Gift card",
+      "code": "Gift card code",
+      "placeholder": "Enter gift card code"
+    },
+    "yourInformation": {
+      "title": "Your Information",
+      "firstName": "First name",
+      "firstNamePlaceholder": "First name",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Last name",
+      "email": "Email",
+      "emailPlaceholder": "Email",
+      "phone": "Phone",
+      "phonePlaceholder": "Phone"
+    }
   },
   "calendar": {
     "time": "Time",

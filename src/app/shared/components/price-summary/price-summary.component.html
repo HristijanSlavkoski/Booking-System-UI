@@ -1,19 +1,19 @@
 <div class="price-summary">
     <!-- Total (main highlight) -->
     <div class="line total">
-        <span class="label">Total</span>
+        <span class="label">{{ 'players.total' | translate : {default: 'Total'} }}</span>
         <span class="value">{{ total | number:'1.0-0' }} {{ currency }}</span>
     </div>
 
     <!-- Net line -->
     <div class="line small">
-        <span class="label">Net (excl. VAT)</span>
+        <span class="label">{{ 'players.net' | translate : {default: 'Net (excl. VAT)'} }}</span>
         <span class="value">{{ net | number:'1.0-0' }} {{ currency }}</span>
     </div>
 
     <!-- VAT line -->
     <div class="line small">
-        <span class="label">VAT portion ({{ taxPercent }}%)</span>
+        <span class="label">{{ 'players.vatPortion' | translate : {default: 'VAT portion'} }} ({{ taxPercent }}%)</span>
         <span class="value">{{ vat | number:'1.0-0' }} {{ currency }}</span>
     </div>
 </div>

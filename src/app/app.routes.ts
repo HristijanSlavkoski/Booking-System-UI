@@ -2,7 +2,8 @@
 import {Routes} from '@angular/router';
 import {authGuard} from './core/guards/auth.guard';
 import {adminGuard} from './core/guards/admin.guard';
-import {ShellComponent} from './shared/layout/shell.component'; // <= import the shell
+import {ShellComponent} from './shared/layout/shell.component';
+import {AdminComponent} from "./pages/admin/admin.component"; // <= import the shell
 
 export const routes: Routes = [
     // CHROME-FREE: calendar page (embeddable)
@@ -70,6 +71,7 @@ export const routes: Routes = [
             },
             {
                 path: 'admin',
+                component: AdminComponent,
                 canActivate: [adminGuard],
                 children: [
                     {

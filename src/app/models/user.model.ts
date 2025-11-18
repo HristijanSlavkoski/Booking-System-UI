@@ -4,8 +4,10 @@ export interface User {
   firstName: string;
   lastName: string;
   phone: string;
-  role: UserRole;
+  roles: string[];
+  active: boolean;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export enum UserRole {

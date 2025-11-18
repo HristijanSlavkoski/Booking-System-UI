@@ -1,3 +1,4 @@
+<!-- src/app/shared/components/header/header.component.html -->
 <header class="header">
     <div class="header-container">
         <div class="header-logo" (click)="navigateHome()">
@@ -50,7 +51,7 @@
             </a>
 
             @if (authService.isAuthenticated()) {
-                @if (authService.isAdmin()) {
+                @if (isAdmin()) {
                     <a routerLink="/admin"
                        routerLinkActive="active"
                        (click)="closeMobileMenu()">
@@ -62,6 +63,9 @@
                    (click)="closeMobileMenu()">
                     {{ 'nav.profile' | translate }}
                 </a>
+                <div class="user-welcome">
+                    <span>Hello, {{ getUserFullName() }}</span>
+                </div>
                 <button class="logout-btn" (click)="logout()">
                     {{ 'nav.logout' | translate }}
                 </button>

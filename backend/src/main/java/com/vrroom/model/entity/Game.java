@@ -1,16 +1,11 @@
-package com.vrroom.domain.entity;
+package com.vrroom.model.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -26,47 +21,48 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "app_user")
+@Table(name = "game")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class User
+public class Game
 {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(unique = true, nullable = false)
-    private String keycloakId;
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true, length = 64)
+    private String code;
+
+    @Column(length = 2000)
+    private String description;
 
     @Column(nullable = false)
-    private String email;
+    private Integer duration;
 
     @Column(nullable = false)
-    private String firstName;
+    private Integer minPlayers;
 
     @Column(nullable = false)
-    private String lastName;
+    private Integer maxPlayers;
 
-    private String phone;
+    @Column(nullable = false)
+    private Integer difficulty;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
-    @Builder.Default
-    private Set<String> roles = new HashSet<>();
+    private String imageUrl;
 
     @Column(nullable = false)
     @Builder.Default
     private Boolean active = true;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<Booking> bookings = new HashSet<>();
+    @OneToMany(mappedBy = "game")
+    private Set<BookingGame> bookingGames = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

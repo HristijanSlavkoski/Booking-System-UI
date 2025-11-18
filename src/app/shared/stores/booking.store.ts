@@ -156,7 +156,7 @@ export class BookingStore {
 
     isCustomerValid = computed(() => {
         const c = this.customerInfo();
-        return !!c.firstName && !!c.lastName && !!c.email && !!c.phone;
+        return !!c.firstName && !!c.lastName && !!c.email;
     });
 
     // ─────────────────────────────────────────────────────────────────────────────

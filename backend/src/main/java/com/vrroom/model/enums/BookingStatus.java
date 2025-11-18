@@ -1,4 +1,4 @@
-package com.vrroom.domain.enums;
+package com.vrroom.model.enums;
 
 public enum BookingStatus
 {

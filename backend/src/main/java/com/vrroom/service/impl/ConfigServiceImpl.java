@@ -1,10 +1,10 @@
 package com.vrroom.service.impl;
 
-import com.vrroom.domain.entity.Holiday;
-import com.vrroom.domain.entity.PricingConfig;
-import com.vrroom.domain.entity.PricingTier;
-import com.vrroom.domain.entity.Promotion; // NEW
-import com.vrroom.domain.entity.SystemConfig;
+import com.vrroom.model.entity.Holiday;
+import com.vrroom.model.entity.PricingConfig;
+import com.vrroom.model.entity.PricingTier;
+import com.vrroom.model.entity.Promotion; // NEW
+import com.vrroom.model.entity.SystemConfig;
 import com.vrroom.dto.HolidayDTO;
 import com.vrroom.dto.PricingConfigDTO;
 import com.vrroom.dto.PricingTierDTO;

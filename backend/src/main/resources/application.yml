@@ -7,13 +7,9 @@ spring:
     username: ${DB_USER:vrroom}
     password: ${DB_PASS:vrroom123}
     driver-class-name: org.postgresql.Driver
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8080/realms/vrroom}
-          jwk-set-uri: ${OIDC_JWKS_URI:http://localhost:8080/realms/vrroom/protocol/openid-connect/certs}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
 
   jpa:
     hibernate:
@@ -39,10 +35,15 @@ spring:
           auth: true
           starttls:
             enable: true
-            required: true
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+
+  # JPA Auditing (for createdDate, lastModifiedDate)
+  data:
+    jpa:
+      auditing:
+        enabled: true
 
 server:
   port: ${PORT:8081}
@@ -51,33 +52,25 @@ server:
 
 logging:
   level:
-    com.vrroom: debug
-    org.springframework.security: debug
-    org.hibernate.SQL: error
+    com.vrroom: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: ERROR
 
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
-  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-  allowed-headers: "*"
-  allow-credentials: true
 
 stripe:
   api-key: ${STRIPE_SECRET_KEY:sk_test_YOUR_KEY_HERE}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_YOUR_WEBHOOK_SECRET}
-  success-url: ${STRIPE_SUCCESS_URL:https://<username>.github.io/<repo>/booking/success?session_id={CHECKOUT_SESSION_ID}}
-  cancel-url:  ${STRIPE_CANCEL_URL:https://<username>.github.io/<repo>/booking/cancel}
-
+  success-url: ${STRIPE_SUCCESS_URL:http://localhost:4200/booking/success?session_id={CHECKOUT_SESSION_ID}}
+  cancel-url: ${STRIPE_CANCEL_URL:http://localhost:4200/booking/cancel}
 
 email:
   from: ${EMAIL_FROM:noreply@vrroom.com}
   from-name: VR Escape Room
   enabled: ${EMAIL_ENABLED:true}
 
-keycloak:
-  auth-server-url: http://localhost:8080
-  realm: vrroom
-  client-id: vrroom-app
-  client-secret: pjzNiS9dhiF9wm6ZbgkLh0E6FIxiO7ao
-
-vrroom:
-  max-concurrent-bookings: 2
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-super-secure-jwt-secret-key-minimum-32-chars-long-here}
+  expiration: 86400000  # 24 hours in milliseconds

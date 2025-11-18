@@ -1,4 +1,4 @@
-package com.vrroom.domain.entity;
+package com.vrroom.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

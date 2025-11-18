@@ -1,17 +1,17 @@
 package com.vrroom.service.impl;
 
-import com.vrroom.domain.entity.Booking;
-import com.vrroom.domain.entity.BookingGame;
-import com.vrroom.domain.entity.Game;
-import com.vrroom.domain.entity.User;
-import com.vrroom.domain.enums.BookingStatus;
-import com.vrroom.domain.enums.GiftCardStatus;
-import com.vrroom.domain.enums.PaymentMethod;
 import com.vrroom.dto.BookingDTO;
 import com.vrroom.dto.BookingGameDTO;
 import com.vrroom.dto.CreateBookingRequest;
 import com.vrroom.exception.InsufficientCapacityException;
 import com.vrroom.exception.ResourceNotFoundException;
+import com.vrroom.model.entity.Booking;
+import com.vrroom.model.entity.BookingGame;
+import com.vrroom.model.entity.Game;
+import com.vrroom.model.entity.User;
+import com.vrroom.model.enums.BookingStatus;
+import com.vrroom.model.enums.GiftCardStatus;
+import com.vrroom.model.enums.PaymentMethod;
 import com.vrroom.repository.BookingGameRepository;
 import com.vrroom.repository.BookingRepository;
 import com.vrroom.repository.GameRepository;
@@ -81,6 +81,22 @@ public class BookingServiceImpl implements BookingService
         log.debug("Fetching booking by id: {}", id);
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + id));
+        return mapToDTO(booking);
+    }
+
+    public BookingDTO getBookingByIdForUser(String id, User user)
+    {
+        log.debug("Fetching booking by id: {} for user: {}", id, user.getId());
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + id));
+
+        // Security check: user can only access their own bookings unless admin
+        if (!user.getRoles().contains("ADMIN") &&
+                (booking.getUser() == null || !booking.getUser().getId().equals(user.getId())))
+        {
+            throw new org.springframework.security.access.AccessDeniedException("Access denied");
+        }
+
         return mapToDTO(booking);
     }
 
@@ -172,12 +188,12 @@ public class BookingServiceImpl implements BookingService
         if (request.getPaymentMethod() == PaymentMethod.ONLINE)
         {
             // TODO: booking instead of bookingDTO
-//            paymentUrl = paymentService.createCheckoutSession(bookingDTO);
+            // paymentUrl = paymentService.createCheckoutSession(bookingDTO);
             bookingDTO.setPaymentUrl("https://www.youtube.com");
             // TODO: Schedule timeout job to release hold if unpaid (e.g., 15 min)
         }
 
-//        emailService.sendBookingConfirmation(bookingDTO);
+        // emailService.sendBookingConfirmation(bookingDTO);
 
         return bookingDTO;
     }
@@ -219,6 +235,33 @@ public class BookingServiceImpl implements BookingService
         }
         b.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(b);
+    }
+
+    @Transactional
+    public void cancelBookingForUser(String id, User user)
+    {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + id));
+
+        // Security check: user can only cancel their own bookings unless admin
+        if (!user.getRoles().contains("ADMIN") &&
+                (booking.getUser() == null || !booking.getUser().getId().equals(user.getId())))
+        {
+            throw new org.springframework.security.access.AccessDeniedException("Access denied");
+        }
+
+        if (booking.getStatus() == BookingStatus.CANCELLED)
+        {
+            return;
+        }
+
+        if (booking.getGiftCard() != null && booking.getGiftCard().getStatus().equals(GiftCardStatus.HELD))
+        {
+            giftCardService.releaseGiftCard(booking.getGiftCard().getCode());
+            booking.setGiftCard(null);
+        }
+        booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
     }
 
     @Override

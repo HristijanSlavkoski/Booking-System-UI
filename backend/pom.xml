@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.5.7</version>
         <relativePath/>
     </parent>
 
@@ -17,12 +17,18 @@
     <name>VR Escape Room API</name>
     <description>Backend API for VR Escape Room Booking System</description>
 
-    <!-- Default build is JAR -->
+    <!-- The default build is JAR -->
     <packaging>jar</packaging>
 
     <properties>
         <java.version>21</java.version>
-        <keycloak.version>23.0.0</keycloak.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Dependency Versions -->
+        <jjwt.version>0.12.5</jjwt.version>
+        <stripe.version>25.1.0</stripe.version>
     </properties>
 
     <dependencies>
@@ -43,19 +49,30 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
 
         <!-- Database -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.5</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -66,24 +83,11 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- MapStruct -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.5.5.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>1.5.5.Final</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Stripe + Mail -->
         <dependency>
             <groupId>com.stripe</groupId>
             <artifactId>stripe-java</artifactId>
-            <version>25.0.0</version>
+            <version>25.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,6 +1,6 @@
 package com.vrroom.repository;
 
-import com.vrroom.domain.entity.Holiday;
+import com.vrroom.model.entity.Holiday;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

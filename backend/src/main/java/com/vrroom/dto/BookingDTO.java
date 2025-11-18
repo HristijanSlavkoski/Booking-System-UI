@@ -1,7 +1,7 @@
 package com.vrroom.dto;
 
-import com.vrroom.domain.enums.BookingStatus;
-import com.vrroom.domain.enums.PaymentMethod;
+import com.vrroom.model.enums.BookingStatus;
+import com.vrroom.model.enums.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

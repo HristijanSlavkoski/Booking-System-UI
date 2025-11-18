@@ -1,17 +1,17 @@
-package com.vrroom.domain.entity;
+package com.vrroom.model.entity;
 
+import com.vrroom.model.enums.GiftCardStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,53 +19,40 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * @author Hristijan Slavkoski
  */
 @Entity
-@Table(name = "promotion")
+@Table(name = "gift_card")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Promotion
+public class GiftCard
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-    @Column
-    private String name;
-
-    @Column
-    private String description;
-
-    @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal discount = BigDecimal.valueOf(0.0);
+    @Column(nullable = false, length = 36, unique = true)
+    private String code;
 
     @Column(nullable = false)
-    private LocalDate validFrom;
+    private BigDecimal price;
 
-    @Column(nullable = false)
-    private LocalDate validTo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
-    private Game game;
-
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
     @Builder.Default
-    private Boolean active = true;
+    private GiftCardStatus status = GiftCardStatus.INACTIVE;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+    @Column
+    private LocalDateTime usedAt;
 }

@@ -1,7 +1,7 @@
 // package com.vrroom.controller;
 package com.vrroom.controller;
 
-import com.vrroom.domain.entity.GiftCard;
+import com.vrroom.model.entity.GiftCard;
 import com.vrroom.dto.GiftCardPeekResponse;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.GiftCardRepository;

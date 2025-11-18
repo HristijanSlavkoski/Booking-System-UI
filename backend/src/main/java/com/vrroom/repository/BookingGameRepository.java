@@ -1,7 +1,7 @@
 package com.vrroom.repository;
 
-import com.vrroom.domain.entity.BookingGame;
-import com.vrroom.domain.enums.BookingStatus;
+import com.vrroom.model.entity.BookingGame;
+import com.vrroom.model.enums.BookingStatus;
 import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalTime;

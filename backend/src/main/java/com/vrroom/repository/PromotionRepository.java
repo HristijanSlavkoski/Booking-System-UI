@@ -1,6 +1,6 @@
 package com.vrroom.repository;
 
-import com.vrroom.domain.entity.Promotion;
+import com.vrroom.model.entity.Promotion;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

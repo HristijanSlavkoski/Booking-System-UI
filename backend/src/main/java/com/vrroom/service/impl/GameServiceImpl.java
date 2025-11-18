@@ -2,7 +2,7 @@ package com.vrroom.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vrroom.domain.entity.Game;
+import com.vrroom.model.entity.Game;
 import com.vrroom.dto.GameDTO;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.GameRepository;

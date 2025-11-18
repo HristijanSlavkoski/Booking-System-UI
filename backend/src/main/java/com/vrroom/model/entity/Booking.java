@@ -1,7 +1,7 @@
-package com.vrroom.domain.entity;
+package com.vrroom.model.entity;
 
-import com.vrroom.domain.enums.BookingStatus;
-import com.vrroom.domain.enums.PaymentMethod;
+import com.vrroom.model.enums.BookingStatus;
+import com.vrroom.model.enums.PaymentMethod;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,7 +1,7 @@
 // package com.vrroom.dto;
 package com.vrroom.dto;
 
-import com.vrroom.domain.enums.GiftCardStatus;
+import com.vrroom.model.enums.GiftCardStatus;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Data;

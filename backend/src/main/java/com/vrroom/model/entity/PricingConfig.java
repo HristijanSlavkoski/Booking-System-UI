@@ -1,4 +1,4 @@
-package com.vrroom.domain.entity;
+package com.vrroom.model.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -8,12 +8,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,48 +24,27 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "game")
+@Table(name = "pricing_config")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class Game
+public class PricingConfig
 {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false, unique = true, length = 64)
-    private String code;
-
-    @Column(length = 2000)
-    private String description;
-
-    @Column(nullable = false)
-    private Integer duration;
-
-    @Column(nullable = false)
-    private Integer minPlayers;
-
-    @Column(nullable = false)
-    private Integer maxPlayers;
-
-    @Column(nullable = false)
-    private Integer difficulty;
-
-    private String imageUrl;
+    @OneToMany(mappedBy = "pricingConfig", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("minPlayers ASC")
+    @Builder.Default
+    private List<PricingTier> tiers = new ArrayList<>();
 
     @Column(nullable = false)
     @Builder.Default
     private Boolean active = true;
-
-    @OneToMany(mappedBy = "game")
-    private Set<BookingGame> bookingGames = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

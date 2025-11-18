@@ -20,33 +20,6 @@ services:
       timeout: 5s
       retries: 5
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:23.0
-    container_name: vrroom-keycloak
-    command:
-      - start-dev
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: vrroom
-      KC_DB_PASSWORD: vrroom123
-      KC_HOSTNAME_STRICT: false
-      KC_HTTP_ENABLED: true
-    ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - vrroom-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
 volumes:
   postgres_data:
 

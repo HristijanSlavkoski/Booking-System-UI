@@ -1,6 +1,6 @@
 package com.vrroom.dto;
 
-import com.vrroom.domain.enums.PaymentMethod;
+import com.vrroom.model.enums.PaymentMethod;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;

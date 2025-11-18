@@ -1,6 +1,6 @@
 package com.vrroom.repository;
 
-import com.vrroom.domain.entity.Game;
+import com.vrroom.model.entity.Game;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

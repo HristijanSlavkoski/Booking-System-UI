@@ -1,7 +1,7 @@
 package com.vrroom.repository;
 
-import com.vrroom.domain.entity.Booking;
-import com.vrroom.domain.enums.BookingStatus;
+import com.vrroom.model.entity.Booking;
+import com.vrroom.model.enums.BookingStatus;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,8 +26,8 @@ public interface BookingRepository extends JpaRepository<Booking, String>
         where b.bookingDate = :date
           and b.bookingTime = :time
           and b.status in (
-              com.vrroom.domain.enums.BookingStatus.PENDING,
-              com.vrroom.domain.enums.BookingStatus.CONFIRMED
+              com.vrroom.model.enums.BookingStatus.PENDING,
+              com.vrroom.model.enums.BookingStatus.CONFIRMED
           )
     """)
     Integer countBookedRoomsByDateAndTime(@Param("date") LocalDate date,

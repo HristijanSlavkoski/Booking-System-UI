@@ -1,7 +1,7 @@
 package com.vrroom.service.impl;
 
-import com.vrroom.domain.entity.Game;
-import com.vrroom.domain.entity.Promotion;
+import com.vrroom.model.entity.Game;
+import com.vrroom.model.entity.Promotion;
 import com.vrroom.dto.PromotionDTO;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.GameRepository;

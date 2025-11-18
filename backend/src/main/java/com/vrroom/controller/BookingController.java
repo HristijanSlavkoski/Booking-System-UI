@@ -1,9 +1,11 @@
 package com.vrroom.controller;
 
-import com.vrroom.domain.enums.BookingStatus;
 import com.vrroom.dto.Availability;
 import com.vrroom.dto.BookingDTO;
 import com.vrroom.dto.CreateBookingRequest;
+import com.vrroom.model.entity.User;
+import com.vrroom.model.enums.BookingStatus;
+import com.vrroom.service.AvailabilityService;
 import com.vrroom.service.BookingService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -14,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,9 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "${cors.allowed-origins}")
 public class BookingController
 {
-
     private final BookingService bookingService;
-    private final com.vrroom.service.AvailabilityService availabilityService;
+    private final AvailabilityService availabilityService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -36,15 +36,14 @@ public class BookingController
 
     @GetMapping("/my-bookings")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<BookingDTO>> getMyBookings(@AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<List<BookingDTO>> getMyBookings(@AuthenticationPrincipal User user)
     {
-        String userId = jwt.getSubject();
-        return ResponseEntity.ok(bookingService.getBookingsByUserId(userId));
+        return ResponseEntity.ok(bookingService.getBookingsByUserId(user.getId()));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<BookingDTO> getBookingById(@PathVariable String id)
+    public ResponseEntity<BookingDTO> getBookingById(@PathVariable String id, @AuthenticationPrincipal User user)
     {
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
@@ -60,8 +59,7 @@ public class BookingController
     public List<Availability.DayScheduleDto> getAvailability(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) String gameId // optional if you want to filter by game
-    )
+            @RequestParam(required = false) String gameId)
     {
         return availabilityService.getAvailabilityForRange(startDate, endDate, gameId);
     }
@@ -69,10 +67,9 @@ public class BookingController
     @PostMapping
     public ResponseEntity<BookingDTO> createBooking(
             @Valid @RequestBody CreateBookingRequest request,
-            @AuthenticationPrincipal Jwt jwt) throws Exception
+            @AuthenticationPrincipal User user) throws Exception
     {
-
-        String userId = (jwt != null) ? jwt.getSubject() : null;
+        String userId = (user != null) ? user.getId() : null;
         BookingDTO created = bookingService.createBooking(request, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(created);

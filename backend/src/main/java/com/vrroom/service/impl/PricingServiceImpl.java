@@ -1,8 +1,8 @@
 package com.vrroom.service.impl;
 
-import com.vrroom.domain.entity.Game;
-import com.vrroom.domain.entity.PricingConfig;
-import com.vrroom.domain.entity.PricingTier;
+import com.vrroom.model.entity.Game;
+import com.vrroom.model.entity.PricingConfig;
+import com.vrroom.model.entity.PricingTier;
 import com.vrroom.dto.CreateBookingRequest;
 import com.vrroom.dto.PricingPreviewDTO;
 import com.vrroom.dto.PromotionDTO;

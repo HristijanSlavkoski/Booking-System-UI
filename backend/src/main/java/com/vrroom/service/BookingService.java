@@ -1,8 +1,8 @@
 package com.vrroom.service;
 
-import com.vrroom.domain.enums.BookingStatus;
 import com.vrroom.dto.BookingDTO;
 import com.vrroom.dto.CreateBookingRequest;
+import com.vrroom.model.enums.BookingStatus;
 import java.util.List;
 
 public interface BookingService

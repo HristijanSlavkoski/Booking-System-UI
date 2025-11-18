@@ -1,7 +1,7 @@
 package com.vrroom.service.impl;
 
-import com.vrroom.domain.entity.SystemConfig;
-import com.vrroom.domain.enums.BookingStatus;
+import com.vrroom.model.entity.SystemConfig;
+import com.vrroom.model.enums.BookingStatus;
 import com.vrroom.dto.Availability.DayScheduleDto;
 import com.vrroom.dto.Availability.TimeSlotAvailabilityDto;
 import com.vrroom.exception.ResourceNotFoundException;

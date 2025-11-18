@@ -1,7 +1,7 @@
 package com.vrroom.service.impl;
 
-import com.vrroom.domain.entity.GiftCard;
-import com.vrroom.domain.enums.GiftCardStatus;
+import com.vrroom.model.entity.GiftCard;
+import com.vrroom.model.enums.GiftCardStatus;
 import com.vrroom.exception.ResourceNotFoundException;
 import com.vrroom.repository.GiftCardRepository;
 import com.vrroom.service.GiftCardService;

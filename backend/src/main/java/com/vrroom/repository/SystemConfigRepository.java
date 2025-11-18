@@ -1,6 +1,6 @@
 package com.vrroom.repository;
 
-import com.vrroom.domain.entity.SystemConfig;
+import com.vrroom.model.entity.SystemConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

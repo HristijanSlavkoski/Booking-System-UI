@@ -10,7 +10,7 @@ export interface GiftCardPeekResponse {
 }
 
 @Injectable({providedIn: 'root'})
-export class GiftCardUiService {
+export class GiftCardService {
     private api = inject(ApiService);
 
     peek(code: string): Observable<GiftCardPeekResponse> {

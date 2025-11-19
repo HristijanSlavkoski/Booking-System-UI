@@ -1,0 +1,70 @@
+<div class="games-list-page">
+    <header class="page-header">
+        <h1>Our VR Games</h1>
+        <p>Choose your next adventure from our collection of immersive experiences.</p>
+    </header>
+
+    @if (loading()) {
+        <app-loading
+                [message]="'Loading games…'"
+                [fullscreen]="true">
+        </app-loading>
+    } @else {
+        <div class="games-container">
+            @if (games().length > 0) {
+                <div class="games-grid">
+                    @for (game of games(); track game.id) {
+                        <article class="game-card card">
+                            <div class="game-image">
+                                <img
+                                        [src]="game.imageUrl"
+                                        [alt]="game.name"/>
+
+                                <div class="game-overlay">
+                                    <app-button variant="outline" (clicked)="viewGame(game.id)">
+                                        View Details
+                                    </app-button>
+                                    <app-button (clicked)="bookGame(game.code)">
+                                        Book Now
+                                    </app-button>
+                                </div>
+                            </div>
+
+                            <div class="game-content">
+                                <div class="game-header-row">
+                                    <h2 class="game-title">{{ game.name }}</h2>
+
+                                    <span
+                                            class="game-difficulty-badge"
+                                            [ngClass]="getDifficultyClass(game.difficulty)">
+                    {{ getDifficultyLabel(game.difficulty) }}
+                  </span>
+                                </div>
+
+                                <p class="game-description">
+                                    {{ game.description }}
+                                </p>
+
+                                <div class="game-details">
+                                    <div class="detail-item">
+                                        <span class="detail-icon">⏱️</span>
+                                        <span>{{ game.duration }} minutes</span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <span class="detail-icon">👥</span>
+                                        <span>{{ game.minPlayers }}–{{ game.maxPlayers }} players</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            } @else {
+                <div class="empty-state">
+                    <p>No games available at the moment. Please check back later!</p>
+                </div>
+            }
+        </div>
+    }
+</div>

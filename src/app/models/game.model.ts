@@ -9,7 +9,7 @@ export interface Game {
   minPlayers: number;
   maxPlayers: number;
   difficulty: number;
-  isActive: boolean;
+  active: boolean;
   tags: string[];
   createdAt: Date;
   updatedAt: Date;

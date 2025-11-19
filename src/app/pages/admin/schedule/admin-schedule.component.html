@@ -1,0 +1,103 @@
+<!-- src/app/pages/admin/schedule/admin-schedule.component.html -->
+<div class="admin-schedule-page">
+    <div class="page-header">
+        <h1>Schedule</h1>
+        <p>See all bookings grouped by time for a selected day.</p>
+    </div>
+
+    <section class="card schedule-controls">
+        <div class="date-controls">
+            <div class="date-left">
+                <span class="label">Selected date</span>
+                <input
+                        type="date"
+                        class="date-input"
+                        [value]="selectedDate()"
+                        (change)="onDateChange($event)"
+                />
+            </div>
+
+            <div class="date-buttons">
+                <app-button variant="ghost" (clicked)="changeDay(-1)">
+                    ← Previous
+                </app-button>
+                <app-button variant="ghost" (clicked)="setToday()">
+                    Today
+                </app-button>
+                <app-button variant="ghost" (clicked)="changeDay(1)">
+                    Next →
+                </app-button>
+            </div>
+        </div>
+
+        <div class="legend">
+      <span class="legend-item">
+        <span class="dot dot-confirmed"></span>
+        Confirmed
+      </span>
+            <span class="legend-item">
+        <span class="dot dot-pending"></span>
+        Pending
+      </span>
+            <span class="legend-item">
+        <span class="dot dot-cancelled"></span>
+        Cancelled / No-show
+      </span>
+        </div>
+    </section>
+
+    @if (loading()) {
+        <app-loading
+                [message]="'admin.schedule.loading' | translate : { default: 'Loading schedule…' }"
+        ></app-loading>
+    } @else {
+        @if (slots().length === 0) {
+            <p class="empty-message">No bookings for this date.</p>
+        } @else {
+            <section class="card schedule-grid">
+                @for (slot of slots(); track slot.time) {
+                    <div class="time-column">
+                        <div class="time-header">
+                            <div class="time-pill">
+                                {{ slot.time.slice(0, 5) }}
+                            </div>
+                            <div class="time-count">
+                                {{ slot.bookings.length }}
+                                {{ slot.bookings.length === 1 ? 'booking' : 'bookings' }}
+                            </div>
+                        </div>
+
+                        <div class="time-bookings">
+                            @for (booking of slot.bookings; track booking.id) {
+                                <div
+                                        class="booking-chip"
+                                        [ngClass]="getStatusClass(booking.status)"
+                                >
+                                    <div class="chip-main">
+                                        <div class="chip-title">
+                                            {{ getGameName(booking) }}
+                                        </div>
+                                        <div class="chip-sub">
+                                            {{ booking.customerFirstName }}
+                                            {{ booking.customerLastName }} ·
+                                            {{ getPlayerCount(booking) }} players
+                                        </div>
+                                    </div>
+                                    <div class="chip-meta">
+                    <span class="chip-status">
+                      {{ booking.status }}
+                    </span>
+                                        <span class="chip-price">
+                      {{ booking.totalPrice | number : '1.0-0' }}
+                                            {{ booking.currency || 'MKD' }}
+                    </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+        }
+    }
+</div>

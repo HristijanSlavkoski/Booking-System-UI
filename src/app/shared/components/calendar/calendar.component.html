@@ -1,4 +1,4 @@
-<div class="calendar-container">
+<div class="calendar-container card">
     @if (gameData) {
         <div class="game-banner">
             <img *ngIf="gameData.imageUrl" [src]="gameData.imageUrl" alt="" class="game-thumb"/>
@@ -23,8 +23,8 @@
                                     <span class="reviews_star"></span>
                                 </div>
 
-                                <!-- red fill equals N * 20% -->
-                                <div class="reviews_stars_hover" [style.width.%]="difficultyPercent(gameData.difficulty)">
+                                <div class="reviews_stars_hover"
+                                     [style.width.%]="difficultyPercent(gameData.difficulty)">
                                     <span class="reviews_star"></span>
                                     <span class="reviews_star"></span>
                                     <span class="reviews_star"></span>
@@ -35,11 +35,18 @@
                         </div>
                     }
                 </div>
+
                 @if (gameData.shortDescription) {
                     <div class="game-desc">{{ gameData.shortDescription }}</div>
                 }
 
-                <button class="banner-clear" (click)="onClearGameClick($event)" title="{{ 'calendar.clearGame' | translate }}">✕</button>
+                <button
+                        class="banner-clear"
+                        (click)="onClearGameClick($event)"
+                        title="{{ 'calendar.clearGame' | translate }}"
+                >
+                    ✕
+                </button>
             </div>
         </div>
     }
@@ -47,30 +54,42 @@
     <div class="calendar-header">
         <button class="nav-btn" (click)="previousWeek()" [disabled]="!canGoPrevious()">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                      clip-rule="evenodd"/>
+                <path
+                        fill-rule="evenodd"
+                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                />
             </svg>
         </button>
         <h3 class="calendar-title">{{ getWeekRange() }}</h3>
         <button class="nav-btn" (click)="nextWeek()">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clip-rule="evenodd"/>
+                <path
+                        fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd"
+                />
             </svg>
         </button>
     </div>
 
     <div class="legend">
-        <div class="legend-item"><span
-                class="legend-dot available"></span><span>{{ 'calendar.legend.available' | translate }}</span></div>
-        <div class="legend-item"><span
-                class="legend-dot reserved"></span><span>{{ 'calendar.legend.reserved' | translate }}</span></div>
-        <div class="legend-item"><span
-                class="legend-dot booked"></span><span>{{ 'calendar.legend.booked' | translate }}</span></div>
-        <div class="legend-item"><span
-                class="legend-dot unavailable"></span><span>{{ 'calendar.legend.unavailable' | translate }}</span></div>
+        <div class="legend-item">
+      <span class="legend-dot available"></span
+      ><span>{{ 'calendar.legend.available' | translate }}</span>
+        </div>
+        <div class="legend-item">
+      <span class="legend-dot reserved"></span
+      ><span>{{ 'calendar.legend.reserved' | translate }}</span>
+        </div>
+        <div class="legend-item">
+      <span class="legend-dot booked"></span
+      ><span>{{ 'calendar.legend.booked' | translate }}</span>
+        </div>
+        <div class="legend-item">
+      <span class="legend-dot unavailable"></span
+      ><span>{{ 'calendar.legend.unavailable' | translate }}</span>
+        </div>
     </div>
 
     <div class="schedule-grid" [style.opacity]="loading() ? 0.6 : 1">

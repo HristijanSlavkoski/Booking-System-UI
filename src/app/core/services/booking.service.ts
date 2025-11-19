@@ -1,51 +1,57 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ApiService } from './api.service';
-import { GameService } from './game.service';
-import { Booking, BookingRequest, BookingResponse } from '../../models/booking.model';
+import {inject, Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {ApiService} from './api.service';
+import {GameService} from './game.service';
+import {Booking, BookingRequest, BookingResponse, BookingStatus} from '../../models/booking.model';
 import {DaySchedule} from "../../shared/components/calendar/calendar.component";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class BookingService {
-  private apiService = inject(ApiService);
-  private gameService = inject(GameService);
+    private apiService = inject(ApiService);
+    private gameService = inject(GameService);
 
-  getAllBookings(params?: any): Observable<Booking[]> {
-    return this.apiService.get<Booking[]>('/bookings', params);
-  }
+    getAllBookings(params?: any): Observable<Booking[]> {
+        return this.apiService.get<Booking[]>('/bookings', params);
+    }
 
-  getBookingById(id: string): Observable<Booking> {
-    return this.apiService.get<Booking>(`/bookings/${id}`);
-  }
+    getBookingById(id: string): Observable<Booking> {
+        return this.apiService.get<Booking>(`/bookings/${id}`);
+    }
 
-  getUserBookings(): Observable<Booking[]> {
-    return this.apiService.get<Booking[]>('/bookings/my-bookings');
-  }
+    getUserBookings(): Observable<Booking[]> {
+        return this.apiService.get<Booking[]>('/bookings/my-bookings');
+    }
 
-  getBookingsByDate(date: string): Observable<Booking[]> {
-    return this.apiService.get<Booking[]>('/bookings/by-date', { date });
-  }
+    getBookingsByDate(date: string): Observable<Booking[]> {
+        return this.apiService.get<Booking[]>('/bookings/by-date', {date});
+    }
 
-  createBooking(bookingRequest: BookingRequest): Observable<BookingResponse> {
-    return this.apiService.post<BookingResponse>('/bookings', bookingRequest);
-  }
+    getBookingsByStatus(status: BookingStatus): Observable<Booking[]> {
+        return this.apiService.get<Booking[]>(`/bookings/status/${status}`);
+    }
 
-  cancelBooking(id: string, reason?: string): Observable<Booking> {
-    return this.apiService.put<Booking>(`/bookings/${id}/cancel`, { reason });
-  }
+    createBooking(bookingRequest: BookingRequest): Observable<BookingResponse> {
+        return this.apiService.post<BookingResponse>('/bookings', bookingRequest);
+    }
 
-  updateBookingStatus(id: string, status: string): Observable<Booking> {
-    return this.apiService.put<Booking>(`/bookings/${id}/status`, { status });
-  }
+    cancelBooking(id: string): Observable<void> {
+        return this.apiService.delete<void>(`/bookings/${id}`);
+    }
 
-  getAvailableSlots(date: string): Observable<any> {
-    return this.apiService.get<any>('/bookings/available-slots', { date });
-  }
+    updateBookingStatus(id: string, status: BookingStatus): Observable<Booking> {
+        return this.apiService.patch<Booking>(
+            `/bookings/${id}/status?status=${status}`,
+            {}
+        );
+    }
 
-  getAvailability(startDate: string, endDate: string): Observable<DaySchedule[]> {
-    return this.apiService.get<DaySchedule[]>('/bookings/availability', { startDate, endDate });
-  }
+    getAvailableSlots(date: string): Observable<any> {
+        return this.apiService.get<any>('/bookings/available-slots', {date});
+    }
 
+    getAvailability(startDate: string, endDate: string): Observable<DaySchedule[]> {
+        return this.apiService.get<DaySchedule[]>('/bookings/availability', {startDate, endDate});
+    }
 }

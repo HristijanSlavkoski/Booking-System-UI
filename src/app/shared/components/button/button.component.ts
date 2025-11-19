@@ -10,7 +10,7 @@ import {CommonModule} from '@angular/common';
 })
 export class ButtonComponent {
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() variant: 'primary' | 'secondary' | 'success' | 'danger' | 'outline' = 'primary';
+  @Input() variant: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' = 'primary';
   @Input() size: 'small' | 'medium' | 'large' = 'medium';
   @Input() fullWidth = false;
   @Input() disabled = false;

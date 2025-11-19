@@ -24,6 +24,7 @@ import com.vrroom.service.GiftCardService;
 import com.vrroom.service.PaymentService;
 import com.vrroom.service.PricingService;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +72,15 @@ public class BookingServiceImpl implements BookingService
     {
         log.debug("Fetching bookings by status: {}", status);
         return bookingRepository.findByStatus(status).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BookingDTO> getBookingsByDate(LocalDate date)
+    {
+        log.debug("Fetching bookings for date: {}", date);
+        return bookingRepository.findByBookingDate(date).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

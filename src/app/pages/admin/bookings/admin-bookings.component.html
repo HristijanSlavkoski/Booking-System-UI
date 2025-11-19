@@ -1,0 +1,133 @@
+<!-- src/app/pages/admin/bookings/admin-bookings.component.html -->
+<div class="admin-bookings">
+    <div class="bookings-header">
+        <div>
+            <h1>Bookings</h1>
+            <p>Review and manage all bookings.</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>Status</label>
+                <select
+                        [ngModel]="filterStatus()"
+                        (ngModelChange)="onStatusChange($event)"
+                >
+                    <option
+                            *ngFor="let opt of statusOptions"
+                            [ngValue]="opt.value"
+                    >
+                        {{ opt.label }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Date</label>
+                <input
+                        type="date"
+                        [ngModel]="filterDate()"
+                        (ngModelChange)="onDateChange($event)"
+                />
+            </div>
+
+            <div class="filter-actions">
+                <app-button
+                        variant="outline"
+                        (clicked)="clearFilters()"
+                >
+                    Clear
+                </app-button>
+
+                <app-button
+                        variant="secondary"
+                        (clicked)="refresh()"
+                >
+                    Refresh
+                </app-button>
+            </div>
+        </div>
+    </div>
+
+    @if (loading()) {
+        <app-loading message="Loading bookings..."></app-loading>
+    } @else {
+        @if (bookings().length === 0) {
+            <p class="empty-message">No bookings found for the selected filters.</p>
+        } @else {
+            <div class="bookings-table-wrapper">
+                <table class="bookings-table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Customer</th>
+                        <th>Game(s)</th>
+                        <th>Players</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th class="actions-col">Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (booking of bookings(); track booking.id) {
+                            <tr>
+                                <td>{{ booking.bookingDate }}</td>
+                                <td>{{ booking.bookingTime }}</td>
+                                <td>{{ getCustomerName(booking) }}</td>
+                                <td>{{ getGameSummary(booking) }}</td>
+                                <td>{{ getTotalPlayers(booking) }}</td>
+                                <td>{{ booking.totalPrice }} MKD</td>
+                                <td>
+                  <span [class]="getStatusClass(booking.status)">
+                    {{ booking.status }}
+                  </span>
+                                </td>
+                                <td>
+                  <span class="payment-badge">
+                    {{ getPaymentLabel(booking.paymentMethod) }}
+                  </span>
+                                </td>
+                                <td class="actions-col">
+                                    <div class="actions">
+                                        @if (canConfirm(booking)) {
+                                            <app-button
+                                                    variant="success"
+                                                    size="small"
+                                                    (clicked)="changeStatus(booking, BookingStatus.CONFIRMED)"
+                                            >
+                                                Confirm
+                                            </app-button>
+                                        }
+
+                                        @if (canComplete(booking)) {
+                                            <app-button
+                                                    variant="secondary"
+                                                    size="small"
+                                                    (clicked)="changeStatus(booking, BookingStatus.COMPLETED)"
+                                            >
+                                                Complete
+                                            </app-button>
+                                        }
+
+                                        @if (canCancel(booking)) {
+                                            <app-button
+                                                    variant="danger"
+                                                    size="small"
+                                                    (clicked)="cancelBooking(booking)"
+                                            >
+                                                Cancel
+                                            </app-button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>

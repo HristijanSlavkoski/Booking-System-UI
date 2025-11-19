@@ -83,7 +83,8 @@
     "giftCard": {
       "title": "Gift card",
       "code": "Gift card code",
-      "placeholder": "Enter gift card code"
+      "placeholder": "Enter gift card code",
+      "optional": "Optional"
     },
     "yourInformation": {
       "title": "Your Information",

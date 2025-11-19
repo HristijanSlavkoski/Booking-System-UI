@@ -130,6 +130,7 @@ public class GameServiceImpl implements GameService
         log.info("Creating new game: {}", gameDTO.getName());
         Game game = Game.builder()
                 .name(gameDTO.getName())
+                .code(gameDTO.getCode())
                 .description(gameDTO.getDescription())
                 .duration(gameDTO.getDuration())
                 .minPlayers(gameDTO.getMinPlayers())

@@ -1,45 +1,55 @@
+:host {
+  display: block;
+}
+
+/* Base container (inline or inside cards) */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  color: var(--color-text-secondary);
 }
 
+/* Fullscreen overlay mode */
 .loading-container.fullscreen {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  z-index: 9999;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  background: rgba(0, 0, 0, 0.65); /* works with dark + light */
+  backdrop-filter: blur(4px);
 }
 
+/* Spinner – shares the same animation name as button spinner */
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #667eea;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  animation: loading-spin 0.8s linear infinite;
 }
 
 .spinner.large {
-  width: 60px;
-  height: 60px;
-  border-width: 6px;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-width: 4px;
 }
 
-@keyframes spin {
+/* If you already have @keyframes spin globally, you can reuse it.
+   Otherwise this is safe & scoped. */
+@keyframes loading-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
 .loading-message {
-  color: #6b7280;
-  font-size: 0.875rem;
   margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  text-align: center;
 }

@@ -1,15 +1,14 @@
 .header {
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 .header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 0.85rem var(--spacing-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -20,17 +19,17 @@
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
-  transition: transform 0.3s ease;
-}
+  transition: transform var(--transition-fast);
 
-.header-logo:hover {
-  transform: scale(1.05);
+  &:hover {
+    transform: scale(1.03);
+  }
 }
 
 .logo-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-size: 1.4rem;
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -42,25 +41,33 @@
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
+
+/* NAV */
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: var(--spacing-lg);
 }
 
 .nav-links a {
   text-decoration: none;
-  color: #374151;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: 0.95rem;
   position: relative;
+  padding-bottom: 0.1rem;
+  transition: color var(--transition-fast);
 }
 
 .nav-links a:hover {
-  color: #667eea;
+  color: var(--color-primary);
+}
+
+.nav-links a.active {
+  color: var(--color-text-primary);
 }
 
 .nav-links a.active::after {
@@ -70,36 +77,56 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #667eea;
+  border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+/* Auth / user */
+
+.user-welcome {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
 }
 
 .login-link {
-  padding: 0.5rem 1.5rem;
-  border: 2px solid #667eea;
-  border-radius: 0.5rem;
-  color: #667eea;
-  transition: all 0.3s ease;
-}
+  padding: 0.4rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: all var(--transition-fast);
 
-.login-link:hover {
-  background: #667eea;
-  color: #ffffff;
+  &:hover {
+    color: color-mix(in srgb, var(--color-primary) 80%, #ffffff 20%);
+    box-shadow: var(--shadow-glow);
+  }
 }
 
 .logout-btn {
-  background: #dc3545;
-  color: #ffffff;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
+  background: transparent;
+  color: var(--color-error);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-error);
+  padding: 0.4rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--color-error);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  }
 }
 
-.logout-btn:hover {
-  background: #c82333;
-}
+/* MOBILE */
 
 @media (max-width: 768px) {
   .mobile-menu-btn {
@@ -108,17 +135,18 @@
 
   .nav-links {
     position: fixed;
-    top: 73px;
+    top: var(--header-height);
     left: 0;
     right: 0;
-    background: #ffffff;
+    background: var(--color-bg-secondary);
     flex-direction: column;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-xl) var(--spacing-md);
+    box-shadow: var(--shadow-overlay);
     transform: translateY(-100%);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
+    gap: var(--spacing-md);
   }
 
   .nav-links.mobile-open {
@@ -130,10 +158,12 @@
   .nav-links a {
     width: 100%;
     text-align: center;
-    padding: 0.75rem;
+    padding: 0.5rem 0;
   }
 
-  .logout-btn {
+  .logout-btn,
+  .login-link {
     width: 100%;
+    text-align: center;
   }
 }

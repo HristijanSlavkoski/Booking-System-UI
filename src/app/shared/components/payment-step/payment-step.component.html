@@ -1,6 +1,5 @@
 <div class="step-content">
-    <h2>{{ 'booking.paymentMethod' | translate : {default: 'Payment Method'} }}</h2>
-
+    <!-- Booking summary -->
     <app-booking-summary
             [date]="date"
             [time]="time"
@@ -12,53 +11,64 @@
             [total]="total"
             [taxPercent]="taxPercent"
             [currency]="currency"
-
             [baseTotal]="baseTotal"
             [promoTotal]="promoTotal"
             [promoPercent]="promoPercent"
             [promoName]="promoName"
-
             [giftCardAmount]="store.giftCardAmount()"
             [giftCardCode]="store.giftCardCode()"
     ></app-booking-summary>
 
-    <!-- 💳 Gift card BEFORE contact details -->
-    <div class="form-section">
-        <h3>
-            {{ 'booking.giftCard.title' | translate : {default: 'Gift card'} }}
-        </h3>
-        <div class="gift-grid">
-            <label>
-                {{ 'booking.giftCard.code' | translate : {default: 'Gift card code'} }}
-                <input
-                        type="text"
-                        placeholder="{{ 'booking.giftCard.placeholder' | translate : { default: 'Enter gift card code' } }}"
-                        [(ngModel)]="giftCode"
-                        [disabled]="giftLoading || submitting"
-                />
-            </label>
+    <!-- 🎁 Gift card -->
+    <section class="form-section gift-section card">
+        <div class="gift-header">
+            <h3>
+                {{ 'booking.giftCard.title' | translate : {default: 'Gift card'} }}
+            </h3>
 
-            <div class="gift-actions">
+            <span class="form-section-tag">
+            {{ 'booking.giftCard.optional' | translate : {default: 'Optional'} }}
+        </span>
+        </div>
+
+        <div class="gift-card-body">
+            <div class="gift-input-row">
+                <label>
+                    {{ 'booking.giftCard.code' | translate : {default: 'Gift card code'} }}
+                    <input
+                            type="text"
+                            class="input-field"
+                            placeholder="{{ 'booking.giftCard.placeholder' | translate : {default: 'Enter gift card code'} }}"
+                            [(ngModel)]="giftCode"
+                            [disabled]="giftLoading || submitting"
+                    />
+                </label>
+
                 <app-button
+                        class="gift-apply-btn"
                         (clicked)="applyGiftCard()"
                         [disabled]="giftLoading || submitting || !giftCode.trim()"
                 >
                     {{ giftLoading ? 'Checking...' : 'Apply' }}
                 </app-button>
+            </div>
 
-                <div class="gift-status" *ngIf="giftError">
+            <div class="gift-status-row">
+                <div *ngIf="giftError" class="gift-status gift-status--error">
                     {{ giftError }}
                 </div>
-                <div
-                        class="gift-status success"
-                        *ngIf="!giftError && store.giftCardAmount() > 0"
-                >
-                    Gift card applied:
-                    -{{ store.giftCardAmount() | number: '1.0-0' }} {{ currency }}
+
+                <div *ngIf="!giftError && store.giftCardAmount() > 0"
+                     class="gift-status gift-status--success">
+                <span>
+                  Gift card applied:
+                  -{{ store.giftCardAmount() | number: '1.0-0' }} {{ currency }}
+                    <span *ngIf="store.giftCardCode()"> ({{ store.giftCardCode() }})</span>
+                </span>
 
                     <button
                             type="button"
-                            class="remove-gift-btn"
+                            class="gift-remove-btn"
                             (click)="removeGiftCard()"
                             title="Remove gift card"
                     >
@@ -67,31 +77,44 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- 🧍‍♀️ Contact details (unchanged) -->
+    <!-- 🧍‍♀️ Contact details -->
     <app-contact-details
             [customer]="store.customerInfo()"
             (customerChange)="store.setCustomerInfo($event)"
     ></app-contact-details>
 
     <!-- 💳 Payment method -->
-    <div class="form-section">
-        <h3>{{ 'booking.selectPaymentMethod' | translate : {default: 'Choose Payment Method'} }}</h3>
+    <section class="form-section">
+        <h3>
+            {{
+                'booking.selectPaymentMethod'
+                    | translate : {default: 'Choose Payment Method'}
+            }}
+        </h3>
+
         <app-payment-method-selector
                 [paymentMethod]="paymentMethod"
                 (paymentMethodChange)="paymentMethodChange.emit($event)"
         ></app-payment-method-selector>
-    </div>
+    </section>
 
+    <!-- Step actions -->
     <div class="step-actions">
-        <app-button variant="outline" (clicked)="back.emit()">Back</app-button>
+        <app-button variant="outline" (clicked)="back.emit()">
+            {{ 'common.back' | translate : {default: 'Back'} }}
+        </app-button>
+
         <app-button
                 (clicked)="submit.emit()"
                 [disabled]="!paymentMethod || !isCustomerValid"
-                [loading]="submitting"
-        >
-            {{ paymentMethod === 'ONLINE' ? 'Proceed to Payment' : 'Complete Booking' }}
+                [loading]="submitting">
+            {{
+                paymentMethod === 'ONLINE'
+                    ? ('booking.proceedToPayment' | translate : {default: 'Proceed to Payment'})
+                    : ('booking.completeBooking' | translate : {default: 'Complete Booking'})
+            }}
         </app-button>
     </div>
 </div>

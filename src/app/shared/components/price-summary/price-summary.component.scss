@@ -3,39 +3,39 @@
 }
 
 .price-summary {
-  color: #eee;
+  color: var(--color-text-primary);
   font-family: inherit;
 
   .line {
     display: flex;
     justify-content: space-between;
-    padding: .35rem 0;
+    padding: var(--spacing-xs) 0;
+    border: none; /* 🚫 override any global .line border */
 
     .label {
-      color: #bbb;
+      color: var(--color-text-secondary);
     }
 
     .value {
-      color: #fff;
-      font-weight: 600;
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium);
     }
   }
 
   .line.total {
     font-size: 1.1rem;
-    font-weight: 800;
-    color: #fff;
+    font-weight: var(--font-weight-black);
 
     .label {
-      color: #fff;
+      color: var(--color-text-primary);
     }
 
     .value {
-      color: #fff;
+      color: var(--color-text-primary);
     }
   }
 
   .line.small {
-    font-size: .95rem;
+    font-size: 0.95rem;
   }
 }

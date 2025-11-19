@@ -10,8 +10,7 @@
                 [class.error]="notification.type === 'error'"
                 [class.warning]="notification.type === 'warning'"
                 [class.info]="notification.type === 'info'"
-                [attr.role]="notification.type === 'error' ? 'alert' : 'status'"
-        >
+                [attr.role]="notification.type === 'error' ? 'alert' : 'status'">
             <div class="notification-icon">
                 @switch (notification.type) {
                     @case ('success') {
@@ -29,7 +28,7 @@
                         </svg>
                     }
                     @case ('warning') {
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 20 20  " fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd"
                                   d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                                   clip-rule="evenodd"/>
@@ -45,16 +44,19 @@
                 }
             </div>
 
-            <div class="notification-message">{{ notification.message }}</div>
+            <div class="notification-message">
+                {{ notification.message }}
+            </div>
 
             <button
                     class="notification-close"
+                    type="button"
                     (click)="notificationService.remove(notification.id)"
-                    aria-label="Close notification"
-            >
+                    aria-label="Close notification">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                     <path
-                            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+                    />
                 </svg>
             </button>
         </div>

@@ -1,0 +1,270 @@
+/* src/app/pages/admin/schedule/admin-schedule.component.scss */
+:host {
+  display: block;
+}
+
+.admin-schedule-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+
+  h1 {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+  }
+}
+
+/* ─────────────────────────────
+ * Controls
+ * ──────────────────────────── */
+
+.schedule-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+
+.date-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.date-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+  }
+}
+
+.date-input {
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font: inherit;
+  min-width: 210px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+}
+
+.date-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* legend */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+  }
+
+  .dot-confirmed {
+    background: color-mix(in srgb, var(--color-success) 80%, transparent);
+  }
+
+  .dot-pending {
+    background: color-mix(in srgb, var(--color-warning) 80%, transparent);
+  }
+
+  .dot-cancelled {
+    background: color-mix(in srgb, var(--color-error) 80%, transparent);
+  }
+}
+
+/* ─────────────────────────────
+ * Schedule grid
+ * ──────────────────────────── */
+
+.schedule-grid {
+  padding: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--spacing-lg);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.time-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-height: 80px;
+}
+
+.time-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+}
+
+.time-pill {
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.time-count {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.time-bookings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* booking chips */
+
+.booking-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-secondary);
+  font-size: 0.8rem;
+}
+
+.chip-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chip-title {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.chip-sub {
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+}
+
+.chip-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.chip-status {
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chip-price {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.8rem;
+}
+
+/* status colors */
+
+.booking-chip.status-confirmed {
+  border-color: color-mix(in srgb, var(--color-success) 35%, transparent);
+  background: color-mix(in srgb, var(--color-success) 6%, var(--color-bg-secondary));
+
+  .chip-status {
+    background: color-mix(in srgb, var(--color-success) 18%, transparent);
+    color: var(--color-success);
+  }
+}
+
+.booking-chip.status-pending {
+  border-color: color-mix(in srgb, var(--color-warning) 35%, transparent);
+  background: color-mix(in srgb, var(--color-warning) 6%, var(--color-bg-secondary));
+
+  .chip-status {
+    background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+    color: var(--color-warning);
+  }
+}
+
+.booking-chip.status-cancelled {
+  border-color: color-mix(in srgb, var(--color-error) 35%, transparent);
+  background: color-mix(in srgb, var(--color-error) 6%, var(--color-bg-secondary));
+
+  .chip-status {
+    background: color-mix(in srgb, var(--color-error) 18%, transparent);
+    color: var(--color-error);
+  }
+}
+
+.booking-chip.status-unknown {
+  .chip-status {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+  }
+}
+
+/* empty state */
+
+.empty-message {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}

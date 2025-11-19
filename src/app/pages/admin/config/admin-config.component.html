@@ -1,0 +1,384 @@
+<!-- src/app/pages/admin/config/admin-config.component.html -->
+<div class="admin-config">
+    <div class="config-header">
+        <div>
+            <h1>System Configuration</h1>
+            <p>Manage pricing rules, promotions, holidays and gift cards.</p>
+        </div>
+
+        <nav class="config-tabs">
+            <button
+                    type="button"
+                    class="config-tab"
+                    [class.active]="activeTab() === 'promotions'"
+                    (click)="setTab('promotions')"
+            >
+                Promotions
+            </button>
+            <button
+                    type="button"
+                    class="config-tab"
+                    [class.active]="activeTab() === 'pricing'"
+                    (click)="setTab('pricing')"
+            >
+                Pricing preview
+            </button>
+            <button
+                    type="button"
+                    class="config-tab"
+                    [class.active]="activeTab() === 'holidays'"
+                    (click)="setTab('holidays')"
+            >
+                Holidays
+            </button>
+            <button
+                    type="button"
+                    class="config-tab"
+                    [class.active]="activeTab() === 'giftcards'"
+                    (click)="setTab('giftcards')"
+            >
+                Gift cards
+            </button>
+        </nav>
+    </div>
+
+    <!-- ───────────── Promotions tab ───────────── -->
+    @if (activeTab() === 'promotions') {
+        <section class="config-section">
+            <header class="section-header">
+                <div>
+                    <h2>Promotions & Discounts</h2>
+                    <p>Create promotions with date ranges and optional game binding.</p>
+                </div>
+                <app-button variant="primary" (clicked)="startCreatePromotion()">
+                    + New promotion
+                </app-button>
+            </header>
+
+            @if (promotionsLoading()) {
+                <app-loading message="Loading promotions..."></app-loading>
+            } @else {
+                @if (promotions().length === 0) {
+                    <p class="empty-message">No promotions configured yet.</p>
+                } @else {
+                    <div class="table-wrapper">
+                        <table class="config-table">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Game</th>
+                                <th>Discount</th>
+                                <th>Valid</th>
+                                <th>Active</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @for (p of promotions(); track p.id) {
+                                    <tr>
+                                        <td>
+                                            <div class="promo-name">
+                                                <span class="name">{{ p.name }}</span>
+                                                @if (p.description) {
+                                                    <span class="description">{{ p.description }}</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>{{ getGameLabelForPromo(p) }}</td>
+                                        <td>{{ p.discount }} %</td>
+                                        <td>{{ p.validFrom }} → {{ p.validTo }}</td>
+                                        <td>
+                    <span class="status-pill" [class.inactive]="!p.active">
+                      {{ p.active ? 'Active' : 'Inactive' }}
+                    </span>
+                                        </td>
+                                        <td class="actions-col">
+                                            <div class="actions">
+                                                <app-button
+                                                        variant="secondary"
+                                                        size="small"
+                                                        (clicked)="startEditPromotion(p)"
+                                                >
+                                                    Edit
+                                                </app-button>
+                                                <app-button
+                                                        variant="danger"
+                                                        size="small"
+                                                        (clicked)="deletePromotion(p)"
+                                                >
+                                                    Delete
+                                                </app-button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+
+            @if (showPromoForm()) {
+                <div class="drawer">
+                    <div class="drawer-inner">
+                        <header class="drawer-header">
+                            <h3>
+                                {{ editingPromoId() ? 'Edit promotion' : 'New promotion' }}
+                            </h3>
+                        </header>
+
+                        <form class="drawer-form" (ngSubmit)="savePromotion()">
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Name</label>
+                                    <input
+                                            type="text"
+                                            [ngModel]="promoForm.name"
+                                            name="promoName"
+                                            required
+                                    />
+                                </div>
+
+                                <div class="form-field form-field-full">
+                                    <label>Description</label>
+                                    <textarea
+                                            rows="2"
+                                            [(ngModel)]="promoForm.description"
+                                            name="promoDescription"
+                                    ></textarea>
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Discount (%)</label>
+                                    <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            step="0.1"
+                                            [(ngModel)]="promoForm.discount"
+                                            name="promoDiscount"
+                                            required
+                                    />
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Game (optional)</label>
+                                    <select
+                                            [ngModel]="promoForm.game?.id"
+                                            name="promoGame"
+                                    >
+                                        <option [ngValue]="null">All games</option>
+                                        @for (g of games(); track g.id) {
+                                            <option [ngValue]="g.id">{{ g.name }}</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Valid from</label>
+                                    <input
+                                            type="date"
+                                            [(ngModel)]="promoForm.validFrom"
+                                            name="promoValidFrom"
+                                            required
+                                    />
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Valid to</label>
+                                    <input
+                                            type="date"
+                                            [(ngModel)]="promoForm.validTo"
+                                            name="promoValidTo"
+                                            required
+                                    />
+                                </div>
+
+                                <div class="form-field form-switch">
+                                    <label>Active</label>
+                                    <input
+                                            type="checkbox"
+                                            [(ngModel)]="promoForm.active"
+                                            name="promoActive"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="drawer-actions">
+                                <app-button
+                                        variant="outline"
+                                        (clicked)="cancelPromotionForm()"
+                                        [disabled]="promotionsSaving()"
+                                        type="button"
+                                >
+                                    Cancel
+                                </app-button>
+                                <app-button
+                                        variant="primary"
+                                        [disabled]="!isPromotionFormValid() || promotionsSaving()"
+                                        [loading]="promotionsSaving()"
+                                        type="submit"
+                                >
+                                    Save
+                                </app-button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+        </section>
+    }
+
+    <!-- ───────────── Pricing preview tab ───────────── -->
+    @if (activeTab() === 'pricing') {
+        <section class="config-section">
+            <header class="section-header">
+                <div>
+                    <h2>Pricing Preview</h2>
+                    <p>
+                        Test how the current pricing rules behave for a given game, date
+                        and players.
+                    </p>
+                </div>
+            </header>
+
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label>Game</label>
+                        <select
+                                [ngModel]="pricingGameId()"
+                                (ngModelChange)="pricingGameId.set($event)"
+                        >
+                            <option value="">Select game</option>
+                            @for (g of games(); track g.id) {
+                                <option [value]="g.id">{{ g.name }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Date</label>
+                        <input
+                                type="date"
+                                [ngModel]="pricingDate()"
+                                (ngModelChange)="pricingDate.set($event)"
+                        />
+                    </div>
+
+                    <div class="form-field">
+                        <label>Players</label>
+                        <input
+                                type="number"
+                                min="1"
+                                [ngModel]="pricingPlayers()"
+                                (ngModelChange)="pricingPlayers.set($any($event))"
+                        />
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <app-button
+                            variant="secondary"
+                            (clicked)="previewPrice()"
+                            [loading]="pricingLoading()"
+                    >
+                        Preview price
+                    </app-button>
+                </div>
+
+                @if (pricingResult()) {
+                    <div class="pricing-preview">
+                        <h3>Preview result</h3>
+                        <pre>{{ pricingResult() | json }}</pre>
+                    </div>
+                }
+            </div>
+
+            <p class="note">
+                Editing of pricing tiers/config is not exposed yet. You can manage it
+                directly in the backend and use this tool to verify results.
+            </p>
+        </section>
+    }
+
+    <!-- ───────────── Holidays tab (placeholder) ───────────── -->
+    @if (activeTab() === 'holidays') {
+        <section class="config-section">
+            <header class="section-header">
+                <div>
+                    <h2>Holidays</h2>
+                    <p>
+                        Configure days where the venue is closed or has special pricing.
+                    </p>
+                </div>
+            </header>
+
+            <div class="card">
+                <p>
+                    Holiday entity is ready on backend, but there is no controller in the
+                    snippet yet. Once you expose CRUD endpoints (e.g. <code>/holidays</code>),
+                    we can wire a full management table here (similar to promotions).
+                </p>
+                <p class="note">
+                    For now, maintain holidays directly in the database / backend config.
+                </p>
+            </div>
+        </section>
+    }
+
+    <!-- ───────────── Gift cards tab ───────────── -->
+    @if (activeTab() === 'giftcards') {
+        <section class="config-section">
+            <header class="section-header">
+                <div>
+                    <h2>Gift cards</h2>
+                    <p>
+                        Check gift card status and amount. (Admin CRUD can be added once
+                        endpoints exist.)
+                    </p>
+                </div>
+            </header>
+
+            <div class="card">
+                <div class="gift-peek">
+                    <div class="form-field">
+                        <label>Gift card code</label>
+                        <input
+                                type="text"
+                                [ngModel]="giftCode()"
+                                (ngModelChange)="giftCode.set($event)"
+                                placeholder="Enter gift card code"
+                        />
+                    </div>
+
+                    <div class="card-actions">
+                        <app-button
+                                variant="secondary"
+                                (clicked)="peekGiftCard()"
+                                [loading]="giftLoading()"
+                        >
+                            Check card
+                        </app-button>
+                    </div>
+
+                    @if (giftResult()) {
+                        <div class="gift-result">
+                            <h3>Result</h3>
+                            <p><strong>Code:</strong> {{ giftResult()?.code }}</p>
+                            <p><strong>Amount:</strong> {{ giftResult()?.amount }} MKD</p>
+                            <p><strong>Status:</strong> {{ giftResult()?.status }}</p>
+                        </div>
+                    }
+                </div>
+
+                <p class="note">
+                    To fully manage gift cards (generate new, deactivate, etc.), you’ll
+                    need extra admin endpoints (e.g. <code>POST /gift-cards</code>,
+                    <code>PATCH /gift-cards/&lcub;id&rcub;</code>). Once you add them, we can bolt
+                    a table + form on top, same pattern as promotions.
+                </p>
+            </div>
+        </section>
+    }
+</div>

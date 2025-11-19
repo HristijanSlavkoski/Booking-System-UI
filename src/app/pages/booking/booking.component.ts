@@ -20,13 +20,16 @@ import {BookingStore} from "../../shared/stores/booking.store";
 import {PaymentStepComponent} from "../../shared/components/payment-step/payment-step.component";
 import {RoomSummary} from "../../shared/components/booking-summary/booking-summary.component";
 import {BookingSubmitService} from "../../shared/services/booking-submit.service";
+import {PriceSummaryComponent} from "../../shared/components/price-summary/price-summary.component";
+import {SummaryBarComponent} from "../../shared/components/summary-bar/summary-bar.component";
+import {TranslatePipe} from "@ngx-translate/core";
 
 type RoomSelection = { game: Game | null; playerCount: number };
 
 @Component({
     selector: 'app-booking',
     standalone: true,
-    imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent, GameSelectionComponent, PaymentStepComponent],
+    imports: [CommonModule, FormsModule, LoadingComponent, CalendarComponent, ButtonComponent, GameSelectionComponent, PaymentStepComponent, PriceSummaryComponent, SummaryBarComponent, TranslatePipe],
     templateUrl: './booking.component.html',
     styleUrls: ['./booking.component.scss'],
 })

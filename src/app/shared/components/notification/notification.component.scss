@@ -1,26 +1,36 @@
-.notification-container {
+:host {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 400px;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 1300;
+  pointer-events: none; /* allow clicks through gaps */
 }
 
+/* Stack of toasts */
+.notification-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: 420px;
+  pointer-events: none;
+}
+
+/* Single toast */
 .notification {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: slideIn 0.3s ease;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border-left: 3px solid var(--color-border);
+  animation: notification-slide-in 0.25s ease-out;
+  pointer-events: auto; /* clickable */
 }
 
-@keyframes slideIn {
+@keyframes notification-slide-in {
   from {
     transform: translateX(100%);
     opacity: 0;
@@ -33,63 +43,85 @@
 
 .notification-icon {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Message */
 .notification-message {
   flex: 1;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--color-text-primary);
 }
 
+/* Close button */
 .notification-close {
   background: none;
   border: none;
   cursor: pointer;
   padding: 0.25rem;
-  color: #6b7280;
-  transition: color 0.3s ease;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  transition: background var(--transition-fast),
+  color var(--transition-fast),
+  transform var(--transition-fast);
 }
 
 .notification-close:hover {
-  color: #111827;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  transform: scale(1.05);
 }
 
+/* Status variants using theme vars (with fallbacks) */
+
 .notification.success {
-  border-left: 4px solid #10b981;
+  border-left-color: var(--color-success, #10b981);
 }
 
 .notification.success .notification-icon {
-  color: #10b981;
+  color: var(--color-success, #10b981);
 }
 
 .notification.error {
-  border-left: 4px solid #ef4444;
+  border-left-color: var(--color-error, #ef4444);
 }
 
 .notification.error .notification-icon {
-  color: #ef4444;
+  color: var(--color-error, #ef4444);
 }
 
 .notification.warning {
-  border-left: 4px solid #f59e0b;
+  border-left-color: var(--color-warning, #f59e0b);
 }
 
 .notification.warning .notification-icon {
-  color: #f59e0b;
+  color: var(--color-warning, #f59e0b);
 }
 
 .notification.info {
-  border-left: 4px solid #3b82f6;
+  border-left-color: var(--color-info, #3b82f6);
 }
 
 .notification.info .notification-icon {
-  color: #3b82f6;
+  color: var(--color-info, #3b82f6);
 }
 
+/* Mobile: full width near top */
+
 @media (max-width: 768px) {
+  :host {
+    top: var(--spacing-md);
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+  }
+
   .notification-container {
-    left: 1rem;
-    right: 1rem;
+    width: 100%;
     max-width: none;
+    padding: 0 var(--spacing-md);
   }
 }

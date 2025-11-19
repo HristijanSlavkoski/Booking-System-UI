@@ -1,0 +1,126 @@
+<div class="page home-page">
+    <div class="page-container home-container">
+
+        <!-- HERO -->
+        <section class="page-section hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Experience Virtual Reality Like Never Before
+                </h1>
+                <p class="hero-subtitle">
+                    Immerse yourself in thrilling VR escape room adventures.
+                    Challenge your mind, test your teamwork, and escape reality.
+                </p>
+                <div class="hero-buttons">
+                    <app-button size="large" (clicked)="navigateToBooking()">
+                        Book Now
+                    </app-button>
+                    <app-button variant="outline" size="large" (clicked)="navigateToGames()">
+                        View Games
+                    </app-button>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <div class="hero-image-glow"></div>
+                <div class="hero-image-placeholder">
+                    <div class="hero-tag">VR ESCAPE</div>
+                    <div class="hero-badge">
+                        <span>🔥</span>
+                        <span>Top Rated Experiences</span>
+                    </div>
+                    <img src="https://intetic.com/escape_pp/wp-content/uploads/2025/10/vr_people.jpg" alt="Girl in a jacket" width="500" height="600">
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="page-section">
+            <div class="section-header section-header--left">
+                <h2 class="section-title">Why Choose Us</h2>
+                <p class="section-subtitle">
+                    Premium VR setups, handcrafted scenarios and smooth online booking.
+                </p>
+            </div>
+
+            <div class="features-container grid grid--auto-fit-230">
+                <article class="card feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Immersive Experience</h3>
+                    <p>State-of-the-art VR technology for the ultimate gaming experience.</p>
+                </article>
+
+                <article class="card feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Team Adventures</h3>
+                    <p>Perfect for groups of 2–6 players. Great for friends and family.</p>
+                </article>
+
+                <article class="card feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Multiple Challenges</h3>
+                    <p>Different themes and difficulty levels to match your style.</p>
+                </article>
+
+                <article class="card feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <h3>Easy Booking</h3>
+                    <p>Quick online booking with instant confirmation.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- FEATURED GAMES -->
+        <section class="page-section games-preview">
+            <div class="section-header section-header--center">
+                <h2 class="section-title">Featured Games</h2>
+                <p class="section-subtitle">
+                    Check out our most popular VR escape experiences.
+                </p>
+            </div>
+
+            @if (loading()) {
+                <app-loading message="Loading games..."></app-loading>
+            } @else if (games().length > 0) {
+                <div class="games-grid grid grid--auto-fit-280">
+                    @for (game of games(); track game.id) {
+                        <article class="card card--clickable game-card" (click)="navigateToGame(game.id)">
+                            <div class="game-image">
+                                <img [src]="game.imageUrl" [alt]="game.name"/>
+                            </div>
+                            <div class="game-content">
+                                <h3 class="game-title">{{ game.name }}</h3>
+                                <p class="game-description">{{ game.shortDescription }}</p>
+
+                                <div class="game-meta">
+                                    <span class="game-duration">{{ game.duration }} min</span>
+                                    <span class="game-players">
+                                        {{ game.minPlayers }}–{{ game.maxPlayers }} players
+                                      </span>
+                                </div>
+
+                                <div class="game-footer">
+                                  <span class="game-difficulty">
+                                    {{ game.difficulty }}
+                                  </span>
+
+                                    <button type="button"
+                                            class="game-cta"
+                                            (click)="navigateToGame(game.id); $event.stopPropagation()">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                <div class="view-all-container">
+                    <app-button variant="outline" (clicked)="navigateToGames()">
+                        View All Games
+                    </app-button>
+                </div>
+            }
+        </section>
+    </div>
+</div>

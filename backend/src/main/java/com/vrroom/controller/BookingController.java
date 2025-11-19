@@ -55,6 +55,14 @@ public class BookingController
         return ResponseEntity.ok(bookingService.getBookingsByStatus(status));
     }
 
+    @GetMapping("/by-date")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<BookingDTO>> getBookingsByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date)
+    {
+        return ResponseEntity.ok(bookingService.getBookingsByDate(date));
+    }
+
     @GetMapping("/availability")
     public List<Availability.DayScheduleDto> getAvailability(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

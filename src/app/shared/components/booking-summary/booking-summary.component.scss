@@ -1,20 +1,11 @@
-:host {
-  display: block;
-}
-
-
 .booking-summary {
-  background: #1a1a1a;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid #2a2a2a;
+  margin-bottom: var(--spacing-xl);
 
   h3 {
     font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 1rem 0;
-    color: #fff;
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--color-text-primary);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
@@ -23,49 +14,48 @@
 .summary-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #2a2a2a;
-  color: #aaa;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
 
   .value {
-    color: #fff;
-    font-weight: 600;
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
   }
 
   &.total {
     border-bottom: none;
-    padding-top: 1rem;
-    margin-top: 0.5rem;
-    border-top: 2px solid #ec3f3a;
+    padding-top: var(--spacing-md);
+    margin-top: var(--spacing-xs);
+    border-top: 2px solid var(--color-primary);
     font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
 
     .value {
-      color: #ec3f3a;
+      color: var(--color-primary);
     }
   }
 }
 
 .promo-banner {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: rgba(236, 63, 58, 0.1);
-  border: 1px solid #ec3f3a;
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: rgba(236, 63, 58, 0.1); // can later become a token if you want
+  border: 1px solid var(--color-primary);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: #fff;
+  gap: var(--spacing-md);
+  color: var(--color-text-primary);
 }
 
 .promo-badge {
-  background: #ec3f3a;
-  color: #fff;
-  padding: 0.35rem 0.75rem;
+  background: var(--color-primary);
+  color: #ffffff;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 999px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -79,17 +69,17 @@
 .promo-prices {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
 }
 
 .old-price {
   text-decoration: line-through;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .new-price {
-  color: #fbbf24;
-  font-weight: 700;
+  color: var(--color-warning);
+  font-weight: var(--font-weight-bold);
   font-size: 1.1rem;
 }

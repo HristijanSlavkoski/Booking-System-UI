@@ -1,22 +1,33 @@
-<div class="booking-summary">
+<!-- TODO: Should we delete card class? -->
+<div class="booking-summary card">
     <h3>{{ 'booking.bookingSummary' | translate : {default: 'Booking Summary'} }}</h3>
 
     <div class="summary-item">
-        <span class="label">{{ 'booking.date' | translate : {default: 'Date'} }}:</span>
+    <span class="label">
+      {{ 'booking.date' | translate : {default: 'Date'} }}:
+    </span>
         <span class="value">{{ formatDateLocale(date) }}</span>
     </div>
+
     <div class="summary-item">
-        <span class="label">{{ 'booking.time' | translate : {default: 'Time'} }}:</span>
+    <span class="label">
+      {{ 'booking.time' | translate : {default: 'Time'} }}:
+    </span>
         <span class="value">{{ time }}</span>
     </div>
+
     <div class="summary-item">
-        <span class="label">{{ 'booking.rooms' | translate : {default: 'Rooms'} }}:</span>
+    <span class="label">
+      {{ 'booking.rooms' | translate : {default: 'Rooms'} }}:
+    </span>
         <span class="value">{{ rooms }}</span>
     </div>
 
     <ng-container *ngFor="let r of roomSummaries; let i = index">
         <div class="summary-item">
-            <span class="label">{{ 'booking.room' | translate : {default: 'Room'} }} {{ i + 1 }}:</span>
+      <span class="label">
+        {{ 'booking.room' | translate : {default: 'Room'} }} {{ i + 1 }}:
+      </span>
             <span class="value">
         {{ r.name || 'No game' }} — {{ r.playerCount }}
                 {{ r.playerCount === 1 ? 'player' : 'players' }}
@@ -25,49 +36,46 @@
     </ng-container>
 
     <div class="summary-item">
-        <span class="label">{{ 'booking.totalPlayers' | translate : {default: 'Total Players'} }}:</span>
+    <span class="label">
+      {{ 'booking.totalPlayers' | translate : {default: 'Total Players'} }}:
+    </span>
         <span class="value">{{ totalPlayers }}</span>
     </div>
 
-    <!-- PROMO BANNER (after promo, before gift card) -->
-    <div
-            *ngIf="promoPercent && promoPercent > 0 && baseTotal !== null"
-            class="promo-banner"
-    >
+    <!-- PROMO BANNER -->
+    <div *ngIf="promoPercent && promoPercent > 0 && baseTotal !== null"
+         class="promo-banner">
         <div class="promo-badge">-{{ promoPercent }}%</div>
         <div class="promo-text">
             {{ promoName || 'Special promotion' }}
         </div>
         <div class="promo-prices">
-            <!-- Old: base (no promo) -->
-            <span class="old-price">
-              {{ baseTotal | number:'1.0-0' }} {{ currency }}
-            </span>
-
-            <!-- New: after promo, before gift; fall back to total if promoTotal missing -->
+      <span class="old-price">
+        {{ baseTotal | number:'1.0-0' }} {{ currency }}
+      </span>
             <span class="new-price">
-              {{ (promoTotal ?? total) | number:'1.0-0' }} {{ currency }}
-            </span>
+        {{ (promoTotal ?? total) | number:'1.0-0' }} {{ currency }}
+      </span>
         </div>
     </div>
 
-    <!-- Gift card line (only if applied) -->
+    <!-- Gift card line -->
     <div class="summary-item" *ngIf="giftCardAmount && giftCardAmount > 0">
     <span class="label">
       {{ 'booking.giftCard.title' | translate : {default: 'Gift card'} }}
-      <ng-container *ngIf="giftCardCode">
+        <ng-container *ngIf="giftCardCode">
         ({{ giftCardCode }})
       </ng-container>:
     </span>
         <span class="value">-{{ giftCardAmount | number:'1.0-0' }} {{ currency }}</span>
     </div>
 
-    <!-- Text-only totals (final total with promo + gift card) -->
+    <!-- Totals -->
     <app-price-summary
             [net]="net"
             [vat]="vat"
             [total]="total"
             [taxPercent]="taxPercent"
-            [currency]="currency"
-    ></app-price-summary>
+            [currency]="currency">
+    </app-price-summary>
 </div>

@@ -9,7 +9,7 @@
         <app-loading message="Loading dashboard..."></app-loading>
     } @else {
         <div class="dashboard-grid">
-            <div class="stat-card">
+            <div class="stat-card card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-content">
                     <div class="stat-label">Today's Bookings</div>
@@ -17,15 +17,15 @@
                 </div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card card">
                 <div class="stat-icon">✅</div>
                 <div class="stat-content">
-                    <div class="stat-label">Confirmed</div>
-                    <div class="stat-value">{{ stats().confirmedBookings }}</div>
+                    <div class="stat-label">Confirmed Today</div>
+                    <div class="stat-value">{{ stats().confirmedToday }}</div>
                 </div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card card">
                 <div class="stat-icon">💰</div>
                 <div class="stat-content">
                     <div class="stat-label">Today's Revenue</div>
@@ -33,11 +33,11 @@
                 </div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card card">
                 <div class="stat-icon">📊</div>
                 <div class="stat-content">
-                    <div class="stat-label">Occupancy Rate</div>
-                    <div class="stat-value">{{ stats().occupancyRate }}%</div>
+                    <div class="stat-label">Total Bookings</div>
+                    <div class="stat-value">{{ totalBookings() }}</div>
                 </div>
             </div>
         </div>
@@ -72,20 +72,27 @@
                             <th>Game</th>
                             <th>Players</th>
                             <th>Status</th>
-                            <th>Payment</th>
+                            <th>Payment Method</th>
                         </tr>
                         </thead>
                         <tbody>
                             @for (booking of todayBookings(); track booking.id) {
                                 <tr>
                                     <td>{{ booking.bookingTime }}</td>
-                                    <td>{{ booking.customerInfo.firstName }} {{ booking.customerInfo.lastName }}</td>
-                                    <td>{{ booking.gameName }}</td>
-                                    <td>{{ booking.playerCount }}</td>
-                                    <td><span class="status-badge"
-                                              [class]="booking.status.toLowerCase()">{{ booking.status }}</span></td>
-                                    <td><span class="payment-badge"
-                                              [class]="booking.paymentStatus.toLowerCase()">{{ booking.paymentStatus }}</span>
+                                    <td>{{ booking.customerFirstName }} {{ booking.customerLastName }}</td>
+                                    <td>{{ getGameName(booking) }}</td>
+                                    <td>{{ getPlayerCount(booking) }}</td>
+                                    <td>
+                                        <span class="status-badge"
+                                              [ngClass]="'status-' + booking.status.toLowerCase()">
+                                          {{ booking.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="payment-badge"
+                                              [ngClass]="'payment-' + booking.paymentMethod.toLowerCase()">
+                                          {{ getPaymentLabel(booking.paymentMethod) }}
+                                        </span>
                                     </td>
                                 </tr>
                             }

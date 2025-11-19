@@ -1,0 +1,84 @@
+<div class="game-detail-page">
+    @if (loading()) {
+        <app-loading
+                [message]="'Loading game details…'"
+                [fullscreen]="true">
+        </app-loading>
+    } @else if (game()) {
+        <div class="game-detail-container">
+            <div class="game-header card">
+                <div class="game-image-large">
+                    <img
+                            [src]="game()!.imageUrl"
+                            [alt]="game()!.name"/>
+                </div>
+
+                <div class="game-info">
+                    <h1 class="game-title">
+                        {{ game()!.name }}
+                    </h1>
+
+                    <span
+                            class="game-difficulty-badge"
+                            [ngClass]="getDifficultyClass(game()!.difficulty)">
+            {{ getDifficultyLabel(game()!.difficulty) }}
+          </span>
+
+                    <p class="game-description">
+                        {{ game()!.description }}
+                    </p>
+
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Duration</span>
+                            <span class="stat-value">
+                {{ game()!.duration }} min
+              </span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">Players</span>
+                            <span class="stat-value">
+                {{ game()!.minPlayers }}–{{ game()!.maxPlayers }}
+              </span>
+                        </div>
+                    </div>
+
+                    <div class="game-actions">
+                        <app-button variant="outline" (clicked)="goBack()">
+                            Back to Games
+                        </app-button>
+
+                        <app-button (clicked)="bookGame()">
+                            Book This Experience
+                        </app-button>
+                    </div>
+                </div>
+            </div>
+
+            @if (pricing().length > 0) {
+                <section class="pricing-section card">
+                    <h2>Pricing</h2>
+                    <div class="pricing-grid">
+                        @for (price of pricing(); track price.playerCount) {
+                            <div class="price-card">
+                                <div class="player-count">
+                                    {{ price.playerCount }}
+                                    {{ price.playerCount === 1 ? 'Player' : 'Players' }}
+                                </div>
+                                <div class="price-amount">
+                                    {{ price.price }} {{ price.currency }}
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    } @else {
+        <div class="error-state">
+            <p>Game not found.</p>
+            <app-button (clicked)="goBack()">Go Back</app-button>
+        </div>
+    }
+</div>

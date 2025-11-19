@@ -1,15 +1,20 @@
 <div class="step-content">
-    <div class="form-section">
+    <div class="form-section card">
         <h3>{{ 'booking.yourInformation.title' | translate : {default: 'Your Information'} }}</h3>
+
         <div class="form-grid">
             <label>
                 {{ 'booking.yourInformation.firstName' | translate : {default: 'First name'} }}
                 <input
                         [ngModel]="customer.firstName"
                         (ngModelChange)="onField('firstName', $event)"
-                        placeholder="{{ 'booking.yourInformation.firstNamePlaceholder' | translate : {default: 'First name'} }}"
-                        class="text-input"
-                        required/>
+                        placeholder="{{
+            'booking.yourInformation.firstNamePlaceholder'
+              | translate : { default: 'First name' }
+          }}"
+                        class="input-field"
+                        required
+                />
             </label>
 
             <label>
@@ -17,9 +22,13 @@
                 <input
                         [ngModel]="customer.lastName"
                         (ngModelChange)="onField('lastName', $event)"
-                        placeholder="{{ 'booking.yourInformation.lastNamePlaceholder' | translate : {default: 'Last name'} }}"
-                        class="text-input"
-                        required/>
+                        placeholder="{{
+            'booking.yourInformation.lastNamePlaceholder'
+              | translate : { default: 'Last name' }
+          }}"
+                        class="input-field"
+                        required
+                />
             </label>
 
             <label>
@@ -28,9 +37,13 @@
                         type="email"
                         [ngModel]="customer.email"
                         (ngModelChange)="onField('email', $event)"
-                        placeholder="{{ 'booking.yourInformation.emailPlaceholder' | translate : {default: 'Email'} }}"
-                        class="text-input"
-                        required/>
+                        placeholder="{{
+            'booking.yourInformation.emailPlaceholder'
+              | translate : { default: 'Email' }
+          }}"
+                        class="input-field"
+                        required
+                />
             </label>
 
             <label>
@@ -38,8 +51,12 @@
                 <input
                         [ngModel]="customer.phone"
                         (ngModelChange)="onField('phone', $event)"
-                        placeholder="{{ 'booking.yourInformation.phonePlaceholder' | translate : {default: 'Phone'} }}"
-                        class="text-input"/>
+                        placeholder="{{
+            'booking.yourInformation.phonePlaceholder'
+              | translate : { default: 'Phone' }
+          }}"
+                        class="input-field"
+                />
             </label>
         </div>
     </div>

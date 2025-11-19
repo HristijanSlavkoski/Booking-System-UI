@@ -1,0 +1,90 @@
+<div class="auth-page">
+    <div class="auth-container">
+        <section class="card auth-card">
+            <header class="auth-header">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Sign up to get started</p>
+            </header>
+
+            <form class="auth-form" (ngSubmit)="register()">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="firstName">First name</label>
+                        <input
+                                id="firstName"
+                                type="text"
+                                [(ngModel)]="formData.firstName"
+                                name="firstName"
+                                required
+                                class="auth-input"
+                        />
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lastName">Last name</label>
+                        <input
+                                id="lastName"
+                                type="text"
+                                [(ngModel)]="formData.lastName"
+                                name="lastName"
+                                required
+                                class="auth-input"
+                        />
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input
+                            id="email"
+                            type="email"
+                            [(ngModel)]="formData.email"
+                            name="email"
+                            required
+                            class="auth-input"
+                    />
+                </div>
+
+                <div class="form-field">
+                    <label for="phone">Phone</label>
+                    <input
+                            id="phone"
+                            type="tel"
+                            [(ngModel)]="formData.phone"
+                            name="phone"
+                            required
+                            class="auth-input"
+                    />
+                </div>
+
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <input
+                            id="password"
+                            type="password"
+                            [(ngModel)]="formData.password"
+                            name="password"
+                            required
+                            class="auth-input"
+                    />
+                </div>
+
+                <app-button
+                        type="submit"
+                        [fullWidth]="true"
+                        [loading]="loading()"
+                        [disabled]="!isFormValid()"
+                >
+                    Create Account
+                </app-button>
+            </form>
+
+            <footer class="auth-footer">
+                <p>
+                    Already have an account?
+                    <a routerLink="/login">Sign in</a>
+                </p>
+            </footer>
+        </section>
+    </div>
+</div>

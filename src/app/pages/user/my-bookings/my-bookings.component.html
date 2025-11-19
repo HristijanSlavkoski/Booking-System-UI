@@ -1,0 +1,73 @@
+<div class="my-bookings-page">
+    <div class="bookings-container">
+        <h1 class="page-title">
+            {{ 'bookings.title' | translate : {default: 'My bookings'} }}
+        </h1>
+
+        @if (loading()) {
+            <app-loading
+                    [message]="'bookings.loading' | translate : { default: 'Loading bookings…' }">
+            </app-loading>
+        } @else if (bookings().length > 0) {
+            <div class="bookings-list">
+                @for (booking of bookings(); track booking.id) {
+                    <article class="card booking-card">
+                        <!-- Header: title + meta + status -->
+                        <header class="booking-header">
+                            <div class="booking-main">
+                                <h3 class="booking-title">
+                                    {{ getGameName(booking) }}
+                                </h3>
+
+                                <div class="booking-sub">
+                                  <span>
+                                      📅 {{ booking.bookingDate | date: 'EEE, dd MMM yyyy' }}
+                                  </span>
+                                    <span>
+                                        · 🕒 {{ booking.bookingTime }}
+                                    </span>
+                                    <span *ngIf="getPlayerCount(booking) as pc">
+                                        · 👥 {{ pc }}
+                                      </span>
+                                </div>
+                            </div>
+
+                            <div class="booking-status-block">
+                                <span class="status-badge"
+                                      [ngClass]="booking.status.toLowerCase()">
+                                  {{ booking.status | titlecase }}
+                                </span>
+
+                                <span *ngIf="booking.paymentMethod"
+                                      class="payment-badge"
+                                      [ngClass]="booking.paymentMethod.toLowerCase()">
+                                  {{ booking.paymentMethod | titlecase }}
+                                </span>
+                            </div>
+                        </header>
+
+                        <!-- Body: totals etc -->
+                        <div class="booking-body">
+                            <div class="booking-line">
+                                <span class="label">
+                                  {{ 'bookings.total' | translate : {default: 'Total'} }}
+                                </span>
+                                <span class="value">
+                                  {{ booking.totalPrice | number: '1.0-0' }}
+                                    {{ getCurrency(booking) }}
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        } @else {
+            <p class="empty-message">
+                {{
+                    'bookings.empty'
+                        | translate : {default: 'You don’t have any bookings yet.'}
+                }}
+            </p>
+        }
+    </div>
+</div>

@@ -1,23 +1,17 @@
-<!-- summary-bar.component.html -->
-<div class="selection-summary-bar" *ngIf="date || time || rooms || gamesText || totalPlayers">
+<div
+        class="selection-summary-bar"
+        *ngIf="date || time || rooms || gamesText || totalPlayers"
+>
     <div class="summary-item-bar" *ngIf="date || time">
         <span class="summary-icon">📅</span>
         <div class="summary-info">
             <span class="summary-label">Date &amp; Time</span>
             <span class="summary-value">
-        {{ date ? (date | date:'EEE, dd MMM') : '—' }} {{ time ? ('at ' + time) : '' }}
+        {{ date ? (date | date:'EEE, dd MMM') : '—' }}
+                {{ time ? ('at ' + time) : '' }}
       </span>
         </div>
     </div>
-
-    <!--    TODO: When we include multiple rooms, we can enable this-->
-    <!--    <div class="summary-item-bar" *ngIf="rooms != null">-->
-    <!--        <span class="summary-icon">🚪</span>-->
-    <!--        <div class="summary-info">-->
-    <!--            <span class="summary-label">Rooms</span>-->
-    <!--            <span class="summary-value">{{ rooms }} {{ rooms === 1 ? 'Room' : 'Rooms' }}</span>-->
-    <!--        </div>-->
-    <!--    </div>-->
 
     <div class="summary-item-bar" *ngIf="gamesText">
         <span class="summary-icon">🎮</span>

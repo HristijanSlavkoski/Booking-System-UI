@@ -3,6 +3,6 @@
         [class]="buttonClasses"
         [disabled]="disabled || loading"
         (click)="handleClick($event)">
-    <span *ngIf="loading" class="spinner"></span>
+    <span *ngIf="loading" class="spinner-small"></span>
     <ng-content></ng-content>
 </button>

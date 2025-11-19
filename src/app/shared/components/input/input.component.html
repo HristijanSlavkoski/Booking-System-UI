@@ -20,6 +20,7 @@
         [attr.aria-describedby]="error ? id + '-error' : null"
     />
 
-
-    <span *ngIf="error" class="error-message" [id]="id + '-error'">{{ error }}</span>
+    <span *ngIf="error" class="error-message" [id]="id + '-error'">
+    {{ error }}
+  </span>
 </div>

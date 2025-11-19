@@ -1,0 +1,91 @@
+// ===== PAGE LAYOUT =====
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-md);
+}
+
+// For older usages (booking-page etc)
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+// Sections
+.section,
+.page-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+// Section headers (used on Home + can be used elsewhere)
+.section-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.section-header--center {
+  text-align: center;
+}
+
+.section-header--left {
+  text-align: left;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: var(--font-weight-black);
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+// ===== GENERIC GRID HELPERS =====
+.grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.grid--auto-fit-230 {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.grid--auto-fit-280 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+// ===== FORM LAYOUT =====
+.form-section {
+  margin-bottom: var(--spacing-2xl);
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-md) 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

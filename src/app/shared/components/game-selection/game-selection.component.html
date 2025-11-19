@@ -13,8 +13,8 @@
                 <app-game-card
                         [game]="g"
                         [selected]="isSelected(g, 0)"
-                        (choose)="onChoose(0, g)">
-                </app-game-card>
+                        (choose)="onChoose(0, g)"
+                ></app-game-card>
             }
         </div>
     } @else {
@@ -22,14 +22,15 @@
             @for (roomIndex of roomIndexes(); track roomIndex) {
                 <div class="room-game-section">
                     <h3 class="room-title">Room {{ roomIndex + 1 }}</h3>
+
                     <div class="games-selection-compact">
                         @for (g of games; track trackByCode($index, g)) {
                             <app-game-card
                                     class="compact"
                                     [game]="g"
                                     [selected]="isSelected(g, roomIndex)"
-                                    (choose)="onChoose(roomIndex, g)">
-                            </app-game-card>
+                                    (choose)="onChoose(roomIndex, g)"
+                            ></app-game-card>
                         }
                     </div>
                 </div>
@@ -37,7 +38,6 @@
         </div>
     }
 
-    <!-- ✅ Buttons moved inside -->
     <div class="step-actions">
         <app-button variant="outline" (clicked)="back.emit()">
             {{ 'common.back' | translate }}

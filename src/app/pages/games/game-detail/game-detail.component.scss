@@ -1,0 +1,219 @@
+:host {
+  display: block;
+}
+
+.game-detail-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  padding: var(--spacing-2xl) var(--spacing-md);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+}
+
+.game-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header card */
+
+.game-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.game-image-large {
+  width: 100%;
+  height: 380px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    height: 260px;
+  }
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.game-title {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: var(--font-weight-black);
+  color: var(--color-text-primary);
+
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+  }
+}
+
+/* Difficulty badge */
+
+.game-difficulty-badge {
+  align-self: flex-start;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--color-border-light);
+}
+
+.game-difficulty-badge.difficulty-easy {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-success) 35%, transparent);
+}
+
+.game-difficulty-badge.difficulty-medium {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-warning) 35%, transparent);
+}
+
+.game-difficulty-badge.difficulty-hard {
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-error) 35%, transparent);
+}
+
+.game-difficulty-badge.difficulty-expert {
+  color: var(--color-info);
+  background: color-mix(in srgb, var(--color-info) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-info) 35%, transparent);
+}
+
+.game-difficulty-badge.difficulty-unknown {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+}
+
+/* Description + stats */
+
+.game-description {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.game-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-item {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+/* Actions */
+
+.game-actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* Pricing section */
+
+.pricing-section {
+  h2 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: 1.6rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+  }
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.price-card {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  transition: border-color var(--transition-fast),
+  transform var(--transition-fast),
+  box-shadow var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.player-count {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.price-amount {
+  font-size: 1.4rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+/* Error state */
+
+.error-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+
+  p {
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.1rem;
+  }
+}

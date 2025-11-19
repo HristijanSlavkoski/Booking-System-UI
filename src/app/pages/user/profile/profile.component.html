@@ -1,0 +1,79 @@
+<div class="profile-page">
+    <div class="profile-container">
+        <h1 class="page-title">
+            {{ 'profile.title' | translate : {default: 'My profile'} }}
+        </h1>
+
+        @if (user()) {
+            <section class="card profile-card">
+                <header class="profile-header">
+                    <div class="avatar">
+                        {{ initials() }}
+                    </div>
+                    <div class="profile-header-info">
+                        <div class="profile-name">
+                            {{ editForm.firstName }} {{ editForm.lastName }}
+                        </div>
+                        <div class="profile-email">
+                            {{ editForm.email }}
+                        </div>
+                        <span class="profile-tag">
+              {{ 'profile.accountDetails' | translate : {default: 'Account details'} }}
+            </span>
+                    </div>
+                </header>
+
+                <div class="form-grid">
+                    <label>
+                        {{ 'profile.firstName' | translate : {default: 'First name'} }}
+                        <input
+                                type="text"
+                                class="input-field"
+                                [(ngModel)]="editForm.firstName"
+                        />
+                    </label>
+
+                    <label>
+                        {{ 'profile.lastName' | translate : {default: 'Last name'} }}
+                        <input
+                                type="text"
+                                class="input-field"
+                                [(ngModel)]="editForm.lastName"
+                        />
+                    </label>
+
+                    <label>
+                        {{ 'profile.email' | translate : {default: 'Email'} }}
+                        <input
+                                type="email"
+                                class="input-field"
+                                [(ngModel)]="editForm.email"
+                        />
+                    </label>
+
+                    <label>
+                        {{ 'profile.phone' | translate : {default: 'Phone'} }}
+                        <input
+                                type="tel"
+                                class="input-field"
+                                [(ngModel)]="editForm.phone"
+                        />
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <app-button (clicked)="saveProfile()">
+                        {{ 'profile.saveChanges' | translate : {default: 'Save changes'} }}
+                    </app-button>
+                </div>
+            </section>
+        } @else {
+            <p class="not-logged">
+                {{
+                    'profile.notLoggedIn'
+                        | translate : {default: 'You need to be logged in to view your profile.'}
+                }}
+            </p>
+        }
+    </div>
+</div>

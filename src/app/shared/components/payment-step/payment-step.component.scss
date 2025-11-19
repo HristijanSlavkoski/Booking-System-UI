@@ -2,125 +2,161 @@
   display: block;
 }
 
+/* Outer shell – same look as other steps/cards */
 .step-content {
-  background: #1a1a1a;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  border: 1px solid #2a2a2a;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 
-  h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 1rem 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg);
   }
 }
 
-/* Sections (Gift card + Payment method) */
+/* Reuse form-section pattern but allow extra tweaks */
 .form-section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Header inside sections (for gift + payment method) */
+.form-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 
   h3 {
     font-size: 1.25rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 1rem 0;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 }
 
-.step-actions {
-  display: flex;
-  gap: .75rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
-  padding-top: 2rem;
-  border-top: 1px solid #2a2a2a;
+.form-section-tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-muted);
 }
 
-/* 💳 Gift card layout – same visual weight as contact form */
-.gift-grid {
+/* Gift card block */
+
+.gift-section {
+  /* just for semantic hook if we want special spacing later */
+}
+
+/* Fix header inside the card */
+.gift-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Remove padding from redundant container */
+.gift-card,
+.gift-card-body {
+  padding: 0; /* we use the card padding only */
+}
+
+/* Input + button row */
+.gift-input-row {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-md);
   align-items: flex-end;
-}
 
-/* Label + input style matching contact-details form */
-.gift-grid label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  color: #fff;
-}
-
-.gift-grid input {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 1rem;
-  border: 2px solid #2a2a2a;
-  border-radius: 8px;
-  background: #0a0a0a;
-  color: #fff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  outline: none;
-
-  &::placeholder {
-    color: #666;
-  }
-
-  &:focus {
-    border-color: #ec3f3a;
-    box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
-  }
-}
-
-.gift-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-start;
-}
-
-.gift-status {
-  font-size: 0.85rem;
-  color: #f97373;
-
-  &.success {
-    color: #4ade80;
-  }
-}
-
-.remove-gift-btn {
-  background: transparent;
-  border: none;
-  color: #999;
-  margin-left: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: color 0.2s ease, transform 0.2s ease;
-
-  &:hover {
-    color: #e53935;
-    transform: scale(1.1);
-  }
-
-  &:focus {
-    outline: none;
-  }
-}
-
-/* Mobile: stack gift code + button */
-@media (max-width: 768px) {
-  .gift-grid {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
+}
 
-  .gift-actions {
+/* Button next to input */
+.gift-apply-btn {
+  white-space: nowrap;
+}
+
+/* Status row below input/button */
+.gift-status-row {
+  min-height: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Base status style */
+.gift-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+}
+
+/* Error variant */
+.gift-status--error {
+  color: var(--color-error);
+  background: color-mix(
+                  in srgb,
+                  var(--color-error) 10%,
+                  var(--color-bg-card) 90%
+  );
+}
+
+/* Success variant */
+.gift-status--success {
+  color: var(--color-success);
+  background: color-mix(
+                  in srgb,
+                  var(--color-success) 10%,
+                  var(--color-bg-card) 90%
+  );
+}
+
+/* Small X button */
+.gift-remove-btn {
+  background: transparent;
+  border: none;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: color var(--transition-fast),
+  transform var(--transition-fast),
+  background var(--transition-fast);
+
+  &:hover {
+    color: var(--color-error);
+    background: var(--color-bg-card);
+    transform: scale(1.08);
+  }
+}
+
+/* Step actions – shared pattern with other steps */
+.step-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
     align-items: stretch;
 
     app-button {

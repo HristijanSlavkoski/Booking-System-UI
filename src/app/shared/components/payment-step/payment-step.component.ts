@@ -7,7 +7,7 @@ import {Customer, PaymentMethod} from "../../../models/booking.model";
 import {FormsModule} from "@angular/forms";
 import {ContactDetailsComponent} from "../contact-details/contact-details.component";
 import {BookingStore} from "../../stores/booking.store";
-import {GiftCardUiService} from '../../../core/services/gift-card.service';
+import {GiftCardService} from '../../../core/services/gift-card.service';
 import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
@@ -57,7 +57,7 @@ export class PaymentStepComponent {
     @Output() submit = new EventEmitter<void>();
 
     store = inject(BookingStore);
-    private giftCardService = inject(GiftCardUiService);
+    private giftCardService = inject(GiftCardService);
 
     // local UI state for gift card input
     giftCode: string = '';

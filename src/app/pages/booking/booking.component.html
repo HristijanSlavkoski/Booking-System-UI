@@ -1,56 +1,30 @@
 <div class="booking-page">
     <div class="booking-container">
-        <h1 class="page-title">Book Your VR Experience</h1>
+        <h1 class="page-title">
+            Book Your VR Experience
+        </h1>
 
         @if (loading()) {
-            <app-loading message="Loading..." [fullscreen]="true"></app-loading>
+            <app-loading
+                    [message]="'booking.loading' | translate : { default: 'Loading…' }"
+                    [fullscreen]="true">
+            </app-loading>
         } @else {
 
+            <!-- 🔹 REUSED SUMMARY BAR -->
             @if (currentStep() > 1) {
-                <div class="selection-summary-bar">
-                    <div class="summary-item-bar">
-                        <span class="summary-icon">📅</span>
-                        <div class="summary-info">
-                            <span class="summary-label">Date &amp; Time</span>
-                            <span class="summary-value">{{ formatDate(selectedDate()) }} at {{ selectedTime() }}</span>
-                        </div>
-                    </div>
-
-                    @if (currentStep() >= 2) {
-                        <div class="summary-item-bar">
-                            <span class="summary-icon">🚪</span>
-                            <div class="summary-info">
-                                <span class="summary-label">Rooms</span>
-                                <span class="summary-value">
-                                        {{ selectedRooms() }} {{ selectedRooms() === 1 ? 'Room' : 'Rooms' }}
-                                      </span>
-                            </div>
-                        </div>
-                    }
-
-                    @if (currentStep() >= 3) {
-                        <div class="summary-item-bar">
-                            <span class="summary-icon">🎮</span>
-                            <div class="summary-info">
-                                <span class="summary-label">{{ 'Game' }}</span>
-                                <span class="summary-value">{{ getSelectedGamesText() }}</span>
-                            </div>
-                        </div>
-
-                        <div class="summary-item-bar">
-                            <span class="summary-icon">👥</span>
-                            <div class="summary-info">
-                                <span class="summary-label">Players</span>
-                                <span class="summary-value">{{ getTotalPlayers() }}</span>
-                            </div>
-                        </div>
-
-                    }
-                </div>
+                <app-summary-bar
+                        [date]="selectedDate() || null"
+                        [time]="selectedTime()"
+                        [rooms]="selectedRooms()"
+                        [gamesText]="getSelectedGamesText()"
+                        [totalPlayers]="getTotalPlayers()">
+                </app-summary-bar>
             }
 
             <div class="booking-steps">
-                <div class="steps-indicator">
+                <!-- 🔹 Step indicator uses global card feel -->
+                <div class="steps-indicator card">
                     <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
                         <div class="step-number">1</div>
                         <div class="step-label">Choose Date &amp; Time</div>
@@ -75,9 +49,9 @@
                     </div>
                 </div>
 
-                <!-- STEP 1 -->
+                <!-- STEP 1 – Calendar -->
                 @if (currentStep() === 1) {
-                    <div class="step-content">
+                    <div class="step-content card">
                         <h2>Select Available Date &amp; Time</h2>
                         <p class="step-description">
                             Choose your preferred date and time. Green slots are available — click to select how many
@@ -98,9 +72,9 @@
                     </div>
                 }
 
-                <!-- STEP 2 -->
+                <!-- STEP 2 – Game selection -->
                 @if (currentStep() === 2) {
-                    <section *ngIf="currentStep() === 2">
+                    <section>
                         <app-game-selection
                                 [games]="games()"
                                 [selectedRooms]="selectedRooms()"
@@ -113,9 +87,9 @@
                     </section>
                 }
 
-                <!-- STEP 3 -->
+                <!-- STEP 3 – Players -->
                 @if (currentStep() === 3) {
-                    <div class="step-content">
+                    <div class="step-content card">
                         <h2>Number of Players</h2>
 
                         @if (selectedRooms() === 1) {
@@ -129,8 +103,7 @@
                                                 (click)="selectPlayersForRoom(num, 0)">
                                             <div class="player-count">{{ num }}</div>
                                             <div class="player-label">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                            <div class="player-price">{{ pricePerPersonFor(num) * num }}MKD
-                                            </div>
+                                            <div class="player-price">{{ pricePerPersonFor(num) * num }} MKD</div>
                                         </div>
                                     }
                                 </div>
@@ -149,9 +122,11 @@
                                                         [class.selected]="getPlayersForRoom(roomIndex) === num"
                                                         (click)="selectPlayersForRoom(num, roomIndex)">
                                                     <div class="player-count-compact">{{ num }}</div>
-                                                    <div class="player-label-compact">{{ num === 1 ? 'Player' : 'Players' }}</div>
-                                                    <div class="player-price-compact"> {{ pricePerPersonFor(num) * num }}
-                                                        MKD
+                                                    <div class="player-label-compact">
+                                                        {{ num === 1 ? 'Player' : 'Players' }}
+                                                    </div>
+                                                    <div class="player-price-compact">
+                                                        {{ pricePerPersonFor(num) * num }} MKD
                                                     </div>
                                                 </div>
                                             }
@@ -161,26 +136,27 @@
                             </div>
                         }
 
+                        <!-- 🔹 REUSED PRICE SUMMARY COMPONENT -->
                         @if (totalInclVat() > 0) {
-                            <div class="price-summary">
-                                <span class="price-label">Total:</span>
-                                <span class="price-amount">{{ totalInclVat() }} MKD</span>
-                            </div>
-                            <div class="price-breakdown">
-                                <div class="line small">Net: {{ netPortion() }} MKD</div>
-                                <div class="line small">VAT ({{ taxPercentage() }}%): {{ vatPortion() }} MKD</div>
-                            </div>
+                            <app-price-summary
+                                    [net]="netPortion()"
+                                    [vat]="vatPortion()"
+                                    [total]="totalInclVat()"
+                                    [taxPercent]="taxPercentage()"
+                                    [currency]="'MKD'">
+                            </app-price-summary>
                         }
 
                         <div class="step-actions">
                             <app-button variant="outline" (clicked)="previousStep()">Back</app-button>
-                            <app-button (clicked)="nextStep()" [disabled]="!isStep3Valid()">Continue to Payment
+                            <app-button (clicked)="nextStep()" [disabled]="!isStep3Valid()">
+                                Continue to Payment
                             </app-button>
                         </div>
                     </div>
                 }
 
-                <!-- STEP 4 -->
+                <!-- STEP 4 – Payment -->
                 @if (currentStep() === 4) {
                     <app-payment-step
                             [date]="formatDate(store.selectedDate())"
@@ -202,8 +178,8 @@
 
                             [submitting]="submitting()"
                             (back)="previousStep()"
-                            (submit)="submitBooking()"
-                    />
+                            (submit)="submitBooking()">
+                    </app-payment-step>
                 }
             </div>
         }

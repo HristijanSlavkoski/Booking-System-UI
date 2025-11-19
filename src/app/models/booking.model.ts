@@ -1,21 +1,31 @@
 export interface Booking {
     id: string;
     gameId: string;
-    gameName?: string;
     userId?: string;
     bookingDate: Date;
     bookingTime: string;
-    playerCount: number;
     totalPrice: number;
-    currency: string;
+    currency?: string;
     status: BookingStatus;
     paymentMethod: PaymentMethod;
-    paymentStatus: PaymentStatus;
-    customerInfo: CustomerInfo;
+    customerFirstName?: string;
+    customerLastName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
     confirmationNumber: string;
     notes?: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt?: Date | string;
+    bookingGames?: BookingGame[];
+}
+
+export interface BookingGame {
+    id: string;
+    gameId: string;
+    gameName: string;
+    roomNumber: number;
+    playerCount: number;
+    price: number | null;
 }
 
 export enum BookingStatus {
@@ -29,20 +39,6 @@ export enum BookingStatus {
 export enum PaymentMethod {
     ONLINE = 'ONLINE',
     IN_PERSON = 'IN_PERSON'
-}
-
-export enum PaymentStatus {
-    PENDING = 'PENDING',
-    PAID = 'PAID',
-    FAILED = 'FAILED',
-    REFUNDED = 'REFUNDED'
-}
-
-export interface CustomerInfo {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
 }
 
 export interface BookingGameRequest {

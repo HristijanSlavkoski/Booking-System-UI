@@ -1,6 +1,5 @@
-<!-- src/app/shared/components/header/header.component.html -->
 <header class="header">
-    <div class="header-container">
+    <div class="header-container container">
         <div class="header-logo" (click)="navigateHome()">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
                 <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
@@ -17,50 +16,60 @@
         </div>
 
         <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Menu">
-            <svg *ngIf="!mobileMenuOpen" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg
+                    *ngIf="!mobileMenuOpen"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+            >
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
-            <svg *ngIf="mobileMenuOpen" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg
+                    *ngIf="mobileMenuOpen"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+            >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
 
         <nav class="nav-links" [class.mobile-open]="mobileMenuOpen" aria-label="Primary">
-            <a routerLink="/"
-               routerLinkActive="active"
-               [routerLinkActiveOptions]="{exact: true}"
-               (click)="closeMobileMenu()">
+            <a
+                    routerLink="/"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    (click)="closeMobileMenu()"
+            >
                 {{ 'nav.home' | translate }}
             </a>
 
-            <a routerLink="/games"
-               routerLinkActive="active"
-               (click)="closeMobileMenu()">
+            <a routerLink="/games" routerLinkActive="active" (click)="closeMobileMenu()">
                 {{ 'nav.games' | translate }}
             </a>
 
-            <a routerLink="/booking"
-               routerLinkActive="active"
-               (click)="closeMobileMenu()">
+            <a routerLink="/booking" routerLinkActive="active" (click)="closeMobileMenu()">
                 {{ 'nav.booking' | translate }}
             </a>
 
             @if (authService.isAuthenticated()) {
                 @if (isAdmin()) {
-                    <a routerLink="/admin"
-                       routerLinkActive="active"
-                       (click)="closeMobileMenu()">
+                    <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">
                         {{ 'nav.admin' | translate }}
                     </a>
                 }
-                <a routerLink="/profile"
-                   routerLinkActive="active"
-                   (click)="closeMobileMenu()">
+                <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">
                     {{ 'nav.profile' | translate }}
                 </a>
                 <div class="user-welcome">
@@ -70,10 +79,12 @@
                     {{ 'nav.logout' | translate }}
                 </button>
             } @else {
-                <a routerLink="/login"
-                   routerLinkActive="active"
-                   class="login-link"
-                   (click)="closeMobileMenu()">
+                <a
+                        routerLink="/login"
+                        routerLinkActive="active"
+                        class="login-link"
+                        (click)="closeMobileMenu()"
+                >
                     {{ 'nav.login' | translate }}
                 </a>
             }

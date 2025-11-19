@@ -1,23 +1,57 @@
 <!-- payment-methods.component.html -->
-<div class="payment-methods">
-    <label class="payment-method" [class.selected]="value === 'ONLINE'">
-        <input type="radio" [checked]="value === 'ONLINE'" (change)="set('ONLINE')"/>
+<div
+        class="payment-methods"
+        role="radiogroup"
+        aria-label="Payment method"
+>
+    <label
+            class="payment-method card card--selectable"
+            [class.selected]="value === 'ONLINE'"
+    >
+        <input
+                type="radio"
+                [checked]="value === 'ONLINE'"
+                (change)="set('ONLINE')"
+        />
         <div class="payment-content">
             <div class="payment-icon">💳</div>
             <div class="payment-info">
-                <div class="payment-title">{{ 'booking.payOnline' | translate : {default: 'Pay Online'} }}</div>
-                <div class="payment-desc">{{ 'booking.payOnlineDescription' | translate : {default: 'Secure payment via credit/debit card'} }}</div>
+                <div class="payment-title">
+                    {{ 'booking.payOnline' | translate : {default: 'Pay Online'} }}
+                </div>
+                <div class="payment-desc">
+                    {{
+                        'booking.payOnlineDescription'
+                            | translate
+                            : {default: 'Secure payment via credit/debit card'}
+                    }}
+                </div>
             </div>
         </div>
     </label>
 
-    <label class="payment-method" [class.selected]="value === PaymentMethod.IN_PERSON">
-        <input type="radio" [checked]="value === PaymentMethod.IN_PERSON" (change)="set(PaymentMethod.IN_PERSON)"/>
+    <label
+            class="payment-method card card--selectable"
+            [class.selected]="value === PaymentMethod.IN_PERSON"
+    >
+        <input
+                type="radio"
+                [checked]="value === PaymentMethod.IN_PERSON"
+                (change)="set(PaymentMethod.IN_PERSON)"
+        />
         <div class="payment-content">
             <div class="payment-icon">💵</div>
             <div class="payment-info">
-                <div class="payment-title">{{ 'booking.payAtVenue' | translate : {default: 'Pay at Venue'} }}</div>
-                <div class="payment-desc">{{ 'booking.payAtVenueDescription' | translate : {default: 'Pay when you arrive at the venue (Cash or Card)'} }}</div>
+                <div class="payment-title">
+                    {{ 'booking.payAtVenue' | translate : {default: 'Pay at Venue'} }}
+                </div>
+                <div class="payment-desc">
+                    {{
+                        'booking.payAtVenueDescription'
+                            | translate
+                            : {default: 'Pay when you arrive at the venue (Cash or Card)'}
+                    }}
+                </div>
             </div>
         </div>
     </label>

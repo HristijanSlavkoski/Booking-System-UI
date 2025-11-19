@@ -1,0 +1,62 @@
+// ===== TEXT UTILITIES =====
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+// ===== BACKGROUND UTILITIES =====
+.bg-primary {
+  background: var(--color-bg-primary);
+}
+
+.bg-secondary {
+  background: var(--color-bg-secondary);
+}
+
+.bg-card {
+  background: var(--color-bg-card);
+}
+
+// ===== BORDER / SHADOW / RADIUS =====
+.border {
+  border: 1px solid var(--color-border);
+}
+
+.border-light {
+  border: 1px solid var(--color-border-light);
+}
+
+.shadow {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}

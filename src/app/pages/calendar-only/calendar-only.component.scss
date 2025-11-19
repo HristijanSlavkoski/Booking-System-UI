@@ -1,46 +1,51 @@
-.calendar-only-page {
-  min-height: 100vh;
-  background: #0a0a0a;
-  padding: 2rem;
+:host {
+  display: block;
 }
 
+/* Page shell – aligned with other pages */
+.calendar-only-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  padding: var(--spacing-2xl) var(--spacing-md);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+}
+
+/* Optional header if you ever use it */
 .calendar-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: var(--font-weight-black);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 0.12em;
+
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+  }
 }
 
 .subtitle {
-  font-size: 1.125rem;
-  color: #aaa;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
-@media (max-width: 768px) {
-  .calendar-only-page {
-    padding: 1rem;
-  }
-  .title {
-    font-size: 1.75rem;
-  }
-  .subtitle {
-    font-size: 1rem;
-  }
-}
+/* ─────────────────────────────
+ * Game Picker Modal
+ * ──────────────────────────── */
 
-/* Game Picker Modal styles */
 .game-picker-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .6);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 1000;
 }
 
@@ -52,99 +57,152 @@
   width: min(900px, 96vw);
   max-height: 80vh;
   overflow: auto;
-  background: #121212;
-  border: 1px solid #2a2a2a;
-  border-radius: .75rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, .6);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
   z-index: 1001;
-  padding: 1rem;
+  padding: var(--spacing-lg);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
 }
 
 .gpm-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: .5rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .gpm-title {
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.2rem;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 1.1rem;
 }
 
 .gpm-close {
   background: transparent;
-  color: #aaa;
+  color: var(--color-text-muted);
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-full);
+  line-height: 1;
+  transition: color var(--transition-fast),
+  transform var(--transition-fast),
+  background var(--transition-fast);
+
+  &:hover {
+    color: var(--color-error);
+    background: var(--color-bg-card);
+    transform: scale(1.08);
+  }
+
+  &:active {
+    transform: scale(1);
+  }
+}
+
+/* Optional back button (if you wire it up) */
+.gpm-back {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color var(--transition-fast), transform var(--transition-fast),
+  background var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+    background: var(--color-bg-tertiary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 .gpm-list {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: var(--spacing-sm);
 }
 
 .gpm-item {
   display: flex;
-  gap: 1rem;
-  padding: .75rem;
-  border: 1px solid #2a2a2a;
-  border-radius: .5rem;
-  background: #1a1a1a;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
   cursor: pointer;
-  transition: .2s;
-}
+  transition: border-color var(--transition-fast), transform var(--transition-fast),
+  box-shadow var(--transition-fast);
 
-.gpm-item:hover {
-  border-color: #ec3f3a;
-  transform: translateY(-1px);
+  &:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
 }
 
 .gpm-item img {
   width: 72px;
   height: 72px;
   object-fit: cover;
-  border-radius: .5rem;
+  border-radius: var(--radius-md);
 }
 
 .gpm-meta {
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .gpm-name {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.95rem;
 }
 
 .gpm-sub {
-  color: #bbb;
-  font-size: .9rem;
-  margin-top: .15rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
 }
 
 .gpm-desc {
-  color: #aaa;
-  margin-top: .35rem;
-  font-size: .9rem;
+  color: var(--color-text-tertiary);
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
   line-height: 1.35;
 }
 
-.gpm-loading, .gpm-empty {
-  color: #aaa;
+.gpm-loading,
+.gpm-empty {
+  color: var(--color-text-secondary);
   text-align: center;
-  padding: 1rem;
+  padding: var(--spacing-md);
+  font-size: 0.9rem;
 }
-/* --- Selected Game chip (above calendar) --- */
+
+/* ─────────────────────────────
+ * Selected Game chip (above calendar)
+ * ──────────────────────────── */
+
 .selected-game-chip {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 0.9rem;
-  margin: 0 0 1rem 0;
-  background: #121212;
-  border: 1px solid #2a2a2a;
+  margin: 0 0 var(--spacing-md) 0;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
 
   img {
@@ -154,67 +212,78 @@
     border-radius: 0.35rem;
   }
 
-  .chip-meta { line-height: 1.2; }
-  .chip-name { color: #fff; font-weight: 700; }
-  .chip-sub  { color: #bbb; font-size: .9rem; }
+  .chip-meta {
+    line-height: 1.2;
+  }
+
+  .chip-name {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .chip-sub {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+  }
 }
 
-/* --- Inline Players header with back button + crumbs --- */
+/* ─────────────────────────────
+ * Inline Players header (for step='players' in iframe flow)
+ * ──────────────────────────── */
+
 .players-inline-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 0 0 1rem 0;
+  margin: 0 0 var(--spacing-md) 0;
 
   .back-btn {
     appearance: none;
-    border: 1px solid #2a2a2a;
-    background: #1a1a1a;
-    color: #eee;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
     padding: 0.5rem 0.75rem;
     border-radius: 0.5rem;
     cursor: pointer;
     line-height: 1;
-    transition: border-color .15s ease, transform .15s ease;
+    transition: border-color var(--transition-fast), transform var(--transition-fast),
+    background var(--transition-fast);
 
-    &:hover { border-color: #ec3f3a; transform: translateY(-1px); }
-    &:active { transform: translateY(0); }
+    &:hover {
+      border-color: var(--color-primary);
+      background: var(--color-bg-tertiary);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
   }
 
   .crumb {
-    color: #bbb;
-    font-size: .95rem;
-    span + span { margin-left: 0.5rem; }
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+
+    span + span {
+      margin-left: 0.5rem;
+    }
   }
 }
 
-/* --- Modal header: add a "back" button on the left to match your theme --- */
-.gpm-header {
-  gap: .5rem; /* keep your existing layout, just allow spacing */
-}
+/* ─────────────────────────────
+ * Shared step actions (if you need them here)
+ * ──────────────────────────── */
 
-.gpm-back {
-  background: transparent;
-  color: #eee;
-  border: 1px solid #2a2a2a;
-  padding: 0.35rem 0.6rem;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  line-height: 1;
-  transition: border-color .15s ease, transform .15s ease;
-
-  &:hover  { border-color: #ec3f3a; transform: translateY(-1px); }
-  &:active { transform: translateY(0); }
-}
 .step-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-md);
   justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #2a2a2a;
-}
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-border);
 
-/* --- Small polish for consistency --- */
-.calendar-header { margin-bottom: 1.25rem; } /* a bit tighter for embeds */
-.game-picker-modal { padding: 0.85rem; }     /* aligns with chip spacing */
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

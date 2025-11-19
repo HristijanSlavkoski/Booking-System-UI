@@ -1,46 +1,73 @@
-// src/app/pages/admin/dashboard/admin-dashboard.component.scss
-.admin-dashboard {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+/* src/app/pages/admin/dashboard/admin-dashboard.component.scss */
+
+:host {
+  display: block;
 }
 
+/* Outer wrapper inside admin-content-inner */
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+}
+
+/* ─────────────────────────────
+ * Header
+ * ──────────────────────────── */
+
 .dashboard-header {
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .dashboard-header h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #111827;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: var(--font-weight-black);
+  color: var(--color-text-primary);
+
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+  }
 }
 
 .dashboard-header p {
-  color: #6b7280;
-  font-size: 1.125rem;
   margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.98rem;
 }
+
+/* ─────────────────────────────
+ * Stats Grid
+ * ──────────────────────────── */
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--spacing-lg);
 }
 
 .stat-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-icon {
-  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .stat-content {
@@ -48,38 +75,61 @@
 }
 
 .stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
 }
 
 .stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
+  font-size: 1.7rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
-.dashboard-actions,
-.recent-bookings {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+/* ─────────────────────────────
+ * Quick Actions
+ * ──────────────────────────── */
+
+.dashboard-actions {
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
-.dashboard-actions h2,
-.recent-bookings h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 1.5rem 0;
+.dashboard-actions h2 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* ─────────────────────────────
+ * Recent bookings
+ * ──────────────────────────── */
+
+.recent-bookings {
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.recent-bookings h2 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .bookings-table {
@@ -89,74 +139,93 @@
 table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.88rem;
 }
 
 thead {
-  background: #f9fafb;
+  background: var(--color-bg-secondary);
 }
 
-th, td {
-  padding: 1rem;
+th,
+td {
+  padding: 0.75rem 0.9rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 th {
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 td {
-  color: #6b7280;
-  font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
+
+/* ─────────────────────────────
+ * Status / Payment badges
+ * ──────────────────────────── */
 
 .status-badge,
 .payment-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.status-badge.confirmed {
-  background: #d1fae5;
-  color: #065f46;
+/* Status variants */
+.status-confirmed {
+  background: color-mix(in srgb, var(--color-success) 14%, transparent);
+  color: var(--color-success);
+  border: 1px solid color-mix(in srgb, var(--color-success) 40%, transparent);
 }
 
-.status-badge.pending {
-  background: #fef3c7;
-  color: #92400e;
+.status-pending {
+  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  color: var(--color-warning);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 40%, transparent);
 }
 
-.status-badge.cancelled {
-  background: #fee2e2;
-  color: #991b1b;
+.status-cancelled {
+  background: color-mix(in srgb, var(--color-error) 14%, transparent);
+  color: var(--color-error);
+  border: 1px solid color-mix(in srgb, var(--color-error) 40%, transparent);
 }
 
-.payment-badge.paid {
-  background: #d1fae5;
-  color: #065f46;
+/* Payment variants */
+.payment-paid {
+  background: color-mix(in srgb, var(--color-success) 14%, transparent);
+  color: var(--color-success);
+  border: 1px solid color-mix(in srgb, var(--color-success) 40%, transparent);
 }
 
-.payment-badge.pending {
-  background: #fef3c7;
-  color: #92400e;
+.payment-pending {
+  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  color: var(--color-warning);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 40%, transparent);
 }
+
+/* Empty state */
 
 .empty-message {
   text-align: center;
-  color: #6b7280;
-  padding: 2rem;
+  color: var(--color-text-muted);
+  padding: var(--spacing-xl);
+  font-size: 0.95rem;
 }
 
-@media (max-width: 768px) {
-  .dashboard-header h1 {
-    font-size: 1.75rem;
-  }
+/* Responsive tweaks */
 
+@media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,57 @@
+<div class="auth-page">
+    <div class="auth-container">
+        <section class="card auth-card">
+            <header class="auth-header">
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your account</p>
+            </header>
+
+            <form class="auth-form" (ngSubmit)="login()">
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input
+                            id="email"
+                            type="email"
+                            [(ngModel)]="credentials.email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                            class="auth-input"
+                    />
+                </div>
+
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <input
+                            id="password"
+                            type="password"
+                            [(ngModel)]="credentials.password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                            class="auth-input"
+                    />
+                </div>
+
+                <app-button
+                        type="submit"
+                        [fullWidth]="true"
+                        [loading]="loading()"
+                        [disabled]="!isFormValid()"
+                >
+                    Sign In
+                </app-button>
+            </form>
+
+            <footer class="auth-footer">
+                <p>
+                    Don't have an account?
+                    <a routerLink="/register">Sign up</a>
+                </p>
+                <p>
+                    <a routerLink="/booking">Continue as guest</a>
+                </p>
+            </footer>
+        </section>
+    </div>
+</div>

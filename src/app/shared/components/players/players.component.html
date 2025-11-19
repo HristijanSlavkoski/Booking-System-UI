@@ -45,10 +45,10 @@
                         <!-- per-person price (VAT included) once a choice is made AND promotion meta is loaded -->
                         @if (players() && !promotionLoading()) {
                             <div class="per-person-line">
-                <span class="label">
-                  {{ 'players.pricePerPerson' | translate:{default: 'Price per person'} }}
-                    ({{ 'players.vatIncluded' | translate:{default: 'incl. VAT'} }})
-                </span>
+                                <span class="label">
+                                  {{ 'players.pricePerPerson' | translate:{default: 'Price per person'} }}
+                                    ({{ 'players.vatIncluded' | translate:{default: 'incl. VAT'} }})
+                                </span>
                                 <span class="value">{{ pricePerPersonInclVat() | number:'1.0-0' }} MKD</span>
                             </div>
                         }

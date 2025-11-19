@@ -62,6 +62,15 @@ export class ApiService {
         );
     }
 
+    patch<T>(url: string, body: any): Observable<T> {
+        return this.http.patch<T>(`${this.baseUrl}${url}`, body, {
+            headers: this.getAuthHeaders()
+        }).pipe(
+            timeout(environment.apiTimeout || 30000),
+            catchError(this.handleError)
+        );
+    }
+
     private createParams(params: any): HttpParams {
         let httpParams = new HttpParams();
         if (params) {

@@ -1,0 +1,164 @@
+:host {
+  display: block;
+}
+
+.my-bookings-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  padding: var(--spacing-2xl) var(--spacing-md);
+}
+
+.bookings-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-title {
+  text-align: center;
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.bookings-list {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-sm);
+}
+
+.booking-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.booking-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.booking-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.booking-status-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-end;
+}
+
+.status-badge,
+.payment-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid transparent;
+}
+
+/* Status variants */
+.status-badge.confirmed {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+}
+
+.status-badge.pending {
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 40%, transparent);
+}
+
+.status-badge.cancelled,
+.status-badge.canceled {
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 40%, transparent);
+}
+
+/* Payment variants */
+.payment-badge.paid {
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+}
+
+.payment-badge.unpaid,
+.payment-badge.pending {
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 40%, transparent);
+}
+
+.payment-badge.refunded {
+  background: color-mix(in srgb, var(--color-info) 10%, transparent);
+  color: var(--color-info);
+  border-color: color-mix(in srgb, var(--color-info) 40%, transparent);
+}
+
+.booking-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.booking-line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  font-size: 0.95rem;
+}
+
+.booking-line .label {
+  color: var(--color-text-secondary);
+}
+
+.booking-line .value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.booking-line .value.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--spacing-2xl);
+}
+
+@media (max-width: 768px) {
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .booking-status-block {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+}

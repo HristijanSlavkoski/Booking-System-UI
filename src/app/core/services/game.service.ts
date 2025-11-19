@@ -36,4 +36,8 @@ export class GameService {
   deleteGame(id: string): Observable<void> {
     return this.apiService.delete<void>(`/games/${id}`);
   }
+
+  deactivateGame(id: string): Observable<void> {
+    return this.apiService.patch<void>(`/games/${id}/deactivate`, {});
+  }
 }

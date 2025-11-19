@@ -1,4 +1,8 @@
-<div class="loading-container" [class.fullscreen]="fullscreen">
+<div
+        class="loading-container"
+        [class.fullscreen]="fullscreen"
+        role="status"
+        aria-live="polite">
     <div class="spinner" [class.large]="size === 'large'"></div>
     <p *ngIf="message" class="loading-message">{{ message }}</p>
 </div>

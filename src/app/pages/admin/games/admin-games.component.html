@@ -1,0 +1,268 @@
+<!-- src/app/pages/admin/games/admin-games.component.html -->
+<div class="admin-games">
+    <div class="admin-games-header">
+        <div>
+            <h1>Games</h1>
+            <p>Manage the VR experiences available for booking.</p>
+        </div>
+
+        <app-button variant="primary" (clicked)="startCreate()">
+            + New Game
+        </app-button>
+    </div>
+
+    @if (loading()) {
+        <app-loading [message]="'admin.games.loading' | translate : { default: 'Loading games…' }"></app-loading>
+    } @else {
+
+        @if (showForm()) {
+            <div class="card game-form-card">
+                <div class="game-form-header">
+                    <h2>{{ editingId() ? 'Edit Game' : 'Create Game' }}</h2>
+                    <p>
+                        {{ editingId() ? 'Update game details and availability.' : 'Add a new VR escape experience.' }}
+                    </p>
+                </div>
+
+                <form (ngSubmit)="saveGame()" class="game-form">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="name">Name</label>
+                            <input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.name"
+                                    required
+                            />
+                        </div>
+
+                        <div class="form-field">
+                            <label for="code">Code (URL slug)</label>
+                            <input
+                                    id="code"
+                                    name="code"
+                                    type="text"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.code"
+                                    required
+                            />
+                        </div>
+
+                        <div class="form-field">
+                            <label for="duration">Duration (minutes)</label>
+                            <input
+                                    id="duration"
+                                    name="duration"
+                                    type="number"
+                                    min="10"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.duration"
+                                    required
+                            />
+                        </div>
+
+                        <div class="form-field">
+                            <label for="difficulty">Difficulty</label>
+                            <select
+                                    id="difficulty"
+                                    name="difficulty"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.difficulty"
+                                    required
+                            >
+                                <option [ngValue]="1">Very Easy</option>
+                                <option [ngValue]="2">Easy</option>
+                                <option [ngValue]="3">Medium</option>
+                                <option [ngValue]="4">Hard</option>
+                                <option [ngValue]="5">Expert</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="minPlayers">Min Players</label>
+                            <input
+                                    id="minPlayers"
+                                    name="minPlayers"
+                                    type="number"
+                                    min="1"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.minPlayers"
+                                    required
+                            />
+                        </div>
+
+                        <div class="form-field">
+                            <label for="maxPlayers">Max Players</label>
+                            <input
+                                    id="maxPlayers"
+                                    name="maxPlayers"
+                                    type="number"
+                                    min="1"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.maxPlayers"
+                                    required
+                            />
+                        </div>
+
+                        <div class="form-field">
+                            <label for="imageUrl">Image URL</label>
+                            <input
+                                    id="imageUrl"
+                                    name="imageUrl"
+                                    type="url"
+                                    class="form-input"
+                                    [(ngModel)]="formModel.imageUrl"
+                            />
+                        </div>
+
+                        <div class="form-field form-field-inline">
+                            <label class="checkbox-label">
+                                <input
+                                        type="checkbox"
+                                        name="isActive"
+                                        [(ngModel)]="formModel.active"
+                                />
+                                <span>Active</span>
+                            </label>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="shortDescription">Short Description</label>
+                            <textarea
+                                    id="shortDescription"
+                                    name="shortDescription"
+                                    class="form-input"
+                                    rows="2"
+                                    [(ngModel)]="formModel.shortDescription"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="description">Full Description</label>
+                            <textarea
+                                    id="description"
+                                    name="description"
+                                    class="form-input"
+                                    rows="4"
+                                    [(ngModel)]="formModel.description"
+                                    required
+                            ></textarea>
+                        </div>
+
+                        <div class="form-field form-field-full">
+                            <label for="tags">Tags (comma separated)</label>
+                            <input
+                                    id="tags"
+                                    name="tags"
+                                    type="text"
+                                    class="form-input"
+                                    [ngModel]="tagsInput()"
+                                    (ngModelChange)="tagsInput.set($event)"
+                                    placeholder="horror, sci-fi, family, beginners"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <app-button variant="outline" (clicked)="cancelForm()" [disabled]="saving()">
+                            Cancel
+                        </app-button>
+                        <app-button
+                                type="submit"
+                                [loading]="saving()"
+                                [disabled]="!isFormValid() || saving()"
+                        >
+                            {{ editingId() ? 'Save Changes' : 'Create Game' }}
+                        </app-button>
+                    </div>
+                </form>
+            </div>
+        }
+
+        @if (games().length > 0) {
+            <div class="card game-list-card">
+                <div class="game-list-header">
+                    <h2>All Games</h2>
+                    <p>Overview of all configured VR escape experiences.</p>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Game</th>
+                            <th>Difficulty</th>
+                            <th>Duration</th>
+                            <th>Players</th>
+                            <th>Status</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @for (game of games(); track game.id) {
+                                <tr>
+                                    <td>
+                                        <div class="game-main-cell">
+                                            <div class="game-title-cell">
+                                                <div class="title">{{ game.name }}</div>
+                                                <div class="code">/{{ game.code }}</div>
+                                            </div>
+                                            @if (game.shortDescription) {
+                                                <div class="subtitle">
+                                                    {{ game.shortDescription }}
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                  <span class="difficulty-chip" [ngClass]="getDifficultyClass(game.difficulty)">
+                    {{ getDifficultyLabel(game.difficulty) }}
+                  </span>
+                                    </td>
+                                    <td>{{ game.duration }} min</td>
+                                    <td>{{ game.minPlayers }}–{{ game.maxPlayers }}</td>
+                                    <td>
+                  <span
+                          class="status-chip"
+                          [class.status-active]="isActive(game)"
+                          [class.status-inactive]="!isActive(game)"
+                  >
+                    {{ isActive(game) ? 'Active' : 'Inactive' }}
+                  </span>
+                                    </td>
+                                    <td class="actions-col">
+                                        <div class="actions-inline">
+                                            <button type="button" class="link-btn" (click)="startEdit(game)">
+                                                Edit
+                                            </button>
+                                            <button
+                                                    type="button"
+                                                    class="link-btn"
+                                                    (click)="toggleActive(game)"
+                                            >
+                                                {{ isActive(game) ? 'Deactivate' : 'Activate' }}
+                                            </button>
+                                            <button
+                                                    type="button"
+                                                    class="link-btn destructive"
+                                                    (click)="deleteGame(game)"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        } @else {
+            <div class="card empty-card">
+                <p>No games configured yet. Click “New Game” to add your first experience.</p>
+            </div>
+        }
+    }
+</div>
